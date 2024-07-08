@@ -1,0 +1,506 @@
+env is MPE, scenario is simple_reference, algo is rmappo, exp is check, max seed is 5
+seed is 1:
+u are choosing to use rmappo, we set use_recurrent_policy to be True
+choose to use cpu...
+Continual Flag is:  0
+False
+share_observation_space:  [Box(42,), Box(42,)]
+observation_space:  [Box(21,), Box(21,)]
+action_space:  [MultiDiscrete2, MultiDiscrete2]
+Trainer appended
+1
+Trainer appended
+2
+
+ Scenario simple_reference Algo rmappo Exp check updates 0/100 episodes, total num timesteps 3200/320000, FPS 1041.
+
+average episode rewards is -70.62917947769165
+False
+
+ Scenario simple_reference Algo rmappo Exp check updates 5/100 episodes, total num timesteps 19200/320000, FPS 1249.
+
+average episode rewards is -41.20209217071533
+
+ Scenario simple_reference Algo rmappo Exp check updates 10/100 episodes, total num timesteps 35200/320000, FPS 1278.
+
+average episode rewards is -35.95499098300934
+
+ Scenario simple_reference Algo rmappo Exp check updates 15/100 episodes, total num timesteps 51200/320000, FPS 1273.
+
+average episode rewards is -33.90643298625946
+
+ Scenario simple_reference Algo rmappo Exp check updates 20/100 episodes, total num timesteps 67200/320000, FPS 1270.
+
+average episode rewards is -30.41245937347412
+
+ Scenario simple_reference Algo rmappo Exp check updates 25/100 episodes, total num timesteps 83200/320000, FPS 1279.
+
+average episode rewards is -27.852290868759155
+
+ Scenario simple_reference Algo rmappo Exp check updates 30/100 episodes, total num timesteps 99200/320000, FPS 1285.
+
+average episode rewards is -27.000737190246582
+
+ Scenario simple_reference Algo rmappo Exp check updates 35/100 episodes, total num timesteps 115200/320000, FPS 1288.
+
+average episode rewards is -25.714927911758423
+
+ Scenario simple_reference Algo rmappo Exp check updates 40/100 episodes, total num timesteps 131200/320000, FPS 1292.
+
+average episode rewards is -24.200616776943207
+
+ Scenario simple_reference Algo rmappo Exp check updates 45/100 episodes, total num timesteps 147200/320000, FPS 1294.
+
+average episode rewards is -25.048089027404785
+
+ Scenario simple_reference Algo rmappo Exp check updates 50/100 episodes, total num timesteps 163200/320000, FPS 1292.
+
+average episode rewards is -23.89255464076996
+
+ Scenario simple_reference Algo rmappo Exp check updates 55/100 episodes, total num timesteps 179200/320000, FPS 1269.
+
+average episode rewards is -25.392302870750427
+
+ Scenario simple_reference Algo rmappo Exp check updates 60/100 episodes, total num timesteps 195200/320000, FPS 1257.
+
+average episode rewards is -25.519049167633057
+
+ Scenario simple_reference Algo rmappo Exp check updates 65/100 episodes, total num timesteps 211200/320000, FPS 1261.
+
+average episode rewards is -21.200883388519287
+
+ Scenario simple_reference Algo rmappo Exp check updates 70/100 episodes, total num timesteps 227200/320000, FPS 1266.
+
+average episode rewards is -23.091168701648712
+
+ Scenario simple_reference Algo rmappo Exp check updates 75/100 episodes, total num timesteps 243200/320000, FPS 1269.
+
+average episode rewards is -22.85984456539154
+
+ Scenario simple_reference Algo rmappo Exp check updates 80/100 episodes, total num timesteps 259200/320000, FPS 1272.
+
+average episode rewards is -20.794877409934998
+
+ Scenario simple_reference Algo rmappo Exp check updates 85/100 episodes, total num timesteps 275200/320000, FPS 1275.
+
+average episode rewards is -25.232329964637756
+
+ Scenario simple_reference Algo rmappo Exp check updates 90/100 episodes, total num timesteps 291200/320000, FPS 1277.
+
+average episode rewards is -22.855134308338165
+
+ Scenario simple_reference Algo rmappo Exp check updates 95/100 episodes, total num timesteps 307200/320000, FPS 1280.
+
+average episode rewards is -22.327713668346405
+Biases for Agent 0 and team 1
+tensor([ 0.0246,  0.0211, -0.0310,  0.0013, -0.0794,  0.0270,  0.0188,  0.0320,
+        -0.0010,  0.0323])
+Biases for Agent 1 and team 1
+tensor([-0.0638, -0.0087, -0.0578, -0.0019, -0.0608, -0.0183,  0.0414,  0.0642,
+         0.0480,  0.0508])
+TEAM SAVED
+seed is 2:
+u are choosing to use rmappo, we set use_recurrent_policy to be True
+choose to use cpu...
+Continual Flag is:  0
+False
+share_observation_space:  [Box(42,), Box(42,)]
+observation_space:  [Box(21,), Box(21,)]
+action_space:  [MultiDiscrete2, MultiDiscrete2]
+Trainer appended
+1
+Trainer appended
+2
+
+ Scenario simple_reference Algo rmappo Exp check updates 0/100 episodes, total num timesteps 3200/320000, FPS 1005.
+
+average episode rewards is -72.95069098472595
+False
+
+ Scenario simple_reference Algo rmappo Exp check updates 5/100 episodes, total num timesteps 19200/320000, FPS 1069.
+
+average episode rewards is -38.84871006011963
+
+ Scenario simple_reference Algo rmappo Exp check updates 10/100 episodes, total num timesteps 35200/320000, FPS 1084.
+
+average episode rewards is -33.41203033924103
+
+ Scenario simple_reference Algo rmappo Exp check updates 15/100 episodes, total num timesteps 51200/320000, FPS 1098.
+
+average episode rewards is -32.68666863441467
+
+ Scenario simple_reference Algo rmappo Exp check updates 20/100 episodes, total num timesteps 67200/320000, FPS 1143.
+
+average episode rewards is -28.345566987991333
+
+ Scenario simple_reference Algo rmappo Exp check updates 25/100 episodes, total num timesteps 83200/320000, FPS 1175.
+
+average episode rewards is -26.362761855125427
+
+ Scenario simple_reference Algo rmappo Exp check updates 30/100 episodes, total num timesteps 99200/320000, FPS 1197.
+
+average episode rewards is -26.51146650314331
+
+ Scenario simple_reference Algo rmappo Exp check updates 35/100 episodes, total num timesteps 115200/320000, FPS 1214.
+
+average episode rewards is -28.54919731616974
+
+ Scenario simple_reference Algo rmappo Exp check updates 40/100 episodes, total num timesteps 131200/320000, FPS 1228.
+
+average episode rewards is -24.60010200738907
+
+ Scenario simple_reference Algo rmappo Exp check updates 45/100 episodes, total num timesteps 147200/320000, FPS 1238.
+
+average episode rewards is -25.4128634929657
+
+ Scenario simple_reference Algo rmappo Exp check updates 50/100 episodes, total num timesteps 163200/320000, FPS 1244.
+
+average episode rewards is -26.672980189323425
+
+ Scenario simple_reference Algo rmappo Exp check updates 55/100 episodes, total num timesteps 179200/320000, FPS 1251.
+
+average episode rewards is -23.43253344297409
+
+ Scenario simple_reference Algo rmappo Exp check updates 60/100 episodes, total num timesteps 195200/320000, FPS 1257.
+
+average episode rewards is -20.703381299972534
+
+ Scenario simple_reference Algo rmappo Exp check updates 65/100 episodes, total num timesteps 211200/320000, FPS 1257.
+
+average episode rewards is -22.41358608007431
+
+ Scenario simple_reference Algo rmappo Exp check updates 70/100 episodes, total num timesteps 227200/320000, FPS 1257.
+
+average episode rewards is -22.936832904815674
+
+ Scenario simple_reference Algo rmappo Exp check updates 75/100 episodes, total num timesteps 243200/320000, FPS 1262.
+
+average episode rewards is -21.148139238357544
+
+ Scenario simple_reference Algo rmappo Exp check updates 80/100 episodes, total num timesteps 259200/320000, FPS 1266.
+
+average episode rewards is -23.026733100414276
+
+ Scenario simple_reference Algo rmappo Exp check updates 85/100 episodes, total num timesteps 275200/320000, FPS 1269.
+
+average episode rewards is -22.47825413942337
+
+ Scenario simple_reference Algo rmappo Exp check updates 90/100 episodes, total num timesteps 291200/320000, FPS 1272.
+
+average episode rewards is -23.426464200019836
+
+ Scenario simple_reference Algo rmappo Exp check updates 95/100 episodes, total num timesteps 307200/320000, FPS 1276.
+
+average episode rewards is -23.51875752210617
+Biases for Agent 0 and team 2
+tensor([ 0.0026,  0.0062, -0.0069,  0.0309, -0.0227, -0.0312, -0.0183, -0.0082,
+         0.0258,  0.0528])
+Biases for Agent 1 and team 2
+tensor([-0.0044, -0.0198, -0.0170,  0.0333, -0.0316,  0.0010, -0.0188,  0.0529,
+        -0.0050, -0.0143])
+TEAM SAVED
+seed is 3:
+u are choosing to use rmappo, we set use_recurrent_policy to be True
+choose to use cpu...
+Continual Flag is:  0
+False
+share_observation_space:  [Box(42,), Box(42,)]
+observation_space:  [Box(21,), Box(21,)]
+action_space:  [MultiDiscrete2, MultiDiscrete2]
+Trainer appended
+1
+Trainer appended
+2
+
+ Scenario simple_reference Algo rmappo Exp check updates 0/100 episodes, total num timesteps 3200/320000, FPS 1071.
+
+average episode rewards is -71.70570492744446
+False
+
+ Scenario simple_reference Algo rmappo Exp check updates 5/100 episodes, total num timesteps 19200/320000, FPS 1247.
+
+average episode rewards is -39.70845341682434
+
+ Scenario simple_reference Algo rmappo Exp check updates 10/100 episodes, total num timesteps 35200/320000, FPS 1282.
+
+average episode rewards is -37.938323616981506
+
+ Scenario simple_reference Algo rmappo Exp check updates 15/100 episodes, total num timesteps 51200/320000, FPS 1296.
+
+average episode rewards is -31.958794593811035
+
+ Scenario simple_reference Algo rmappo Exp check updates 20/100 episodes, total num timesteps 67200/320000, FPS 1308.
+
+average episode rewards is -29.945650696754456
+
+ Scenario simple_reference Algo rmappo Exp check updates 25/100 episodes, total num timesteps 83200/320000, FPS 1321.
+
+average episode rewards is -26.338648796081543
+
+ Scenario simple_reference Algo rmappo Exp check updates 30/100 episodes, total num timesteps 99200/320000, FPS 1324.
+
+average episode rewards is -26.69180929660797
+
+ Scenario simple_reference Algo rmappo Exp check updates 35/100 episodes, total num timesteps 115200/320000, FPS 1321.
+
+average episode rewards is -25.903719663619995
+
+ Scenario simple_reference Algo rmappo Exp check updates 40/100 episodes, total num timesteps 131200/320000, FPS 1324.
+
+average episode rewards is -25.110167264938354
+
+ Scenario simple_reference Algo rmappo Exp check updates 45/100 episodes, total num timesteps 147200/320000, FPS 1326.
+
+average episode rewards is -24.00389313697815
+
+ Scenario simple_reference Algo rmappo Exp check updates 50/100 episodes, total num timesteps 163200/320000, FPS 1321.
+
+average episode rewards is -23.291438817977905
+
+ Scenario simple_reference Algo rmappo Exp check updates 55/100 episodes, total num timesteps 179200/320000, FPS 1319.
+
+average episode rewards is -23.677439987659454
+
+ Scenario simple_reference Algo rmappo Exp check updates 60/100 episodes, total num timesteps 195200/320000, FPS 1311.
+
+average episode rewards is -21.5693399310112
+
+ Scenario simple_reference Algo rmappo Exp check updates 65/100 episodes, total num timesteps 211200/320000, FPS 1309.
+
+average episode rewards is -24.65510219335556
+
+ Scenario simple_reference Algo rmappo Exp check updates 70/100 episodes, total num timesteps 227200/320000, FPS 1306.
+
+average episode rewards is -24.27125722169876
+
+ Scenario simple_reference Algo rmappo Exp check updates 75/100 episodes, total num timesteps 243200/320000, FPS 1301.
+
+average episode rewards is -23.272956907749176
+
+ Scenario simple_reference Algo rmappo Exp check updates 80/100 episodes, total num timesteps 259200/320000, FPS 1283.
+
+average episode rewards is -26.295170187950134
+
+ Scenario simple_reference Algo rmappo Exp check updates 85/100 episodes, total num timesteps 275200/320000, FPS 1271.
+
+average episode rewards is -24.47483390569687
+
+ Scenario simple_reference Algo rmappo Exp check updates 90/100 episodes, total num timesteps 291200/320000, FPS 1258.
+
+average episode rewards is -22.94667661190033
+
+ Scenario simple_reference Algo rmappo Exp check updates 95/100 episodes, total num timesteps 307200/320000, FPS 1244.
+
+average episode rewards is -21.621717512607574
+Biases for Agent 0 and team 3
+tensor([-0.0573,  0.0243, -0.0061,  0.0016,  0.0211,  0.0040,  0.0162, -0.0259,
+         0.0490, -0.0320])
+Biases for Agent 1 and team 3
+tensor([ 0.0455,  0.0499, -0.0561, -0.0196, -0.0126, -0.0597,  0.0183, -0.0011,
+        -0.0252,  0.0752])
+TEAM SAVED
+seed is 4:
+u are choosing to use rmappo, we set use_recurrent_policy to be True
+choose to use cpu...
+Continual Flag is:  0
+False
+share_observation_space:  [Box(42,), Box(42,)]
+observation_space:  [Box(21,), Box(21,)]
+action_space:  [MultiDiscrete2, MultiDiscrete2]
+Trainer appended
+1
+Trainer appended
+2
+
+ Scenario simple_reference Algo rmappo Exp check updates 0/100 episodes, total num timesteps 3200/320000, FPS 854.
+
+average episode rewards is -69.52332854270935
+False
+
+ Scenario simple_reference Algo rmappo Exp check updates 5/100 episodes, total num timesteps 19200/320000, FPS 894.
+
+average episode rewards is -42.25830137729645
+
+ Scenario simple_reference Algo rmappo Exp check updates 10/100 episodes, total num timesteps 35200/320000, FPS 900.
+
+average episode rewards is -37.03242242336273
+
+ Scenario simple_reference Algo rmappo Exp check updates 15/100 episodes, total num timesteps 51200/320000, FPS 902.
+
+average episode rewards is -33.630844950675964
+
+ Scenario simple_reference Algo rmappo Exp check updates 20/100 episodes, total num timesteps 67200/320000, FPS 906.
+
+average episode rewards is -29.585570096969604
+
+ Scenario simple_reference Algo rmappo Exp check updates 25/100 episodes, total num timesteps 83200/320000, FPS 907.
+
+average episode rewards is -28.72193455696106
+
+ Scenario simple_reference Algo rmappo Exp check updates 30/100 episodes, total num timesteps 99200/320000, FPS 908.
+
+average episode rewards is -26.57458782196045
+
+ Scenario simple_reference Algo rmappo Exp check updates 35/100 episodes, total num timesteps 115200/320000, FPS 909.
+
+average episode rewards is -24.414551258087158
+
+ Scenario simple_reference Algo rmappo Exp check updates 40/100 episodes, total num timesteps 131200/320000, FPS 909.
+
+average episode rewards is -25.988081097602844
+
+ Scenario simple_reference Algo rmappo Exp check updates 45/100 episodes, total num timesteps 147200/320000, FPS 909.
+
+average episode rewards is -27.297860383987427
+
+ Scenario simple_reference Algo rmappo Exp check updates 50/100 episodes, total num timesteps 163200/320000, FPS 910.
+
+average episode rewards is -24.227723479270935
+
+ Scenario simple_reference Algo rmappo Exp check updates 55/100 episodes, total num timesteps 179200/320000, FPS 901.
+
+average episode rewards is -24.225521087646484
+
+ Scenario simple_reference Algo rmappo Exp check updates 60/100 episodes, total num timesteps 195200/320000, FPS 900.
+
+average episode rewards is -24.17432963848114
+
+ Scenario simple_reference Algo rmappo Exp check updates 65/100 episodes, total num timesteps 211200/320000, FPS 904.
+
+average episode rewards is -23.344306647777557
+
+ Scenario simple_reference Algo rmappo Exp check updates 70/100 episodes, total num timesteps 227200/320000, FPS 908.
+
+average episode rewards is -25.0520259141922
+
+ Scenario simple_reference Algo rmappo Exp check updates 75/100 episodes, total num timesteps 243200/320000, FPS 911.
+
+average episode rewards is -23.774711787700653
+
+ Scenario simple_reference Algo rmappo Exp check updates 80/100 episodes, total num timesteps 259200/320000, FPS 914.
+
+average episode rewards is -23.554207384586334
+
+ Scenario simple_reference Algo rmappo Exp check updates 85/100 episodes, total num timesteps 275200/320000, FPS 916.
+
+average episode rewards is -23.346348106861115
+
+ Scenario simple_reference Algo rmappo Exp check updates 90/100 episodes, total num timesteps 291200/320000, FPS 918.
+
+average episode rewards is -23.110415041446686
+
+ Scenario simple_reference Algo rmappo Exp check updates 95/100 episodes, total num timesteps 307200/320000, FPS 921.
+
+average episode rewards is -23.218558728694916
+Biases for Agent 0 and team 4
+tensor([ 0.0323, -0.0066,  0.0019,  0.0149,  0.0112, -0.0711,  0.0242,  0.0112,
+        -0.0572,  0.0173])
+Biases for Agent 1 and team 4
+tensor([ 1.9842e-02,  2.9728e-02,  7.5166e-05,  2.1411e-02, -3.6137e-02,
+        -7.3508e-03, -8.9616e-02,  4.5598e-02, -3.3387e-02,  5.2136e-02])
+TEAM SAVED
+seed is 5:
+u are choosing to use rmappo, we set use_recurrent_policy to be True
+choose to use cpu...
+Continual Flag is:  0
+False
+share_observation_space:  [Box(42,), Box(42,)]
+observation_space:  [Box(21,), Box(21,)]
+action_space:  [MultiDiscrete2, MultiDiscrete2]
+Trainer appended
+1
+Trainer appended
+2
+
+ Scenario simple_reference Algo rmappo Exp check updates 0/100 episodes, total num timesteps 3200/320000, FPS 806.
+
+average episode rewards is -68.83848309516907
+False
+
+ Scenario simple_reference Algo rmappo Exp check updates 5/100 episodes, total num timesteps 19200/320000, FPS 877.
+
+average episode rewards is -38.49879205226898
+
+ Scenario simple_reference Algo rmappo Exp check updates 10/100 episodes, total num timesteps 35200/320000, FPS 897.
+
+average episode rewards is -37.5447154045105
+
+ Scenario simple_reference Algo rmappo Exp check updates 15/100 episodes, total num timesteps 51200/320000, FPS 905.
+
+average episode rewards is -34.60664749145508
+
+ Scenario simple_reference Algo rmappo Exp check updates 20/100 episodes, total num timesteps 67200/320000, FPS 914.
+
+average episode rewards is -30.26767671108246
+
+ Scenario simple_reference Algo rmappo Exp check updates 25/100 episodes, total num timesteps 83200/320000, FPS 918.
+
+average episode rewards is -29.363587498664856
+
+ Scenario simple_reference Algo rmappo Exp check updates 30/100 episodes, total num timesteps 99200/320000, FPS 925.
+
+average episode rewards is -25.004538893699646
+
+ Scenario simple_reference Algo rmappo Exp check updates 35/100 episodes, total num timesteps 115200/320000, FPS 931.
+
+average episode rewards is -24.649566411972046
+
+ Scenario simple_reference Algo rmappo Exp check updates 40/100 episodes, total num timesteps 131200/320000, FPS 934.
+
+average episode rewards is -25.866004824638367
+
+ Scenario simple_reference Algo rmappo Exp check updates 45/100 episodes, total num timesteps 147200/320000, FPS 937.
+
+average episode rewards is -25.9357750415802
+
+ Scenario simple_reference Algo rmappo Exp check updates 50/100 episodes, total num timesteps 163200/320000, FPS 938.
+
+average episode rewards is -26.410311460494995
+
+ Scenario simple_reference Algo rmappo Exp check updates 55/100 episodes, total num timesteps 179200/320000, FPS 940.
+
+average episode rewards is -23.268510401248932
+
+ Scenario simple_reference Algo rmappo Exp check updates 60/100 episodes, total num timesteps 195200/320000, FPS 942.
+
+average episode rewards is -21.601177752017975
+
+ Scenario simple_reference Algo rmappo Exp check updates 65/100 episodes, total num timesteps 211200/320000, FPS 944.
+
+average episode rewards is -24.091582000255585
+
+ Scenario simple_reference Algo rmappo Exp check updates 70/100 episodes, total num timesteps 227200/320000, FPS 944.
+
+average episode rewards is -22.95835316181183
+
+ Scenario simple_reference Algo rmappo Exp check updates 75/100 episodes, total num timesteps 243200/320000, FPS 946.
+
+average episode rewards is -25.727209448814392
+
+ Scenario simple_reference Algo rmappo Exp check updates 80/100 episodes, total num timesteps 259200/320000, FPS 946.
+
+average episode rewards is -22.951096296310425
+
+ Scenario simple_reference Algo rmappo Exp check updates 85/100 episodes, total num timesteps 275200/320000, FPS 946.
+
+average episode rewards is -23.626381158828735
+
+ Scenario simple_reference Algo rmappo Exp check updates 90/100 episodes, total num timesteps 291200/320000, FPS 947.
+
+average episode rewards is -23.425249755382538
+
+ Scenario simple_reference Algo rmappo Exp check updates 95/100 episodes, total num timesteps 307200/320000, FPS 948.
+
+average episode rewards is -22.43962287902832
+Biases for Agent 0 and team 5
+tensor([-0.0432, -0.0412, -0.0096, -0.0195,  0.0220,  0.0246,  0.0245,  0.0346,
+        -0.0035, -0.0152])
+Biases for Agent 1 and team 5
+tensor([ 3.1162e-05,  1.6120e-02, -6.4819e-03, -6.8443e-03,  1.6950e-02,
+         5.6674e-02, -1.0231e-02,  1.7630e-02, -2.8500e-02, -3.7035e-02])
+TEAM SAVED
+env is MPE, scenario is simple_reference, algo is rmappo, exp is check, max seed is 1
+seed is 1:
+u are choosing to use rmappo, we set use_recurrent_policy to be True
+choose to use cpu...
+Continual Flag is:  0

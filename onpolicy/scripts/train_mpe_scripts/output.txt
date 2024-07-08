@@ -1,0 +1,21 @@
+env is MPE, scenario is simple_speaker_listener, algo is rmappo, exp is check, max seed is 1
+seed is 1:
+u are choosing to use rmappo, we set use_recurrent_policy to be True
+choose to use cpu...
+share_observation_space:  [Box(14,), Box(14,)]
+observation_space:  [Box(3,), Box(11,)]
+action_space:  [Discrete(3), Discrete(5)]
+Traceback (most recent call last):
+  File "../train/train_mpe.py", line 174, in <module>
+    main(sys.argv[1:])
+  File "../train/train_mpe.py", line 159, in main
+    runner.run()
+  File "/Users/ollae/Desktop/Tesi/on-policy/onpolicy/runner/separated/mpe_runner.py", line 45, in run
+    train_infos = self.train()
+  File "/Users/ollae/Desktop/Tesi/on-policy/onpolicy/runner/separated/base_runner.py", line 162, in train
+    train_info = self.trainer[agent_id].train(self.buffer[agent_id])
+  File "/Users/ollae/Desktop/Tesi/on-policy/onpolicy/algorithms/r_mappo/r_mappo.py", line 205, in train
+    = self.ppo_update(sample, update_actor)
+  File "/Users/ollae/Desktop/Tesi/on-policy/onpolicy/algorithms/r_mappo/r_mappo.py", line 106, in ppo_update
+    adv_targ, available_actions_batch = sample
+ValueError: too many values to unpack (expected 12)
