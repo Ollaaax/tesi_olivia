@@ -49,7 +49,7 @@ class Runner(object):
         self.naive_training = self.all_args.naive_training
         self.joint_training = self.all_args.joint_training
         self.save_models_flag = self.all_args.save_models_flag
-        self.show_biases = True
+        self.show_biases = False
 
         #___________________________________________
         #Other

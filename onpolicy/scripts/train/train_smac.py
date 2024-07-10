@@ -176,8 +176,7 @@ def main(args):
                     0] + "/results") / "TRAINING" / all_args.env_name / all_args.map_name / all_args.algorithm_name / all_args.experiment_name / "trained_teams"
     if not trained_models_dir.exists():
         print("No models pretrained")
-        if all_args.save_models_flag:
-            os.makedirs(str(trained_models_dir))
+        os.makedirs(str(trained_models_dir))
 #_______________________________________________________________________________________
 
     if all_args.use_wandb:

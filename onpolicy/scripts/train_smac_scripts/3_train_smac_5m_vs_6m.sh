@@ -3,13 +3,13 @@ env="StarCraft2"
 map="5m_vs_6m"
 algo="rmappo"
 exp="check"
-seed_max=1
+seed_max=5
 
 #__________________________________________________________________________________
 # num_env_steps=10000000 #default
 # num_env_steps=1920000 #600 Episodes 
-# num_env_steps=3200000 #1k Episodes
-num_env_steps=16000 #5 Episodes
+num_env_steps=3200000 #1k Episodes
+# num_env_steps=16000 #5 Episodes
 
 
 #__________________________________________________________________________________

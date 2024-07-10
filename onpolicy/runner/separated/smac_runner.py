@@ -76,8 +76,6 @@ class SMACRunner(Runner):
             #     print('TEAM SAVED')
 
             # log information
-            print("eval interval is")
-            print(self.eval_interval)
             if episode % self.log_interval == 0:
                 end = time.time()
                 print("\n Map {} Algo {} Exp {} updates {}/{} episodes, total num timesteps {}/{}, FPS {}.\n"
