@@ -178,34 +178,36 @@ def main(args):
         print("No models pretrained")
         os.makedirs(str(trained_models_dir))
 #_______________________________________________________________________________________
-
-    if all_args.use_wandb:
-        run = wandb.init(config=all_args,
-                         project=all_args.env_name,
-                         entity=all_args.user_name,
-                         notes=socket.gethostname(),
-                         name=str(all_args.algorithm_name) + "_" +
-                              str(all_args.experiment_name) + "_" + 
-                              str(all_args.units) +
-                              "_seed" + str(all_args.seed),
-                        #  group=all_args.map_name,
-                         dir=str(run_dir),
-                         job_type="training",
-                         reinit=True)
-        all_args = wandb.config # for wandb sweep
-    else:
-        if not run_dir.exists():
-            curr_run = 'run1'
-        else:
-            exst_run_nums = [int(str(folder.name).split('run')[1]) for folder in run_dir.iterdir() if
-                             str(folder.name).startswith('run')]
-            if len(exst_run_nums) == 0:
-                curr_run = 'run1'
-            else:
-                curr_run = 'run%i' % (max(exst_run_nums) + 1)
-        run_dir = run_dir / curr_run
-        if not run_dir.exists():
-            os.makedirs(str(run_dir))
+    #############################################################
+    # TODO AQUARIO 
+    # if all_args.use_wandb:
+    #     run = wandb.init(config=all_args,
+    #                      project=all_args.env_name,
+    #                      entity=all_args.user_name,
+    #                      notes=socket.gethostname(),
+    #                      name=str(all_args.algorithm_name) + "_" +
+    #                           str(all_args.experiment_name) + "_" + 
+    #                           str(all_args.units) +
+    #                           "_seed" + str(all_args.seed),
+    #                     #  group=all_args.map_name,
+    #                      dir=str(run_dir),
+    #                      job_type="training",
+    #                      reinit=True)
+    #     all_args = wandb.config # for wandb sweep
+    # else:
+    #     if not run_dir.exists():
+    #         curr_run = 'run1'
+    #     else:
+    #         exst_run_nums = [int(str(folder.name).split('run')[1]) for folder in run_dir.iterdir() if
+    #                          str(folder.name).startswith('run')]
+    #         if len(exst_run_nums) == 0:
+    #             curr_run = 'run1'
+    #         else:
+    #             curr_run = 'run%i' % (max(exst_run_nums) + 1)
+    #     run_dir = run_dir / curr_run
+    #     if not run_dir.exists():
+    #         os.makedirs(str(run_dir))
+    #############################################################
 
     setproctitle.setproctitle(
         str(all_args.algorithm_name) + "-" + str(all_args.env_name) + "-" + str(all_args.experiment_name) + "@" + str(

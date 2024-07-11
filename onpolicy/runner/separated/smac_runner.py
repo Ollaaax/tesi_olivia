@@ -55,8 +55,9 @@ class SMACRunner(Runner):
             total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads 
 
             # save model
-            if (episode % self.save_interval == 0 or episode == episodes - 1):
-                self.save()
+            ### TODO MODFICA ACQUARIO
+            # if (episode % self.save_interval == 0 or episode == episodes - 1):
+            #     self.save()
 
             if (episode == episodes - 1 and self.save_models_flag):
                 self.save_teams_seed()
