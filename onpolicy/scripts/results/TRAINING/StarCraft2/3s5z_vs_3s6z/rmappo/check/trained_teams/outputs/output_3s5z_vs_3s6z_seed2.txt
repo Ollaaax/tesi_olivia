@@ -1,0 +1,1898 @@
+env is StarCraft2, map is 3s5z_vs_3s6z, algo is rmappo, exp is check, max seed is 1
+seed is 2:
+u are choosing to use rmappo, we set use_recurrent_policy to be True
+choose to use gpu...
+share_observation_space:  [[318, [7, 26], [9, 11], [1, 4], [1, 33]], [318, [7, 26], [9, 11], [1, 4], [1, 33]], [318, [7, 26], [9, 11], [1, 4], [1, 33]], [318, [7, 26], [9, 11], [1, 4], [1, 33]], [318, [7, 26], [9, 11], [1, 4], [1, 33]], [318, [7, 26], [9, 11], [1, 4], [1, 33]], [318, [7, 26], [9, 11], [1, 4], [1, 33]], [318, [7, 26], [9, 11], [1, 4], [1, 33]]]
+observation_space:  [[268, [7, 23], [9, 8], [1, 4], [1, 31]], [268, [7, 23], [9, 8], [1, 4], [1, 31]], [268, [7, 23], [9, 8], [1, 4], [1, 31]], [268, [7, 23], [9, 8], [1, 4], [1, 31]], [268, [7, 23], [9, 8], [1, 4], [1, 31]], [268, [7, 23], [9, 8], [1, 4], [1, 31]], [268, [7, 23], [9, 8], [1, 4], [1, 31]], [268, [7, 23], [9, 8], [1, 4], [1, 31]]]
+action_space:  [Discrete(15), Discrete(15), Discrete(15), Discrete(15), Discrete(15), Discrete(15), Discrete(15), Discrete(15)]
+MODEL RESTORED
+MODEL RESTORED
+MODEL RESTORED
+MODEL RESTORED
+MODEL RESTORED
+MODEL RESTORED
+MODEL RESTORED
+MODEL RESTORED
+No of agents 8
+Seed is 2
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 0/1000 episodes, total num timesteps 3200/3200000, FPS 217.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 5/1000 episodes, total num timesteps 19200/3200000, FPS 88.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 10/1000 episodes, total num timesteps 35200/3200000, FPS 121.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 15/1000 episodes, total num timesteps 51200/3200000, FPS 142.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 20/1000 episodes, total num timesteps 67200/3200000, FPS 155.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 25/1000 episodes, total num timesteps 83200/3200000, FPS 164.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 30/1000 episodes, total num timesteps 99200/3200000, FPS 138.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 35/1000 episodes, total num timesteps 115200/3200000, FPS 146.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 40/1000 episodes, total num timesteps 131200/3200000, FPS 153.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 45/1000 episodes, total num timesteps 147200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 50/1000 episodes, total num timesteps 163200/3200000, FPS 163.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 55/1000 episodes, total num timesteps 179200/3200000, FPS 147.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 60/1000 episodes, total num timesteps 195200/3200000, FPS 151.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 65/1000 episodes, total num timesteps 211200/3200000, FPS 155.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 70/1000 episodes, total num timesteps 227200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 75/1000 episodes, total num timesteps 243200/3200000, FPS 161.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 80/1000 episodes, total num timesteps 259200/3200000, FPS 150.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 85/1000 episodes, total num timesteps 275200/3200000, FPS 153.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 90/1000 episodes, total num timesteps 291200/3200000, FPS 155.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 95/1000 episodes, total num timesteps 307200/3200000, FPS 157.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 100/1000 episodes, total num timesteps 323200/3200000, FPS 160.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 105/1000 episodes, total num timesteps 339200/3200000, FPS 151.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 110/1000 episodes, total num timesteps 355200/3200000, FPS 154.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 115/1000 episodes, total num timesteps 371200/3200000, FPS 157.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 120/1000 episodes, total num timesteps 387200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 125/1000 episodes, total num timesteps 403200/3200000, FPS 160.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 130/1000 episodes, total num timesteps 419200/3200000, FPS 153.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 135/1000 episodes, total num timesteps 435200/3200000, FPS 155.
+
+incre win rate is 0.006172839506172839.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 140/1000 episodes, total num timesteps 451200/3200000, FPS 157.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 145/1000 episodes, total num timesteps 467200/3200000, FPS 158.
+
+incre win rate is 0.006578947368421052.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 150/1000 episodes, total num timesteps 483200/3200000, FPS 160.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 155/1000 episodes, total num timesteps 499200/3200000, FPS 154.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 160/1000 episodes, total num timesteps 515200/3200000, FPS 156.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 165/1000 episodes, total num timesteps 531200/3200000, FPS 156.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 170/1000 episodes, total num timesteps 547200/3200000, FPS 157.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 175/1000 episodes, total num timesteps 563200/3200000, FPS 158.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 180/1000 episodes, total num timesteps 579200/3200000, FPS 154.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 185/1000 episodes, total num timesteps 595200/3200000, FPS 155.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 190/1000 episodes, total num timesteps 611200/3200000, FPS 156.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 195/1000 episodes, total num timesteps 627200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 200/1000 episodes, total num timesteps 643200/3200000, FPS 159.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 205/1000 episodes, total num timesteps 659200/3200000, FPS 155.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 210/1000 episodes, total num timesteps 675200/3200000, FPS 156.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 215/1000 episodes, total num timesteps 691200/3200000, FPS 157.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 220/1000 episodes, total num timesteps 707200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 225/1000 episodes, total num timesteps 723200/3200000, FPS 159.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 230/1000 episodes, total num timesteps 739200/3200000, FPS 155.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 235/1000 episodes, total num timesteps 755200/3200000, FPS 156.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 240/1000 episodes, total num timesteps 771200/3200000, FPS 157.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 245/1000 episodes, total num timesteps 787200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 250/1000 episodes, total num timesteps 803200/3200000, FPS 159.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 255/1000 episodes, total num timesteps 819200/3200000, FPS 156.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 260/1000 episodes, total num timesteps 835200/3200000, FPS 157.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 265/1000 episodes, total num timesteps 851200/3200000, FPS 157.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 270/1000 episodes, total num timesteps 867200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 275/1000 episodes, total num timesteps 883200/3200000, FPS 159.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 280/1000 episodes, total num timesteps 899200/3200000, FPS 156.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 285/1000 episodes, total num timesteps 915200/3200000, FPS 157.
+
+incre win rate is 0.006329113924050633.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 290/1000 episodes, total num timesteps 931200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 295/1000 episodes, total num timesteps 947200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 300/1000 episodes, total num timesteps 963200/3200000, FPS 160.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 305/1000 episodes, total num timesteps 979200/3200000, FPS 157.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 310/1000 episodes, total num timesteps 995200/3200000, FPS 158.
+
+incre win rate is 0.0064516129032258064.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 315/1000 episodes, total num timesteps 1011200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 320/1000 episodes, total num timesteps 1027200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 325/1000 episodes, total num timesteps 1043200/3200000, FPS 160.
+
+incre win rate is 0.006060606060606061.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 330/1000 episodes, total num timesteps 1059200/3200000, FPS 157.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 335/1000 episodes, total num timesteps 1075200/3200000, FPS 157.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 340/1000 episodes, total num timesteps 1091200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 345/1000 episodes, total num timesteps 1107200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 350/1000 episodes, total num timesteps 1123200/3200000, FPS 159.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 355/1000 episodes, total num timesteps 1139200/3200000, FPS 157.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 360/1000 episodes, total num timesteps 1155200/3200000, FPS 158.
+
+incre win rate is 0.005988023952095809.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 365/1000 episodes, total num timesteps 1171200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 370/1000 episodes, total num timesteps 1187200/3200000, FPS 159.
+
+incre win rate is 0.006172839506172839.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 375/1000 episodes, total num timesteps 1203200/3200000, FPS 160.
+
+incre win rate is 0.00625.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 380/1000 episodes, total num timesteps 1219200/3200000, FPS 157.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 385/1000 episodes, total num timesteps 1235200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 390/1000 episodes, total num timesteps 1251200/3200000, FPS 159.
+
+incre win rate is 0.006211180124223602.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 395/1000 episodes, total num timesteps 1267200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 400/1000 episodes, total num timesteps 1283200/3200000, FPS 160.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 405/1000 episodes, total num timesteps 1299200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 410/1000 episodes, total num timesteps 1315200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 415/1000 episodes, total num timesteps 1331200/3200000, FPS 159.
+
+incre win rate is 0.006289308176100629.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 420/1000 episodes, total num timesteps 1347200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 425/1000 episodes, total num timesteps 1363200/3200000, FPS 160.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 430/1000 episodes, total num timesteps 1379200/3200000, FPS 158.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 435/1000 episodes, total num timesteps 1395200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 440/1000 episodes, total num timesteps 1411200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 445/1000 episodes, total num timesteps 1427200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 450/1000 episodes, total num timesteps 1443200/3200000, FPS 160.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.03125.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 455/1000 episodes, total num timesteps 1459200/3200000, FPS 159.
+
+incre win rate is 0.006172839506172839.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 460/1000 episodes, total num timesteps 1475200/3200000, FPS 159.
+
+incre win rate is 0.00641025641025641.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 465/1000 episodes, total num timesteps 1491200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 470/1000 episodes, total num timesteps 1507200/3200000, FPS 160.
+
+incre win rate is 0.006060606060606061.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 475/1000 episodes, total num timesteps 1523200/3200000, FPS 161.
+
+incre win rate is 0.00625.
+eval win rate is 0.0625.
+eval win rate is 0.03125.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 480/1000 episodes, total num timesteps 1539200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 485/1000 episodes, total num timesteps 1555200/3200000, FPS 159.
+
+incre win rate is 0.006172839506172839.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 490/1000 episodes, total num timesteps 1571200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 495/1000 episodes, total num timesteps 1587200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 500/1000 episodes, total num timesteps 1603200/3200000, FPS 160.
+
+incre win rate is 0.012269938650306749.
+eval win rate is 0.03125.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 505/1000 episodes, total num timesteps 1619200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 510/1000 episodes, total num timesteps 1635200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 515/1000 episodes, total num timesteps 1651200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 520/1000 episodes, total num timesteps 1667200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 525/1000 episodes, total num timesteps 1683200/3200000, FPS 161.
+
+incre win rate is 0.006493506493506494.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 530/1000 episodes, total num timesteps 1699200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 535/1000 episodes, total num timesteps 1715200/3200000, FPS 159.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 540/1000 episodes, total num timesteps 1731200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 545/1000 episodes, total num timesteps 1747200/3200000, FPS 160.
+
+incre win rate is 0.006369426751592357.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 550/1000 episodes, total num timesteps 1763200/3200000, FPS 161.
+
+incre win rate is 0.0064516129032258064.
+eval win rate is 0.0.
+eval win rate is 0.09375.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 555/1000 episodes, total num timesteps 1779200/3200000, FPS 159.
+
+incre win rate is 0.012903225806451613.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 560/1000 episodes, total num timesteps 1795200/3200000, FPS 160.
+
+incre win rate is 0.006289308176100629.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 565/1000 episodes, total num timesteps 1811200/3200000, FPS 160.
+
+incre win rate is 0.006024096385542169.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 570/1000 episodes, total num timesteps 1827200/3200000, FPS 160.
+
+incre win rate is 0.0070921985815602835.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 575/1000 episodes, total num timesteps 1843200/3200000, FPS 161.
+
+incre win rate is 0.018404907975460124.
+eval win rate is 0.0.
+eval win rate is 0.03125.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 580/1000 episodes, total num timesteps 1859200/3200000, FPS 160.
+
+incre win rate is 0.013071895424836602.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 585/1000 episodes, total num timesteps 1875200/3200000, FPS 160.
+
+incre win rate is 0.012578616352201259.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 590/1000 episodes, total num timesteps 1891200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 595/1000 episodes, total num timesteps 1907200/3200000, FPS 161.
+
+incre win rate is 0.006993006993006993.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 600/1000 episodes, total num timesteps 1923200/3200000, FPS 161.
+
+incre win rate is 0.006711409395973154.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 605/1000 episodes, total num timesteps 1939200/3200000, FPS 160.
+
+incre win rate is 0.006535947712418301.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 610/1000 episodes, total num timesteps 1955200/3200000, FPS 160.
+
+incre win rate is 0.006493506493506494.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 615/1000 episodes, total num timesteps 1971200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 620/1000 episodes, total num timesteps 1987200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 625/1000 episodes, total num timesteps 2003200/3200000, FPS 161.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 630/1000 episodes, total num timesteps 2019200/3200000, FPS 160.
+
+incre win rate is 0.018633540372670808.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 635/1000 episodes, total num timesteps 2035200/3200000, FPS 160.
+
+incre win rate is 0.006289308176100629.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 640/1000 episodes, total num timesteps 2051200/3200000, FPS 160.
+
+incre win rate is 0.006060606060606061.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 645/1000 episodes, total num timesteps 2067200/3200000, FPS 161.
+
+incre win rate is 0.03333333333333333.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 650/1000 episodes, total num timesteps 2083200/3200000, FPS 161.
+
+incre win rate is 0.025.
+eval win rate is 0.0625.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 655/1000 episodes, total num timesteps 2099200/3200000, FPS 159.
+
+incre win rate is 0.006622516556291391.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 660/1000 episodes, total num timesteps 2115200/3200000, FPS 160.
+
+incre win rate is 0.012903225806451613.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 665/1000 episodes, total num timesteps 2131200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 670/1000 episodes, total num timesteps 2147200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 675/1000 episodes, total num timesteps 2163200/3200000, FPS 161.
+
+incre win rate is 0.0064516129032258064.
+eval win rate is 0.03125.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 680/1000 episodes, total num timesteps 2179200/3200000, FPS 160.
+
+incre win rate is 0.012578616352201259.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 685/1000 episodes, total num timesteps 2195200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 690/1000 episodes, total num timesteps 2211200/3200000, FPS 160.
+
+incre win rate is 0.00684931506849315.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 695/1000 episodes, total num timesteps 2227200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 700/1000 episodes, total num timesteps 2243200/3200000, FPS 161.
+
+incre win rate is 0.006578947368421052.
+eval win rate is 0.03125.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 705/1000 episodes, total num timesteps 2259200/3200000, FPS 160.
+
+incre win rate is 0.00625.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 710/1000 episodes, total num timesteps 2275200/3200000, FPS 160.
+
+incre win rate is 0.006622516556291391.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 715/1000 episodes, total num timesteps 2291200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 720/1000 episodes, total num timesteps 2307200/3200000, FPS 161.
+
+incre win rate is 0.006802721088435374.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 725/1000 episodes, total num timesteps 2323200/3200000, FPS 161.
+
+incre win rate is 0.00684931506849315.
+eval win rate is 0.03125.
+eval win rate is 0.03125.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 730/1000 episodes, total num timesteps 2339200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 735/1000 episodes, total num timesteps 2355200/3200000, FPS 160.
+
+incre win rate is 0.006711409395973154.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 740/1000 episodes, total num timesteps 2371200/3200000, FPS 160.
+
+incre win rate is 0.007142857142857143.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 745/1000 episodes, total num timesteps 2387200/3200000, FPS 161.
+
+incre win rate is 0.019736842105263157.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 750/1000 episodes, total num timesteps 2403200/3200000, FPS 161.
+
+incre win rate is 0.01282051282051282.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 755/1000 episodes, total num timesteps 2419200/3200000, FPS 160.
+
+incre win rate is 0.006134969325153374.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 760/1000 episodes, total num timesteps 2435200/3200000, FPS 160.
+
+incre win rate is 0.00625.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 765/1000 episodes, total num timesteps 2451200/3200000, FPS 161.
+
+incre win rate is 0.0196078431372549.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 770/1000 episodes, total num timesteps 2467200/3200000, FPS 161.
+
+incre win rate is 0.02158273381294964.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 775/1000 episodes, total num timesteps 2483200/3200000, FPS 161.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 780/1000 episodes, total num timesteps 2499200/3200000, FPS 160.
+
+incre win rate is 0.01935483870967742.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 785/1000 episodes, total num timesteps 2515200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 790/1000 episodes, total num timesteps 2531200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 795/1000 episodes, total num timesteps 2547200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 800/1000 episodes, total num timesteps 2563200/3200000, FPS 161.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.03125.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 805/1000 episodes, total num timesteps 2579200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 810/1000 episodes, total num timesteps 2595200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 815/1000 episodes, total num timesteps 2611200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 820/1000 episodes, total num timesteps 2627200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 825/1000 episodes, total num timesteps 2643200/3200000, FPS 161.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0625.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 830/1000 episodes, total num timesteps 2659200/3200000, FPS 160.
+
+incre win rate is 0.0064516129032258064.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 835/1000 episodes, total num timesteps 2675200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 840/1000 episodes, total num timesteps 2691200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 845/1000 episodes, total num timesteps 2707200/3200000, FPS 161.
+
+incre win rate is 0.00641025641025641.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 850/1000 episodes, total num timesteps 2723200/3200000, FPS 161.
+
+incre win rate is 0.006896551724137931.
+eval win rate is 0.0.
+eval win rate is 0.03125.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 855/1000 episodes, total num timesteps 2739200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 860/1000 episodes, total num timesteps 2755200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 865/1000 episodes, total num timesteps 2771200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 870/1000 episodes, total num timesteps 2787200/3200000, FPS 161.
+
+incre win rate is 0.012578616352201259.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 875/1000 episodes, total num timesteps 2803200/3200000, FPS 161.
+
+incre win rate is 0.0.
+eval win rate is 0.0.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 880/1000 episodes, total num timesteps 2819200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 885/1000 episodes, total num timesteps 2835200/3200000, FPS 160.
+
+incre win rate is 0.013157894736842105.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 890/1000 episodes, total num timesteps 2851200/3200000, FPS 161.
+
+incre win rate is 0.006666666666666667.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 895/1000 episodes, total num timesteps 2867200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 900/1000 episodes, total num timesteps 2883200/3200000, FPS 161.
+
+incre win rate is 0.02054794520547945.
+eval win rate is 0.03125.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 905/1000 episodes, total num timesteps 2899200/3200000, FPS 160.
+
+incre win rate is 0.013071895424836602.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 910/1000 episodes, total num timesteps 2915200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 915/1000 episodes, total num timesteps 2931200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 920/1000 episodes, total num timesteps 2947200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 925/1000 episodes, total num timesteps 2963200/3200000, FPS 161.
+
+incre win rate is 0.02531645569620253.
+eval win rate is 0.0.
+eval win rate is 0.03125.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 930/1000 episodes, total num timesteps 2979200/3200000, FPS 160.
+
+incre win rate is 0.005917159763313609.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 935/1000 episodes, total num timesteps 2995200/3200000, FPS 161.
+
+incre win rate is 0.012578616352201259.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 940/1000 episodes, total num timesteps 3011200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 945/1000 episodes, total num timesteps 3027200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 950/1000 episodes, total num timesteps 3043200/3200000, FPS 161.
+
+incre win rate is 0.006535947712418301.
+eval win rate is 0.0625.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 955/1000 episodes, total num timesteps 3059200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 960/1000 episodes, total num timesteps 3075200/3200000, FPS 161.
+
+incre win rate is 0.013793103448275862.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 965/1000 episodes, total num timesteps 3091200/3200000, FPS 161.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 970/1000 episodes, total num timesteps 3107200/3200000, FPS 161.
+
+incre win rate is 0.006666666666666667.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 975/1000 episodes, total num timesteps 3123200/3200000, FPS 161.
+
+incre win rate is 0.006493506493506494.
+eval win rate is 0.03125.
+eval win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 980/1000 episodes, total num timesteps 3139200/3200000, FPS 160.
+
+incre win rate is 0.006493506493506494.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 985/1000 episodes, total num timesteps 3155200/3200000, FPS 160.
+
+incre win rate is 0.0.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 990/1000 episodes, total num timesteps 3171200/3200000, FPS 161.
+
+incre win rate is 0.013793103448275862.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+
+ Map 3s5z_vs_3s6z Algo rmappo Exp check updates 995/1000 episodes, total num timesteps 3187200/3200000, FPS 161.
+
+incre win rate is 0.013245033112582781.
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+TEAM SAVED
+Image Saved!!

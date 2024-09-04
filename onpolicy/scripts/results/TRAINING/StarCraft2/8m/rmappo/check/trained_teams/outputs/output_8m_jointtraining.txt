@@ -1,0 +1,27 @@
+env is StarCraft2, map is 8m, algo is rmappo, exp is check, max seed is 1
+seed is 1:
+u are choosing to use rmappo, we set use_recurrent_policy to be True
+choose to use gpu...
+Choose the agent to train in MARL: You chose to train agent 1
+share_observation_space:  [[251, [7, 22], [8, 8], [1, 4], [1, 29]], [251, [7, 22], [8, 8], [1, 4], [1, 29]], [251, [7, 22], [8, 8], [1, 4], [1, 29]], [251, [7, 22], [8, 8], [1, 4], [1, 29]], [251, [7, 22], [8, 8], [1, 4], [1, 29]], [251, [7, 22], [8, 8], [1, 4], [1, 29]], [251, [7, 22], [8, 8], [1, 4], [1, 29]], [251, [7, 22], [8, 8], [1, 4], [1, 29]]]
+observation_space:  [[204, [7, 19], [8, 5], [1, 4], [1, 27]], [204, [7, 19], [8, 5], [1, 4], [1, 27]], [204, [7, 19], [8, 5], [1, 4], [1, 27]], [204, [7, 19], [8, 5], [1, 4], [1, 27]], [204, [7, 19], [8, 5], [1, 4], [1, 27]], [204, [7, 19], [8, 5], [1, 4], [1, 27]], [204, [7, 19], [8, 5], [1, 4], [1, 27]], [204, [7, 19], [8, 5], [1, 4], [1, 27]]]
+action_space:  [Discrete(14), Discrete(14), Discrete(14), Discrete(14), Discrete(14), Discrete(14), Discrete(14), Discrete(14)]
+MODEL RESTORED
+MODEL RESTORED
+MODEL RESTORED
+MODEL RESTORED
+MODEL RESTORED
+MODEL RESTORED
+MODEL RESTORED
+MODEL RESTORED
+No of agents 8
+Seed is 1
+Previous training no is 3
+
+ Map 8m Algo rmappo Exp check updates 0/1000 episodes, total num timesteps 3200/3200000, FPS 292.
+
+incre win rate is 0.13043478260869565.
+LOG SAVED!
+eval win rate is 0.1875.
+Team is no 2
+Episode count 1

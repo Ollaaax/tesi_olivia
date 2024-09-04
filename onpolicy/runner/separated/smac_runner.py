@@ -24,10 +24,28 @@ class SMACRunner(Runner):
         last_battles_won = np.zeros(self.n_rollout_threads, dtype=np.float32)
 
         print("No of agents", + self.num_agents)
+        print("Seed is", + self.all_args.seed)
 
+        #Save log information for performance plotting
         self.win_rate_list = []
+
+        increwinrate_path = self.create_log_infos("incre_win_rate")
+
+        self.episode_count = 0
         self.show_biases = False
+
         for episode in range(episodes):
+            
+            #Episode count for Joint Training _________
+            if (self.joint_training and episode % 1 == 0 and episode != 0):
+                self.episode_count += 1
+                team = self.episode_count % 5 + 1
+                print("Team is no", + team)
+                print(f"Episode count", + self.episode_count)
+
+                self.joint_update_teams(team)
+            #___________________________________________
+
             if self.use_linear_lr_decay:
                 self.trainer.policy.lr_decay(episode, episodes)
 
@@ -56,25 +74,20 @@ class SMACRunner(Runner):
 
             # save model
             ### TODO MODFICA ACQUARIO
-            # if (episode % self.save_interval == 0 or episode == episodes - 1):
-            #     self.save()
+            if (episode % self.save_interval == 0 or episode == episodes - 1):
+                self.save()
 
-            if (episode == episodes - 1 and self.save_models_flag):
-                self.save_teams_seed()
-                print('TEAM SAVED')
+                #Saving the Active Agent
+                if self.naive_training or self.joint_training:
+                    self.save_active_agent()
+                    if episode == episodes - 1:
+                        print(f"Active no {self.active_agent} agent SAVED!")
 
-
-                #Save the active agent
-                # if episode == episodes - 1:
-                #     print("Active agent SAVED!")
-                #     print(self.active_agent)
-                #     self.show_biases = False
-                # self.save_active_agent()
-
-
-            # if (episode == episodes - 1 and self.save_models_flag):
-            #     self.save_teams()
-            #     print('TEAM SAVED')
+                #Saving Teams
+                if self.save_models_flag:
+                    if (episode == episodes - 1  or episode % self.save_interval == 0):
+                        self.save_teams_seed()
+                        print('TEAM SAVED')
 
             # log information
             if episode % self.log_interval == 0:
@@ -105,7 +118,12 @@ class SMACRunner(Runner):
 
                     incre_win_rate = np.sum(incre_battles_won)/np.sum(incre_battles_game) if np.sum(incre_battles_game)>0 else 0.0
                     print("incre win rate is {}.".format(incre_win_rate))
-                    self.win_rate_list.append(incre_win_rate)
+
+                    for i in range(self.log_interval):
+                        self.win_rate_list.append(incre_win_rate)
+                    
+                    self.save_log_infos(self.win_rate_list, increwinrate_path)
+
                     if self.use_wandb:
                         wandb.log({"incre_win_rate": incre_win_rate}, step=total_num_steps)
                     else:
@@ -127,22 +145,29 @@ class SMACRunner(Runner):
             # train_infos[0].update({"average_episode_rewards": np.mean(self.buffer[agent_id].rewards) * self.episode_length})
             # self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
             
-            # eval
-            if episode % self.eval_interval == 0 and self.use_eval:
-                self.eval(total_num_steps)
+            # # eval
+            # if episode % self.eval_interval == 0 and self.use_eval:
+            #     self.eval(total_num_steps)
 
-
+        ########## END EPISODE LOOP ##############
         # #__________________________________
         #Plot Episode avg rewards
         plt.plot(self.win_rate_list, )
 
         plt.ylabel("incremental win rate")
 
-        plt.xlabel("tempo")
+        plt.xlabel("Episodes")
 
-        plt.savefig(str(self.trained_models_dir) + "/" + str(self.all_args.seed) + "/training" + ".png")
+        if self.save_models_flag:
+            plt.savefig(str(self.trained_models_dir)  + "/" + str(self.all_args.seed ) + "/team_train1" + ".png")
+        if self.joint_training:
+            plt.savefig(str(self.trained_models_dir)  +  "/joint_train1ep" + ".png")
+        if self.naive_training:
+            plt.savefig(str(self.trained_models_dir)  +  "/naive_train_A" + str(self.active_agent) + ".png")
+
+        print("Image Saved!!")
         plt.show()
-                
+        
 
     def warmup(self):
         # reset env
