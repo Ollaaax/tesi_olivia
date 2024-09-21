@@ -17,6 +17,20 @@ class SMACRunner(Runner):
     def run(self):
         self.warmup()   
 
+        #_____________________________________________________________________________________________________________________
+        #CHOOSE whether or not initialize the active agent NAIVE TRAINING
+
+        if self.naive_training:
+            self.active_agent_init()
+            
+        #___________________________________________________________________________________
+        #Choose Active Agent for JOINT TRAINING
+
+        if self.joint_training:
+            self.active_agent_choice()
+        #_____________________________________________________________________________________________________________________
+
+
         start = time.time()
         episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
 
@@ -36,14 +50,14 @@ class SMACRunner(Runner):
 
         for episode in range(episodes):
             
-            #Episode count for Joint Training _________
-            if (self.joint_training and episode % 1 == 0 and episode != 0):
-                self.episode_count += 1
-                team = self.episode_count % 5 + 1
-                print("Team is no", + team)
-                print(f"Episode count", + self.episode_count)
+            # #Episode count for Joint Training _________
+            # if (self.joint_training and episode % 1 == 0 and episode != 0):
+            #     self.episode_count += 1
+            #     team = self.episode_count % 5 + 1
+            #     print("Team is no", + team)
+            #     print(f"Episode count", + self.episode_count)
 
-                self.joint_update_teams(team)
+            #     self.joint_update_teams(team)
             #___________________________________________
 
             if self.use_linear_lr_decay:
@@ -159,7 +173,7 @@ class SMACRunner(Runner):
         plt.xlabel("Episodes")
 
         if self.save_models_flag:
-            plt.savefig(str(self.trained_models_dir)  + "/" + str(self.all_args.seed ) + "/team_train1" + ".png")
+            plt.savefig(str(self.trained_models_dir)  + "/" + str(self.all_args.seed ) + "/team_train0" + ".png")
         if self.joint_training:
             plt.savefig(str(self.trained_models_dir)  +  "/joint_train1ep" + ".png")
         if self.naive_training:

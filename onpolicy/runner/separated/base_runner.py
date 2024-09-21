@@ -44,7 +44,7 @@ class Runner(object):
         self.use_render = self.all_args.use_render
         self.recurrent_N = self.all_args.recurrent_N
         #___________________________________________
-        #Flags
+        #CONFIG FLAGS
         self.flag = self.all_args.flag
         # self.continual_flag = self.all_args.continual
         self.naive_training = self.all_args.naive_training
@@ -52,7 +52,14 @@ class Runner(object):
         self.joint_training = self.all_args.joint_training
         self.save_models_flag = self.all_args.save_models_flag
         self.acquario = self.all_args.acquario
+        self.save_buffer = self.all_args.save_buffer
+        self.use_buffer = self.all_args.use_buffer
+        
+        #Other Flags
         self.show_biases = False
+        self.iamloading = False
+        self.iamloadingacquario = False
+
 
         #___________________________________________
         #Other
@@ -68,101 +75,19 @@ class Runner(object):
         self.eval_interval = self.all_args.eval_interval
         self.log_interval = self.all_args.log_interval
 
-        # dir
-        # self.model_dir = "/Users/ollae/Desktop/madonnamerda"
+        #IF WORKS, ELIMINATE
+        # #_____________________________________________________________________________________________________________________
+        # #CHOOSE whether or not initialize the active agent NAIVE TRAINING
 
-        #_____________________________________________________________________________________________________________________
-        #CHOOSE whether or not initialize the active agent
+        # if self.naive_training or self.naive_training_seq:
+        #     self.active_agent_init()
+            
+        # #___________________________________________________________________________________
+        # #Choose Active Agent for JOINT TRAINING
 
-        if self.naive_training or self.naive_training_seq:
-            #___________________________________________________________________________________
-            #INITIALIZE AGENTS AND FRESH START
-            while True:
-                try:
-                    active_agent = input(f"Choose the Active Agent ")
-                    if active_agent.isdigit() and 1 <= int(active_agent) <= self.num_agents:
-                        print(f"You chose to train agent {active_agent}")
-                        self.active_agent = int(active_agent) - 1
-                        break
-                    else: print(f"Insert a valid number between 1 and {self.num_agents}")
-                except ValueError:
-                    print(f"Invalid input. Please enter a number between 1 and {self.num_agents}.")  
-
-            answer_map = {"Y": True, "N": False, "y": True, "n": False}
-
-            # TODO Check if an agent is already stored
-            while True:
-                try:
-                    key_input = input(f"Do you want to start fresh? Y/N ")
-                    answer = answer_map[key_input]
-                    if answer is True:
-                        self.set_active_agent()
-                        break
-                    else: break
-                except ValueError:
-                    print("Invalid input. Please enter 'y' or 'n'")
-
-            #___________________________________________________________________________________
-            #Versione precedente del blocco per inizializzare agenti
-
-            # ####CAMBIARE MANUALMENTE
-            # self.active_agent = 0
-            # ########################
-
-            # while True: 
-                # try: 
-                #     key_input = input(f"Do you want to start fresh? Y/N")
-                #     answer = answer_map[key_input]
-                #     if answer is True: 
-                #         while True:
-                #             try:
-                #                 active_agent = input(f"Choose the agent to train in MARL: ")
-                #                 if active_agent.isdigit() and 1 <= int(active_agent) <= self.num_agents:
-                #                     print(f"You chose to train agent {active_agent}")
-                #                     self.active_agent = int(active_agent) - 1
-                #                     self.set_active_agent()
-                #                     break
-                #                 else: print(f"Insert a valid number between 1 and {self.num_agents}")
-                #             except ValueError:
-                #                 print(f"Invalid input. Please enter a number between 1 and {self.num_agents}.")  
-                #             # #Set the active agent
-                #             # self.set_active_agent()
-                #     ##### TODO INSERIRE CHECK SU AGENTE PRECENDENTE 
-                #     break
-                # except KeyError:
-                #     print("Invalid input. Please enter 'y' or 'n'.")
-            # #___________________________________________________________________________________
-
-        #Choose Active Agent for JOINT TRAINING
-        if self.joint_training:
-            while True:
-                try:
-                    active_agent = input(f"Choose the agent to train in MARL: ")
-                    if active_agent.isdigit() and 1 <= int(active_agent) <= self.num_agents:
-                        print(f"You chose to train agent {active_agent}")
-                        self.active_agent = int(active_agent) - 1
-                        # self.set_active_agent()
-                        break
-                    else: print(f"Insert a valid number between 1 and {self.num_agents}")
-                except ValueError:
-                    print(f"Invalid input. Please enter a number between 1 and {self.num_agents}.")  
-        #________________________________________________________________________________________________________________________
-            #
-            #Chose the active agent
-            # while True:
-                # try:
-            #         active_agent = input(f"Choose the agent to train in MARL: ")
-            #         if active_agent.isdigit() and 1 <= int(active_agent) <= self.num_agents:
-            #             print(f"You chose to train agent {active_agent}")
-            #             self.active_agent = int(active_agent) - 1
-            #             break
-            #         else: print(f"Insert a valid number between 1 and {self.num_agents}")
-            #     except ValueError:
-            #         print(f"Invalid input. Please enter a number between 1 and {self.num_agents}.")
-
-            # # #Set the active agent
-            # self.set_active_agent()
-
+        # if self.joint_training:
+        #     self.active_agent_choice()
+        # #_____________________________________________________________________________________________________________________
 
         if self.use_render:
             import imageio
@@ -183,18 +108,6 @@ class Runner(object):
                 if not os.path.exists(self.save_dir):
                     os.makedirs(self.save_dir)
 
-                #____________________________________________
-                # #create directory for continual saves
-                # self.continual_dir = config["continual_dir"]
-                # self.clog_dir = str(self.continual_dir / 'logs')
-                # if not os.path.exists(self.clog_dir):
-                #     os.makedirs(self.clog_dir)
-                # self.writter = SummaryWriter(self.clog_dir)
-                # self.save_continual_dir = str(self.continual_dir / 'models')
-                # if not os.path.exists(self.save_continual_dir):
-                #     os.makedirs(self.save_continual_dir)
-                #____________________________________________
-
         #____________________________________________________________________________________________________________________
         #SET Policy and TrainAlgo
         if self.all_args.algorithm_name == "happo":
@@ -204,7 +117,12 @@ class Runner(object):
             from onpolicy.algorithms.hatrpo.hatrpo_trainer import HATRPO as TrainAlgo
             from onpolicy.algorithms.hatrpo.policy import HATRPO_Policy as Policy
         else:
-            from onpolicy.algorithms.r_mappo.r_mappo import R_MAPPO as TrainAlgo
+            #Load the Rebuf Algo if needed (only with use_buffer)
+            if self.use_buffer: 
+                from onpolicy.algorithms.r_mappo.r_mappo_rebuf import R_MAPPO as TrainAlgo
+            else: 
+                from onpolicy.algorithms.r_mappo.r_mappo import R_MAPPO as TrainAlgo
+
             from onpolicy.algorithms.r_mappo.algorithm.rMAPPOPolicy import R_MAPPOPolicy as Policy
 
 
@@ -229,45 +147,32 @@ class Runner(object):
                         device = self.device)
             self.policy.append(po)
 
-            ## TODO ACQUARIO FINIRE IL TRAINING 
-            if self.save_models_flag:
-                if os.path.exists(str(self.trained_models_dir) + "/" + str(self.all_args.seed)):
-                    self.restore_pretrained_models_acquario(agent_id)
-                    print("MODEL RESTORED")
-                else:
-                    print("INITIALIZE NEW MODEL")
+            # ## TODO ACQUARIO FINIRE IL TRAINING 
+            # if self.save_models_flag:
+            #     if os.path.exists(str(self.trained_models_dir) + "/" + str(self.all_args.seed)):
+            #         self.restore_pretrained_models_acquario(agent_id)
+            #         print("MODEL RESTORED")
+            #     else:
+            #         print("INITIALIZE NEW MODEL")
 
-            #____________________________________________________________
-            #LOAD PRETRAINED MODELS for Naive Training - At this point we suppose to have
+            #________________________________________________________________________________________________________________________
+            #LOAD PRETRAINED MODELS for N/J Training - At this point we suppose to have
             #a directory with the pretrained models
-
-            if self.naive_training:
-                print( "Active Agent is:", + self.active_agent + 1)
-                if agent_id == self.active_agent: 
-                    self.load_active_agent()
-                #Choose the team to load
-                else:
-                    while True:
-                        try:
-                            teammates = input(f"Choose team for player {agent_id + 1}: ")
-                            if teammates.isdigit() and 1 <= int(teammates) <= 6:
-                                teammates = int(teammates)
-                                print(f"You chose: {teammates}")
-                                break
-                            else:
-                                print("Please enter a number between 1 and 6.")
-                        except ValueError:
-                            print("Invalid input. Please enter a number between 1 and 6.") 
-                    self.restore_pretrained_models(agent_id, teammates)    
-
-            if self.joint_training and agent_id != self.active_agent:
-                teammates = 1
-                self.restore_pretrained_models(agent_id, teammates)  
             
+            # #Naive Training
+            # if self.naive_training:
+            #     self.naive_load_teams(agent_id)
 
+            # #Joint Training
+            # if self.joint_training and agent_id != self.active_agent:
+            #     teammates = 1
+            #     self.restore_pretrained_models(agent_id, teammates) 
+
+            # #____________________________________________________________
             #____________________________________________________________
             #LOAD PRETRAINED MODELS for JOINT TRAINING
 
+        for agent_id in range(self.num_agents):
             # algorithm
             tr = TrainAlgo(self.all_args, self.policy[agent_id], device = self.device)
             # buffer
@@ -279,37 +184,15 @@ class Runner(object):
             self.buffer.append(bu)
             self.trainer.append(tr)
 
-            # print("Trainer appended")
-            # print(len(self.trainer))
             #_______________________________________________________________________
-            ####LOAD VALUE NORMALIZER
-            if self.all_args.use_valuenorm and not self.save_models_flag:
-                
-                policy_vnrom_state_dict = torch.load(str(self.trained_models_dir) + '/' + str(self.all_args.seed) + "/vnrom_agent" + str(agent_id) + ".pt")
-                self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)                
-
-                if self.naive_training: 
-                        if agent_id == self.active_agent:
-                            
-                            policy_vnrom_state_dict = torch.load(str(self.trained_models_dir) + "/vnrom_agent" + str(agent_id) + "A" + ".pt")
-                            self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
-                        else:
-                            if self.all_args.use_valuenorm:
-                                policy_vnrom_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(teammates) + '/vnrom_agent' + str(agent_id) + '.pt')
-                                self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
-
-                if self.joint_training and agent_id != self.active_agent:
-                        if agent_id == self.active_agent:
-                            
-                            policy_vnrom_state_dict = torch.load(str(self.trained_models_dir) + "/vnrom_agent" + str(agent_id) + "A" + ".pt")
-                            self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
-                        else:
-                            if self.all_args.use_valuenorm:
-                                policy_vnrom_state_dict = torch.load(str(self.trained_models_dir) + '/' + str(teammates) + '/vnrom_agent' + str(agent_id) + '.pt')
-                                self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
-                            
+#             ####LOAD VALUE NORMALIZER
+#             if self.all_args.use_valuenorm and (self.iamloading or self.iamloadingacquario):                
+#                 self.value_normalizer_load(agent_id, 2)
 # #________________________________________________________________________________________
-         
+#########################################################################################
+#########################################################################################
+#########################################################################################    
+ 
     def run(self):
         raise NotImplementedError
 
@@ -422,60 +305,11 @@ class Runner(object):
                 else:
                     self.writter.add_scalars(k, {k: np.mean(v)}, total_num_steps)
 
-    #_____________________________________________________________________________________________________________
-    ### MY FUNCTIONS ###
 
-    def ssave(self):
-        for agent_id in range(self.num_agents):
-            policy_actor = self.trainer[agent_id].policy.actor
-            torch.save(policy_actor.state_dict(), str(self.save_continual_dir) + "/actor_agent" + str(agent_id) + ".pt")
-            policy_critic = self.trainer[agent_id].policy.critic
-            torch.save(policy_critic.state_dict(), str(self.save_continual_dir) + "/critic_agent" + str(agent_id) + ".pt")
-            if self.trainer[agent_id]._use_valuenorm:
-                policy_vnrom = self.trainer[agent_id].value_normalizer
-                torch.save(policy_vnrom.state_dict(), str(self.save_continual_dir) + "/vnrom_agent" + str(agent_id) + ".pt")
-
-    # def restore_pretrained_models(self, agent_id, team):
-    #     """
-    #     Load the pretrained teams (as teammates) 
-    #     """
-    #     policy_actor_state_dict = torch.load(str(self.trained_models_dir) + '/team%i' % (team) + '/actor_agent' + str(agent_id) + '.pt')
-    #     self.policy[agent_id].actor.load_state_dict(policy_actor_state_dict)
-
-    #     #Bias Check
-    #     self.extract_biases_from_dict(policy_actor_state_dict, agent_id, team)
-
-    #     policy_critic_state_dict = torch.load(str(self.trained_models_dir) + '/team%i' % (team) + '/critic_agent' + str(agent_id) + '.pt')
-    #     self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
-    #     # if self.all_args.use_valuenorm:
-    #     #     policy_vnrom_state_dict = torch.load(str(self.trained_models_dir) + '/team%i' % (team) + '/vnrom_agent' + str(agent_id) + '.pt')
-    #     #     self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
-
-    def restore_pretrained_models(self, agent_id, team):
-        """
-        Load the pretrained teams (as teammates) 
-        """
-        policy_actor_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/actor_agent' + str(agent_id) + '.pt')
-        self.policy[agent_id].actor.load_state_dict(policy_actor_state_dict)
-
-        #Bias Check
-        self.extract_biases_from_dict(policy_actor_state_dict, agent_id, team)
-
-        policy_critic_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/critic_agent' + str(agent_id) + '.pt')
-        self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
-        # if self.all_args.use_valuenorm:
-        #     policy_vnrom_state_dict = torch.load(str(self.trained_models_dir) + '/team%i' % (team) + '/vnrom_agent' + str(agent_id) + '.pt')
-        #     self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
-
-    def restore_pretrained_models_acquario(self, agent_id):
-        """
-        Load the pretrained teams (as teammates) 
-        """
-        policy_actor_state_dict = torch.load(str(self.trained_models_dir) + '/' + str(self.all_args.seed) + '/actor_agent' + str(agent_id) + '.pt')
-        self.policy[agent_id].actor.load_state_dict(policy_actor_state_dict)
-
-        policy_critic_state_dict = torch.load(str(self.trained_models_dir) + '/' + str(self.all_args.seed) + '/critic_agent' + str(agent_id) + '.pt')
-        self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
+#_____________________________________________________________________________________________________________
+                ######### MY FUNCTIONS for CHILD ###########
+ #________________________________________________________________________
+ ###           TRAIN FUNCTIONS
 
     def continual_train(self):
         """
@@ -550,35 +384,66 @@ class Runner(object):
 
         return train_infos
 
-    def save_teams(self):
-        '''
-        Function to be run once, the first time, to create different teams
-        '''
-    
-        ##Create the directory
-        c_saves = [int(str(folder.name).split('team')[1]) for folder in self.trained_models_dir.iterdir() if str(folder.name).startswith('team')]
-        if len(c_saves) == 0:
-            curr_run = 'team1'
-            team = 1
-        else:
-            team = max(c_saves) + 1
-            curr_run = f'team{max(c_saves) + 1}'
+#________________________________________________________________________
+###           TEAMS MANAGEMENT
 
-        curr_team = self.trained_models_dir / curr_run
-        if not curr_team.exists():
-            os.makedirs(str(curr_team))
-
+    def ssave(self):
         for agent_id in range(self.num_agents):
             policy_actor = self.trainer[agent_id].policy.actor
-
-            self.extract_biases_from_dict(policy_actor.state_dict(), agent_id, team)
-
-            torch.save(policy_actor.state_dict(), str(curr_team)  + "/actor_agent" + str(agent_id) + ".pt")
+            torch.save(policy_actor.state_dict(), str(self.save_continual_dir) + "/actor_agent" + str(agent_id) + ".pt")
             policy_critic = self.trainer[agent_id].policy.critic
-            torch.save(policy_critic.state_dict(), str(curr_team)  + "/critic_agent" + str(agent_id) + ".pt")
+            torch.save(policy_critic.state_dict(), str(self.save_continual_dir) + "/critic_agent" + str(agent_id) + ".pt")
             if self.trainer[agent_id]._use_valuenorm:
                 policy_vnrom = self.trainer[agent_id].value_normalizer
-                torch.save(policy_vnrom.state_dict(), str(curr_team) + "/vnrom_agent" + str(agent_id) + ".pt")
+                torch.save(policy_vnrom.state_dict(), str(self.save_continual_dir) + "/vnrom_agent" + str(agent_id) + ".pt")
+
+    def restore_pretrained_models(self, agent_id, team):
+        """
+        Load the pretrained teams (as teammates) and value normalizer 
+        """
+
+        policy_actor_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/actor_agent' + str(agent_id) + '.pt')
+        self.policy[agent_id].actor.load_state_dict(policy_actor_state_dict)
+
+        #Bias Check
+        self.extract_biases_from_dict(policy_actor_state_dict, agent_id, team)
+
+        policy_critic_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/critic_agent' + str(agent_id) + '.pt')
+        self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
+
+        policy_vnrom_state_dict = torch.load(str(self.trained_models_dir)  + "/" + str(team) + "/vnrom_agent" + str(agent_id) + ".pt")
+        self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
+
+    def restore_pretrained_models_acquario(self, agent_id):
+        """
+        Load the pretrained teams (as teammates) addressed with the seed to continue the training if the acquario stops
+        """
+
+        self.iamloadingacquario = True
+
+        policy_actor_state_dict = torch.load(str(self.trained_models_dir) + '/' + str(self.all_args.seed) + '/actor_agent' + str(agent_id) + '.pt')
+        self.policy[agent_id].actor.load_state_dict(policy_actor_state_dict)
+
+        policy_critic_state_dict = torch.load(str(self.trained_models_dir) + '/' + str(self.all_args.seed) + '/critic_agent' + str(agent_id) + '.pt')
+        self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
+
+    def load_teammates(self, team):
+        """
+        Load the pretrained teams (as teammates) and value normalizer except for the active agent
+        """
+        for agent_id in range(self.num_agents):
+            if agent_id != self.active_agent:
+                policy_actor_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/actor_agent' + str(agent_id) + '.pt')
+                self.policy[agent_id].actor.load_state_dict(policy_actor_state_dict)
+
+                #Bias Check
+                self.extract_biases_from_dict(policy_actor_state_dict, agent_id, team)
+
+                policy_critic_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/critic_agent' + str(agent_id) + '.pt')
+                self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
+
+                policy_vnrom_state_dict = torch.load(str(self.trained_models_dir)  + "/" + str(team) + "/vnrom_agent" + str(agent_id) + ".pt")
+                self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
 
     def save_teams_seed(self):
         '''
@@ -668,27 +533,70 @@ class Runner(object):
 
         print("LOG SAVED!")
         return
+
+
 #________________________________________________________________________
-###           ACTIVE AGENT MANAGMENT
+###           ACTIVE AGENT MANAGEMENT
 
-    def save_active_agent(self):
-        agent_id = self.active_agent
+    def active_agent_choice(self):
+        '''
+        This function returns nothing but makes you choose the active agent and assigns it to the self variable 
+        '''
+        while True:
+            try:
+                active_agent = input(f"Choose the agent to train in MARL: ")
+                if active_agent.isdigit() and 1 <= int(active_agent) <= self.num_agents:
+                    print(f"You chose to train agent {active_agent}")
+                    active_agent = int(active_agent) - 1
+                    break
+                else: print(f"Insert a valid number between 1 and {self.num_agents}")
+            except ValueError:
+                print(f"Invalid input. Please enter a number between 1 and {self.num_agents}.")      
+        return active_agent
 
-        policy_actor = self.trainer[agent_id].policy.actor
-        torch.save(policy_actor.state_dict(), str(self.trained_models_dir)  + "/actor_agent" + str(agent_id) + "A" + ".pt")
-        policy_critic = self.trainer[agent_id].policy.critic
+    def active_agent_init(self):
         
-        #Print Biases
-        if self.show_biases:
-            self.extract_biases_from_dict(policy_actor.state_dict(), agent_id, 1)
+        #Ask if we want to initialize 
+        answer_map = {"Y": True, "N": False, "y": True, "n": False}
 
+        while True:
+            try:
+                key_input = input(f"Do you want to start fresh? Y/N ")
+                answer = answer_map[key_input]
 
-        torch.save(policy_critic.state_dict(), str(self.trained_models_dir)  + "/critic_agent" + str(agent_id) + "A" + ".pt")
-        if self.trainer[agent_id]._use_valuenorm:
-            policy_vnrom = self.trainer[agent_id].value_normalizer
-            torch.save(policy_vnrom.state_dict(), str(self.trained_models_dir) + "/vnrom_agent" + str(agent_id) + "A" + ".pt")
-        
+                if answer is True:
+                    self.set_active_agent()
+                    break
+                else: break
+            except ValueError:
+                print("Invalid input. Please enter 'y' or 'n'")
+
+    def set_active_agent(self):
+        """ 
+        Copies the nets of the actice agent (the one that will learn to cooperate)
+        with a different suffix (A). The new nets will be updated, preserving the original one. 
+        """
+        #TODO checkare che le reti esistono già
+        agent = self.active_agent
+        aa_team = 1
+
+        #Copy ACTOR
+        source_path =  f"{self.trained_models_dir}/{aa_team}/actor_agent{agent}.pt"
+        dest_path = str(self.trained_models_dir) + "/actor_agent" + str(agent) + "A" + ".pt"
+        shutil.copy2(source_path, dest_path)
+
+        #Copy CRITIC
+        source_path = f"{self.trained_models_dir}/{aa_team}/critic_agent{agent}.pt"
+        dest_path = str(self.trained_models_dir) + "/critic_agent" + str(agent) + "A" + ".pt"
+        shutil.copy2(source_path, dest_path)
+
+        if self.all_args.use_valuenorm:
+            source_path = f"{self.trained_models_dir}/{aa_team}/vnrom_agent{agent}.pt"
+            dest_path = str(self.trained_models_dir) + '/vnrom_agent' + str(agent) + "A" + ".pt"
+            shutil.copy2(source_path, dest_path)
+
     def load_active_agent(self):
+
         agent_id = self.active_agent
 
         policy_actor_state_dict = torch.load(str(self.trained_models_dir) + "/actor_agent" + str(agent_id) + "A" + ".pt")
@@ -701,35 +609,29 @@ class Runner(object):
         policy_critic_state_dict = torch.load(str(self.trained_models_dir) + "/critic_agent" + str(agent_id) + "A" + ".pt")
         self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
 
-        # if self.all_args.use_valuenorm:
-        #     policy_vnrom = self.trainer[agent_id].value_normalizer
-        #     torch.laod(policy_vnrom.state_dict(), str(self.trained_models_dir) + "/vnrom_agent" + str(agent_id) + "A" + ".pt")
- 
-    def set_active_agent(self):
-        """ 
-        Copies the nets of the actice agent (the one that will learn to cooperate)
-        with a different suffix (A). The new nets will be updated, preserving the original one. 
-        """
-        #TODO checkare che le reti esistono già
-        agent = self.active_agent
-
-        #Copy ACTOR
-        source_path = str(self.trained_models_dir) + "/1" + "/actor_agent" + str(agent) + ".pt"
-        dest_path = str(self.trained_models_dir) + "/actor_agent" + str(agent) + "A" + ".pt"
-        shutil.copy2(source_path, dest_path)
-
-        #Copy CRITIC
-        source_path = str(self.trained_models_dir) + "/1" + "/critic_agent" + str(agent) + ".pt"
-        dest_path = str(self.trained_models_dir) + "/critic_agent" + str(agent) + "A" + ".pt"
-        shutil.copy2(source_path, dest_path)
-
         if self.all_args.use_valuenorm:
-            source_path = str(self.trained_models_dir) + "/1" + '/vnrom_agent' + str(agent) + '.pt'
-            dest_path = str(self.trained_models_dir) + '/vnrom_agent' + str(agent) + "A" + ".pt"
-            shutil.copy2(source_path, dest_path)
+            policy_vnrom_state_dict = torch.load(str(self.trained_models_dir) + '/vnrom_agent' + str(agent_id) + "A" + '.pt')
+            self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
 
-#________________________________________________________________________
-###           JOINT TRAINING
+    def save_active_agent(self):
+        agent_id = self.active_agent
+
+        policy_actor = self.trainer[agent_id].policy.actor
+        torch.save(policy_actor.state_dict(), str(self.trained_models_dir)  + "/actor_agent" + str(agent_id) + "A" + ".pt")
+        
+        #Print Biases
+        if self.show_biases:
+            self.extract_biases_from_dict(policy_actor.state_dict(), agent_id, 1)
+
+        policy_critic = self.trainer[agent_id].policy.critic
+        torch.save(policy_critic.state_dict(), str(self.trained_models_dir)  + "/critic_agent" + str(agent_id) + "A" + ".pt")
+        
+        if self.trainer[agent_id]._use_valuenorm:
+            policy_vnrom = self.trainer[agent_id].value_normalizer
+            torch.save(policy_vnrom.state_dict(), str(self.trained_models_dir) + "/vnrom_agent" + str(agent_id) + "A" + ".pt")
+        
+ #________________________________________________________________________
+    ###           JOINT TRAINING
 
     def joint_update_teams(self, team):
 
@@ -758,8 +660,9 @@ class Runner(object):
                 #_______________________________________________________________________
                 ####Fare una function o sistemare 
 
-#________________________________________________________________________
-###          BIAS SANITY CHECK
+    #________________________________________________________________________
+    #________________________________________________________________________
+    ###          BIAS SANITY CHECK
 
     def extract_biases_from_dict(self, state_dict, agent, team):
         """
@@ -781,3 +684,4 @@ class Runner(object):
         if self.show_biases:
             print(f"Biases for Agent {agent + 1} and team {team}")
             print(biases[-1])
+

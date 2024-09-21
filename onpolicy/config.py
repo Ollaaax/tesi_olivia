@@ -312,4 +312,7 @@ def get_config():
     parser.add_argument("--naive_training_seq", action='store_true', default = False)
     parser.add_argument("--joint_training", action='store_true', default = False)
     parser.add_argument("--acquario", action='store_true', default = False)
+    parser.add_argument("--save_buffer", action='store_true', default = False)
+    parser.add_argument("--use_buffer", action='store_true', default = False)
+
     return parser

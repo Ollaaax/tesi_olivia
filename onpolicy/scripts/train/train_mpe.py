@@ -7,9 +7,12 @@ import setproctitle
 import numpy as np
 from pathlib import Path
 import torch
+
 from onpolicy.config import get_config
 from onpolicy.envs.mpe.MPE_env import MPEEnv
 from onpolicy.envs.env_wrappers import SubprocVecEnv, DummyVecEnv
+
+
 
 """Train script for MPEs."""
 
@@ -103,12 +106,7 @@ def main(args):
         os.makedirs(str(run_dir))
 
 #_______________________________________________________________________________________
-    # continual dir to save different agents
-
-    # continual_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
-    #                0] + "/results") / "CONTINUAL" / all_args.env_name / all_args.scenario_name / all_args.algorithm_name / all_args.experiment_name
-    # if not continual_dir.exists():
-    #     os.makedirs(str(continual_dir))
+    #DIRECTORY TO SAVE TRAINED TEAMS
 
     trained_models_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
                    0] + "/results") / "TRAINING" / all_args.env_name / all_args.scenario_name / all_args.algorithm_name / all_args.experiment_name / "trained_teams"
@@ -148,25 +146,6 @@ def main(args):
         # if not run_dir.exists():
             # os.makedirs(str(run_dir))
         #######################
-
-        # ##    MY FOLDER     ##
-        # if not continual_dir.exists():
-        #     curr_run = 'run1'
-        # else: 
-        #     c_saves = [int(str(folder.name).split('run')[1]) for folder in continual_dir.iterdir() if str(folder.name).startswith('run')]
-        #     if len(c_saves) == 0:
-        #         curr_run = 'run1'
-        #     else:
-        #         c_saves = [int(str(folder.name).split('run')[1]) for folder in continual_dir.iterdir() if str(folder.name).startswith('run')]
-        #         if len(c_saves) == 0:
-        #             curr_run = 'run1'
-        #         else:
-        #             curr_run = 'run%i' % (max(c_saves) + 1)
-        #     run_dir = run_dir / curr_run
-        #     if not run_dir.exists():
-        #         os.makedirs(str(run_dir))
-
-        # continual_dir = continual_dir / curr_run
     #_______________________________________________________________________________________
 
     setproctitle.setproctitle(str(all_args.algorithm_name) + "-" + \
@@ -199,7 +178,11 @@ def main(args):
     if all_args.share_policy:
         from onpolicy.runner.shared.mpe_runner import MPERunner as Runner
     else:
-        from onpolicy.runner.separated.mpe_runner import MPERunner as Runner
+        # IF USING BUFFER REPLAY, SWITCH TO BUFFER ENVIRONMENT
+        if all_args.use_buffer or all_args.save_buffer:
+            from onpolicy.runner.separated.mpe_runner_rebuf import MPERunner as Runner
+        else:
+            from onpolicy.runner.separated.mpe_runner import MPERunner as Runner
 
     runner = Runner(config)
     runner.run()

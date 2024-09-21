@@ -22,27 +22,48 @@ class MPERunner(Runner):
        
     def run(self):
         self.warmup()   
+
         #___________________________________________________________________________
         print("Self Joint Train is ", + self.joint_training)
         print("Self Naive Train is ", + self.naive_training)
         #___________________________________________________________________________
+        #_____________________________________________________________________________________________________________________
+        #CHOOSE whether or not initialize the active agent NAIVE TRAINING
+
+        if self.naive_training:
+            team_order = [1, 2, 1]
+            #choose which agent train
+            self.active_agent = self.active_agent_choice() #choice -> copy2dir -> init the nets
+    
+            self.active_agent_init() #Ask if we want to initialize, if yes it does it
+            self.load_active_agent() #Load the NN of the AA
+
+        #___________________________________________________________________________________
+        #!!!!!!!TODO Choose Active Agent for JOINT TRAINING !!!!!do it later
+
+        if self.joint_training:
+            self.active_agent_choice()
+        #_____________________________________________________________________________________________________________________
 
         start = time.time()
         episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
 
         self.episode_reward_list = []
         self.episode_count = 0
-        for episode in range(episodes):
-            ##### INSERT JOIN TRAINING HERE
-            if (self.joint_training and episode % 5 == 0 and episode != 0):
-                self.episode_count += 1
-                team = self.episode_count % 5 + 1
-                print("Team is no", + team)
-                print(f"Episode count", + self.episode_count)
-                ##FUNZIONE PER CARICARE LE RETI
 
-                self.joint_update_teams(team)
-            
+        # #TEAM LOADING 
+        # #Naive Training
+        # if self.naive_training:
+        #     self.naive_load_teams(agent_id)
+
+        # #Joint Training
+        # if self.joint_training and agent_id != self.active_agent:
+        #     teammates = 1
+        #     self.restore_pretrained_models(agent_id, teammates) 
+    
+
+        for episode in range(episodes):
+
             if self.use_linear_lr_decay:
                 for agent_id in range(self.num_agents):
                     self.trainer[agent_id].policy.lr_decay(episode, episodes)
@@ -61,37 +82,34 @@ class MPERunner(Runner):
                 # insert data into buffer
                 self.insert(data)
 
+            ###################################
             # compute return and update network
-            self.do = False
             self.compute()
-            if self.naive_training or self.joint_training or self.do is True:
-                train_infos = self.continual_train()
-            else:
-                train_infos = self.train()
 
+            #Train
+            if self.naive_training or self.joint_training:
+                train_infos = self.continual_train()
+            #_________________________________________
             
             # post process
             total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads
-            #________________
+            #_________________________________________
             
             # save model
             if (episode % self.save_interval == 0 or episode == episodes - 1):
                 self.save()
-                
 
-                ## TODO capire a che cazzo serve
-                #Save the active agent ?? a che serve? 
-                if episode == episodes - 1:
-                    print("Active agent SAVED!")
-                    print(self.active_agent)
-                    # self.show_biases = True
-                self.save_active_agent()
+                if self.naive_training or self.joint_training:
+                    self.save_active_agent()
+                    if episode == episodes - 1:
+                        print(f"Active no {self.active_agent} agent SAVED!")
 
-
+            #__________________________________________________________________________________
+            # SAVING THE TEAMS 
             if (episode == episodes - 1 and self.save_models_flag):
                 self.save_teams_seed()
                 print('TEAM SAVED')
-
+            #__________________________________________________________________________________
 
             # log information
             if episode % self.log_interval == 0:
@@ -131,15 +149,20 @@ class MPERunner(Runner):
 
         #__________________________________
         #Plot Episode avg rewards
+        plt.switch_backend('Agg')
         plt.plot(self.episode_reward_list, )
 
         plt.ylabel("Episode reward")
-        if self.naive_training == True and self.all_args.scenario_name == "simple_reference":
-            plt.ylim(-30, -15)
+        # if self.naive_training == True and self.all_args.scenario_name == "simple_reference":
+        #     plt.ylim(-30, -15)
 
         plt.xlabel("tempo")
-        plt.show()
-        plt.savefig(str(self.trained_models_dir) + "/" + str(self.all_args.seed) + "/training" + ".png")
+        if not self.save_models_flag:
+            plt.show()
+        
+        if self.save_models_flag:
+            plt.savefig(str(self.trained_models_dir) + "/" + str(self.all_args.seed) + "/training0" + ".png")
+
 
         #Fare Cartella
         # last_team = [int(str(folder.name).split('train')[1]) for folder in self.trained_models_dir.iterdir() if str(folder.name).startswith('train')]

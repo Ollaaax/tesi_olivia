@@ -164,7 +164,8 @@ def main(args):
         print("choose to use cpu...")
         device = torch.device("cpu")
         torch.set_num_threads(all_args.n_training_threads)
-
+        
+    # run dir
     run_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
                        0] + "/results") / all_args.env_name / all_args.map_name / all_args.algorithm_name / all_args.experiment_name
     if not run_dir.exists():
@@ -246,7 +247,11 @@ def main(args):
     if all_args.share_policy:
         from onpolicy.runner.shared.smac_runner import SMACRunner as Runner
     else:
-        from onpolicy.runner.separated.smac_runner import SMACRunner as Runner
+        # IF USING BUFFER REPLAY, SWITCH TO BUFFER ENVIRONMENT
+        if all_args.use_buffer or all_args.save_buffer:
+            from onpolicy.runner.separated.smac_runner_rebuf import SMACRunner as Runner
+        else:
+            from onpolicy.runner.separated.smac_runner import SMACRunner as Runner
 
     if all_args.algorithm_name == "happo" or all_args.algorithm_name == "hatrpo":
         from onpolicy.runner.separated.smac_runner import SMACRunner as Runner
