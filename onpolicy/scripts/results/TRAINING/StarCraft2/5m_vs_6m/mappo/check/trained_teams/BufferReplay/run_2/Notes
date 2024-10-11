@@ -1,0 +1,3 @@
+TEST buffer a1 from t1 trained with t2
+w/ buffer
+1e-2, ~700 episodes

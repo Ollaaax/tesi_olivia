@@ -308,11 +308,18 @@ def get_config():
     parser.add_argument("--flag", action='store_true', default = False)
     # parser.add_argument("--continual", action='store_true', default = False)
     parser.add_argument("--save_models_flag", action='store_true', default = False)
+
     parser.add_argument("--naive_training", action='store_true', default = False)
-    parser.add_argument("--naive_training_seq", action='store_true', default = False)
+    parser.add_argument("--naive_test", action='store_true', default = False)
+
     parser.add_argument("--joint_training", action='store_true', default = False)
     parser.add_argument("--acquario", action='store_true', default = False)
+    
     parser.add_argument("--save_buffer", action='store_true', default = False)
     parser.add_argument("--use_buffer", action='store_true', default = False)
+    parser.add_argument("--alpha", type=int, default=1e-2)
+    parser.add_argument("--ep_no_rebuf_train", type=int, default=100)
+    parser.add_argument("--buffer_test", action='store_true', default = False)
+
 
     return parser

@@ -47,8 +47,12 @@ class R_MAPPO():
         self._use_value_active_masks = args.use_value_active_masks
         self._use_policy_active_masks = args.use_policy_active_masks
 
+        #__________________________________________________________________________________________________________
         #TODO tirare fuori il buffer
         self.rebuf_in, self.rebuf_out = buffer_utils.import_buffer(1)
+        self.alpha = args.alpha
+
+        #__________________________________________________________________________________________________________
 
         assert (self._use_popart and self._use_valuenorm) == False, ("self._use_popart and self._use_valuenorm can not be set True simultaneously")
         
@@ -135,28 +139,15 @@ class R_MAPPO():
                                                                               masks_batch, 
                                                                               available_actions_batch,
                                                                               active_masks_batch)
-        #____________________________________________________________________________________________________________
-        #         USE THE REPLAY BUFFER
-        # old_sample_in = self.rebuf_in[self.agent][0]
-        # old_sample_out = self.rebuf_out[self.agent][0]
-
-        # print(len(old_sample_out))
-        
-        #Run the net with the samples taken from the rebuf
-        # oldsamples_actions_log_probs, _ = self.policy.actor.evaluate_actions(*old_sample_in)
-        # print(len(oldsamples_actions_log_probs))
 
         #____________________________________________________________________________________________________________
         #         USE THE REPLAY BUFFER IN PIECES
 
         old_sample_in, old_sample_out = buffer_utils.pick_sample(self)
 
-        # print(len(old_sample_out))
-        
-        #Run the net with the samples taken from the rebuf
+        # #Run the net with the samples taken from the rebuf
         oldsamples_actions_log_probs, _ = self.policy.actor.evaluate_actions(*old_sample_in)
-        # print(len(oldsamples_actions_log_probs))
-
+       
         #____________________________________________________________________________________________________________
         # actor update
         imp_weights = torch.exp(action_log_probs - old_action_log_probs_batch)
@@ -174,14 +165,19 @@ class R_MAPPO():
         #____________________________________________________________________________________________________________
         ##       NEW LOSS FNC
         policy_loss = policy_action_loss
-        replay_loss = torch.sum(torch.exp(old_sample_out - oldsamples_actions_log_probs)).mean()
+        # print(f"Old out {old_sample_out}")
+        # print(f"new out {oldsamples_actions_log_probs}")
 
-        alpha = 1e-5
+        #l1 Replay loss 
+        replay_loss = (torch.exp(old_sample_out) - torch.exp(oldsamples_actions_log_probs)).mean()
+
         print("Policy loss is " + str(policy_loss))
         print("Replay loss is " + str(replay_loss))
-        policy_loss = policy_loss + alpha*replay_loss
+        policy_loss = policy_loss + self.alpha*replay_loss
 
+        print(f"Policy Loss is {policy_loss}")
         #____________________________________________________________________________________________________________
+
         self.policy.actor_optimizer.zero_grad()
 
         if update_actor:

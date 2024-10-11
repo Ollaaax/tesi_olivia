@@ -1,0 +1,5 @@
+train a2 of t1 with t2 
+buffer
+alpha 1e-2
+l1 loss
+EOF 

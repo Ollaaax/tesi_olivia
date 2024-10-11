@@ -47,13 +47,19 @@ class Runner(object):
         #CONFIG FLAGS
         self.flag = self.all_args.flag
         # self.continual_flag = self.all_args.continual
+
         self.naive_training = self.all_args.naive_training
-        self.naive_training_seq = self.all_args.naive_training_seq
+        self.naive_test = self.all_args.naive_test
+
         self.joint_training = self.all_args.joint_training
+
         self.save_models_flag = self.all_args.save_models_flag
         self.acquario = self.all_args.acquario
+        
         self.save_buffer = self.all_args.save_buffer
         self.use_buffer = self.all_args.use_buffer
+        self.buffer_test = self.all_args.buffer_test
+        self.ep_no_rebuf_train = self.all_args.ep_no_rebuf_train
         
         #Other Flags
         self.show_biases = False
@@ -67,6 +73,9 @@ class Runner(object):
 
         #Directories
         self.trained_models_dir = config["trained_models_dir"]
+        if not self.save_buffer:
+            self.results_dir = self.create_log_infos2()
+
         #___________________________________________
 
         # interval
@@ -186,8 +195,6 @@ class Runner(object):
 
             #_______________________________________________________________________
 #             ####LOAD VALUE NORMALIZER
-#             if self.all_args.use_valuenorm and (self.iamloading or self.iamloadingacquario):                
-#                 self.value_normalizer_load(agent_id, 2)
 # #________________________________________________________________________________________
 #########################################################################################
 #########################################################################################
@@ -444,6 +451,7 @@ class Runner(object):
 
                 policy_vnrom_state_dict = torch.load(str(self.trained_models_dir)  + "/" + str(team) + "/vnrom_agent" + str(agent_id) + ".pt")
                 self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
+        print(f"Loaded Team no {team}")
 
     def save_teams_seed(self):
         '''
@@ -453,6 +461,7 @@ class Runner(object):
         curr_team = self.trained_models_dir / str(self.all_args.seed)
         if not curr_team.exists():
             os.makedirs(str(curr_team))
+            print(f"Folder {self.all_args.seed} created!")
 
         for agent_id in range(self.num_agents):
             policy_actor = self.trainer[agent_id].policy.actor
@@ -485,6 +494,10 @@ class Runner(object):
         if self.joint_training:
             curr_dir = self.trained_models_dir
             second_name = "joint_training"
+
+        if self.use_buffer:
+            curr_dir = self.trained_models_dir
+            second_name = "buffer_replay"
 
         if not curr_dir.exists():
             os.makedirs(str(curr_dir))
@@ -534,6 +547,87 @@ class Runner(object):
         print("LOG SAVED!")
         return
 
+    def create_log_infos2(self):
+        '''
+        Function to save into .npy file in the current folder the results of the training
+        data : list of relevant information
+        returns: file_path : path to save the relevant information
+        '''        
+        #Identify the correct path:
+
+        if self.save_models_flag:
+            log_dir = self.trained_models_dir / str(self.all_args.seed)
+            second_name = "training"
+        
+        if self.naive_training:
+            log_dir = self.trained_models_dir / "NaiveTraining"
+            second_name = "naive_training"
+
+        if self.joint_training:
+            log_dir = self.trained_models_dir
+            second_name = "joint_training" / "JointTraining"
+
+        if self.use_buffer:
+            log_dir = self.trained_models_dir / "BufferReplay"
+            second_name = "buffer_replay"
+
+        if not log_dir.exists():
+            os.makedirs(str(log_dir))
+            curr_run = 'run_1'
+        else:
+            exst_run_nums = [int(str(folder.name).split('run_')[1]) for folder in log_dir.iterdir() if
+                             str(folder.name).startswith('run_')]
+            if len(exst_run_nums) == 0:
+                curr_run = 'run_1'
+            else:
+                curr_run = 'run_%i' % (max(exst_run_nums) + 1)
+        log_dir = log_dir / curr_run
+        if not log_dir.exists():
+            os.makedirs(str(log_dir))
+        
+        return log_dir
+
+    def save_log_infos2(self, base_name, data, additional_info = None):
+
+        extension = ".npy"
+        extension_mat = ".mat"
+        extension_plot = ".png"
+
+        if self.save_models_flag:
+            second_name = "training"
+        
+        if self.naive_training:
+            second_name = "naive_training"
+
+        if self.joint_training:
+            second_name = "joint_training"
+
+        if self.use_buffer:
+            second_name = "buffer_replay"
+
+        file_path = f"{self.results_dir}/{base_name}_{second_name}{extension}"
+        file_path_mat = f"{self.results_dir}/{base_name}_{second_name}{extension_mat}"
+        file_path_plot = f"{self.results_dir}/{base_name}_{second_name}_{additional_info}{extension_plot}"
+
+        #Convert to array
+        data = np.array(data)
+
+        np.save(str(file_path), data)
+
+        #__ MATLAB save ____________
+        savemat(str(file_path_mat), {'data': data})
+
+        #__Plot Save________________
+        plt.plot(data, )
+
+        plt.ylabel("incremental win rate")
+        plt.xlabel("Episodes")
+
+        plt.savefig(str(file_path_plot))
+
+        print("LOG SAVED!")
+        return
+
 
 #________________________________________________________________________
 ###           ACTIVE AGENT MANAGEMENT
@@ -573,11 +667,12 @@ class Runner(object):
 
     def set_active_agent(self):
         """ 
-        Copies the nets of the actice agent (the one that will learn to cooperate)
+        Copies the nets of the active agent -taken from team 1 (the one that will learn to cooperate)
         with a different suffix (A). The new nets will be updated, preserving the original one. 
         """
         #TODO checkare che le reti esistono già
         agent = self.active_agent
+
         aa_team = 1
 
         #Copy ACTOR
@@ -659,6 +754,50 @@ class Runner(object):
 
                 #_______________________________________________________________________
                 ####Fare una function o sistemare 
+
+    def freeze_train(self):
+
+        train_infos = []
+        update = False
+
+        # random update order not needed
+
+        action_dim=self.buffer[0].actions.shape[-1]
+        factor = np.ones((self.episode_length, self.n_rollout_threads, 1), dtype=np.float32)
+
+        for agent_id in range(self.num_agents):
+            self.trainer[agent_id].prep_training()
+            self.buffer[agent_id].update_factor(factor)
+            available_actions = None if self.buffer[agent_id].available_actions is None \
+                else self.buffer[agent_id].available_actions[:-1].reshape(-1, *self.buffer[agent_id].available_actions.shape[2:])
+            
+
+            old_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
+                                                            self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]),
+                                                            self.buffer[agent_id].actions.reshape(-1, *self.buffer[agent_id].actions.shape[2:]),
+                                                            self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
+                                                            available_actions,
+                                                            self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
+            
+
+
+            train_info = self.trainer[agent_id].train(self.buffer[agent_id], update)
+
+
+            new_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
+                                                            self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]),
+                                                            self.buffer[agent_id].actions.reshape(-1, *self.buffer[agent_id].actions.shape[2:]),
+                                                            self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
+                                                            available_actions,
+                                                            self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
+            
+
+
+            factor = factor*_t2n(torch.prod(torch.exp(new_actions_logprob-old_actions_logprob),dim=-1).reshape(self.episode_length,self.n_rollout_threads,1))
+            train_infos.append(train_info)      
+            self.buffer[agent_id].after_update()
+        
+        return train_infos
 
     #________________________________________________________________________
     #________________________________________________________________________

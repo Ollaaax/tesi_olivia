@@ -21,8 +21,16 @@ class SMACRunner(Runner):
         #CHOOSE whether or not initialize the active agent NAIVE TRAINING
 
         if self.naive_training:
-            self.active_agent_init()
-            
+            if self.naive_test:
+                team_order = [1]
+            else:
+                team_order = [2]
+            #choose which agent train
+            self.active_agent = self.active_agent_choice() #choice 
+    
+            self.active_agent_init() #Ask if we want to initialize, if yes it does it
+            self.load_active_agent() #Load the NN of the AA
+
         #___________________________________________________________________________________
         #Choose Active Agent for JOINT TRAINING
 
@@ -43,11 +51,19 @@ class SMACRunner(Runner):
         #Save log information for performance plotting
         self.win_rate_list = []
 
-        increwinrate_path = self.create_log_infos("incre_win_rate")
+        # increwinrate_path = self.create_log_infos("incre_win_rate")
+        # self.results_dir = self.create_log_infos2()
+
 
         self.episode_count = 0
         self.show_biases = False
 
+
+        #Choose, set and load active agent and teams
+        if self.naive_training:
+            episodes *= len(team_order)
+
+######################################################################################
         for episode in range(episodes):
             
             # #Episode count for Joint Training _________
@@ -59,6 +75,12 @@ class SMACRunner(Runner):
 
             #     self.joint_update_teams(team)
             #___________________________________________
+
+            #Sequentially load the teams for Naive Training
+            if self.naive_training and episode % (episodes//len(team_order)) == 0:
+                index = int(episode / (episodes//len(team_order)))
+                print(f"Team Loaded is {team_order[index]}")
+                self.load_teammates(team_order[index])               
 
             if self.use_linear_lr_decay:
                 self.trainer.policy.lr_decay(episode, episodes)
@@ -76,10 +98,13 @@ class SMACRunner(Runner):
                 # insert data into buffer
                 self.insert(data)
 
+            ######################################
+
             # compute return and update network
             self.compute()
+            
             if self.naive_training or self.joint_training is True:
-                train_infos = self.continual_train()
+                train_infos = self.freeze_train() if self.naive_test else self.continual_train()
             else:
                 train_infos = self.train()
             
@@ -101,7 +126,7 @@ class SMACRunner(Runner):
                 if self.save_models_flag:
                     if (episode == episodes - 1  or episode % self.save_interval == 0):
                         self.save_teams_seed()
-                        print('TEAM SAVED')
+                        # print('TEAM SAVED')
 
             # log information
             if episode % self.log_interval == 0:
@@ -133,10 +158,14 @@ class SMACRunner(Runner):
                     incre_win_rate = np.sum(incre_battles_won)/np.sum(incre_battles_game) if np.sum(incre_battles_game)>0 else 0.0
                     print("incre win rate is {}.".format(incre_win_rate))
 
+                    #______________________________________________
                     for i in range(self.log_interval):
                         self.win_rate_list.append(incre_win_rate)
                     
-                    self.save_log_infos(self.win_rate_list, increwinrate_path)
+                    # self.save_log_infos(self.win_rate_list, increwinrate_path)
+                    self.save_log_infos2("incre_win_rate", self.win_rate_list)
+                    #______________________________________________
+
 
                     if self.use_wandb:
                         wandb.log({"incre_win_rate": incre_win_rate}, step=total_num_steps)
@@ -165,23 +194,23 @@ class SMACRunner(Runner):
 
         ########## END EPISODE LOOP ##############
         # #__________________________________
-        #Plot Episode avg rewards
-        plt.plot(self.win_rate_list, )
+        # #Plot Episode avg rewards
+        #     plt.plot(self.win_rate_list, )
 
-        plt.ylabel("incremental win rate")
+        #     plt.ylabel("incremental win rate")
 
-        plt.xlabel("Episodes")
+        #     plt.xlabel("Episodes")
 
-        if self.save_models_flag:
-            plt.savefig(str(self.trained_models_dir)  + "/" + str(self.all_args.seed ) + "/team_train0" + ".png")
-        if self.joint_training:
-            plt.savefig(str(self.trained_models_dir)  +  "/joint_train1ep" + ".png")
-        if self.naive_training:
-            plt.savefig(str(self.trained_models_dir)  +  "/naive_train_A" + str(self.active_agent) + ".png")
+        #     if self.save_models_flag:
+        #         plt.savefig(str(self.trained_models_dir)  + "/" + str(self.all_args.seed ) + "/team_train0" + ".png")
+        #     if self.joint_training:
+        #         plt.savefig(str(self.trained_models_dir)  +  "/joint_train1ep" + ".png")
+        #     if self.naive_training:
+        #         plt.savefig(str(self.trained_models_dir)  +  "/naive_train_A121_0" + str(self.active_agent) + ".png")
 
-        print("Image Saved!!")
-        plt.show()
-        
+        #     print("Image Saved!!")
+            # plt.show()
+            
 
     def warmup(self):
         # reset env

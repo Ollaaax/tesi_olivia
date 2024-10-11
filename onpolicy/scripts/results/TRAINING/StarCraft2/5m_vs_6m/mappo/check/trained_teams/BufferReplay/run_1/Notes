@@ -1,0 +1,4 @@
+TRAIN agent 1 of team 1 with team 2 
+W/ Buffer
+alpha = 1e-2
+1500 episodes 

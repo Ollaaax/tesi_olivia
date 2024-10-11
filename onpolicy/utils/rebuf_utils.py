@@ -34,8 +34,8 @@ class Buffer_Utils():
         return team_no
 
     def buffer_foreachteam_creation(self):
-        self.rebuf_outs = [[], []]
-        self.rebuf_ins = [[], []]
+        self.rebuf_outs = [[] for _ in range(self.num_agents)]
+        self.rebuf_ins = [[] for _ in range(self.num_agents)]
 
         buffer_team_no = self.manually_choice_of_team()
 
@@ -95,6 +95,7 @@ class Buffer_Utils():
             # print(input_data[0][0])
             # print(input_data[0][0])
 
+            self.rebuf_ins[agent_id].append(input_data)
             print(len(self.rebuf_ins[agent_id]))
 
             train_info = self.trainer[agent_id].train(self.buffer[agent_id], update)
@@ -131,7 +132,7 @@ class Buffer_Utils():
             update = True if i == self.active_agent else False
             agents_list.append((i, update))
 
-        for agent_id in torch.randperm(self.num_agents):
+        for i in torch.randperm(self.num_agents):
 
             agent_id, update = agents_list[i]
 
@@ -147,7 +148,7 @@ class Buffer_Utils():
                                                         self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
                                                         available_actions,
                                                         self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
-            train_info = self.trainer[agent_id].train(self.buffer[agent_id], agent_id, update)
+            train_info = self.trainer[agent_id].train(self.buffer[agent_id], self.active_agent, update)
 
 
             new_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
@@ -161,6 +162,50 @@ class Buffer_Utils():
             train_infos.append(train_info)      
             self.buffer[agent_id].after_update()
 
+        return train_infos
+
+    def freeze_train2(self):
+
+        train_infos = []
+        update = False
+
+        # random update order not needed
+
+        action_dim=self.buffer[0].actions.shape[-1]
+        factor = np.ones((self.episode_length, self.n_rollout_threads, 1), dtype=np.float32)
+
+        for agent_id in range(self.num_agents):
+            self.trainer[agent_id].prep_training()
+            self.buffer[agent_id].update_factor(factor)
+            available_actions = None if self.buffer[agent_id].available_actions is None \
+                else self.buffer[agent_id].available_actions[:-1].reshape(-1, *self.buffer[agent_id].available_actions.shape[2:])
+            
+
+            old_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
+                                                            self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]),
+                                                            self.buffer[agent_id].actions.reshape(-1, *self.buffer[agent_id].actions.shape[2:]),
+                                                            self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
+                                                            available_actions,
+                                                            self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
+            
+
+
+            train_info = self.trainer[agent_id].train(self.buffer[agent_id], self.active_agent, update)
+
+
+            new_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
+                                                            self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]),
+                                                            self.buffer[agent_id].actions.reshape(-1, *self.buffer[agent_id].actions.shape[2:]),
+                                                            self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
+                                                            available_actions,
+                                                            self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
+            
+
+
+            factor = factor*_t2n(torch.prod(torch.exp(new_actions_logprob-old_actions_logprob),dim=-1).reshape(self.episode_length,self.n_rollout_threads,1))
+            train_infos.append(train_info)      
+            self.buffer[agent_id].after_update()
+        
         return train_infos
 
     #____________UTILS FUNCTIONS_________________________________________
@@ -194,3 +239,69 @@ class Buffer_Utils():
             else:
                 self.load_active_agent2()
 
+    #___________MANAGEMENT_______________________________________________
+
+    def team_assemblation(self):
+        '''Idea: 
+        if i want to SAVE the buffer
+            > la funzione ci pensa da sé
+            ________________________________________________
+        if I want to TRAIN with Buffer, then setting is:
+            > Choose which agent train 
+            > AA copied in the folder from team 1 
+            > Net initialized with such agent 
+            > Model of AA saved in the folder at each episode
+            > Team Loaded 1 (not necessary) or 2 (to train)
+            > Perform 100 episodes 
+            _________________________________________________
+        if I want to TEST the training: 
+            > Take the agent from the folder 
+            > Initialize net with such agent
+            > Load the original team (= 1)
+            > Perform 10 Episodes 
+        '''
+
+        #CREATION OF THE BUFFER
+        if self.save_buffer:
+            #Create the empty Replay Buffer
+            self.buffer_foreachteam_creation()
+            self.num_env_steps = self.n_rollout_threads * self.episode_length * 1
+        #______________________________________________________
+        
+        if self.use_buffer:  
+            # TRAIN WITH BUFFER  
+            if not self.buffer_test:
+                #Choose, set and load active agent and teams
+                self.active_agent = self.active_agent_choice()
+
+                self.set_active_agent() #Copies A from T1 in folder
+
+                team = self.manually_choice_of_team() #Choose team
+
+                self.num_env_steps = self.ep_no_rebuf_train * self.episode_length * self.n_rollout_threads
+            
+            # TEST with buffer
+            else:
+                team = 1 #For test use team 1 only
+
+                #Perform 10 Episodes only
+                self.num_env_steps = 50 * self.episode_length * self.n_rollout_threads
+
+            self.load_teammates(team) #Initialize nets with teammates
+
+            self.load_active_agent() #Load the Active Agent copied in folder
+            #____________________________________________________
+
+    def rebuf_training(self):
+        # compute return and update network
+        if self.save_buffer:
+            train_infos = self.freeze_save_train()
+
+        elif self.use_buffer:
+            # train_infos = (0 if self.buffer_test else self.train_with_rebuf())
+            if self.buffer_test: 
+                train_infos = self.freeze_train2()
+            else:
+                train_infos = self.train_with_rebuf()
+
+        return train_infos

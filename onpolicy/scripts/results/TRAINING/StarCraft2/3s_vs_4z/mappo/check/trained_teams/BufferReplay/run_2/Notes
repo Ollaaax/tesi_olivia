@@ -1,0 +1,5 @@
+TRAIN a1 from t1 with t2
+300 episodes
+alpha 1e-2
+l1 loss 
+W/ BUFFER

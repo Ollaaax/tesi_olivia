@@ -141,7 +141,7 @@ class ACTLayer(nn.Module):
                         dist_entropy.append((action_logit.entropy() * active_masks.squeeze(-1)).sum()/active_masks.sum())
                 else:
                     dist_entropy.append(action_logit.entropy().mean())
-                
+            
             action_log_probs = torch.sum(torch.cat(action_log_probs, -1), -1, keepdim=True)
             dist_entropy = dist_entropy[0] / 2.0 + dist_entropy[1] / 0.98 #! dosen't make sense
 
@@ -175,6 +175,7 @@ class ACTLayer(nn.Module):
                 dist_entropy = (action_logits.entropy()*active_masks.squeeze(-1)).sum()/active_masks.sum()
             else:
                 dist_entropy = action_logits.entropy().mean()
+        
         
         return action_log_probs, dist_entropy
 

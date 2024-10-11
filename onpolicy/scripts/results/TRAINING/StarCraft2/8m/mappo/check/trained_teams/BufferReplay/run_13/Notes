@@ -1,0 +1,2 @@
+train agent 1 of team 1 with team 2 and buffer
+alpha = 1e-2

@@ -3,7 +3,7 @@ env="StarCraft2"
 map="3s5z"
 algo="rmappo"
 exp="check"
-seed_max=1
+seed_max=5
 
 #__________________________________________________________________________________
 # num_env_steps=10000000 #default

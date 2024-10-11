@@ -2,7 +2,7 @@ import time
 import numpy as np
 from functools import reduce
 import torch
-from onpolicy.runner.separated.base_runner_rebuf import Runner
+from onpolicy.runner.separated.base_runner import Runner
 import wandb
 
 
@@ -24,17 +24,8 @@ class SMACRunner(Runner, Buffer_Utils):
 
     def run(self):
         self.warmup()   
-
-        #______________________________________________________________________________________
-        #Number of Episodes we want to save in the buffer in test mode 
-        if self.save_buffer:
-            print("u are choosing to save in the replay buffer, performing 10 episodes")
-            self.num_env_steps = self.n_rollout_threads * self.episode_length * 10
-
-        #______________________________________________________________________________________
-        
         start = time.time()
-        episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
+        # episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
 
         last_battles_game = np.zeros(self.n_rollout_threads, dtype=np.float32)
         last_battles_won = np.zeros(self.n_rollout_threads, dtype=np.float32)
@@ -44,51 +35,14 @@ class SMACRunner(Runner, Buffer_Utils):
 
         #Save log information for performance plotting
         self.win_rate_list = []
-
-        increwinrate_path = self.create_log_infos("incre_win_rate")
-
-        self.episode_count = 0
-
-
         #__________________________________________________________________________
-        #CREATION OF THE BUFFER
-        if self.save_buffer:
-            #Create the empty Replay Buffer
-            self.buffer_foreachteam_creation()
+        #TEAM COMPOSITION
+        self.team_assemblation()    
         #__________________________________________________________________________
-        # ________IF WE WANT TO PERFORM CONTINUAL LEARNING_________________________
-        if self.use_buffer:
-            
-            #FOR THE MOMENT W/OUT THE BUFFER REPLAY
-            self.do_u_want_to_use_buffer = False
+        episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
 
-            #____Create the Buffer Folder__________________________
-            self.rebuf_folder_results = Path(os.path.dirname(self.trained_models_dir) + "/Rebuf")
-            
-            if not self.rebuf_folder_results.exists():
-                os.makedirs(str(self.rebuf_folder_results))            
-            #______________________________________________________
-            #Choose, set and load active agent and teams
-  
-            self.active_agent = self.active_agent_choice()
-
-            self.set_active_agent()
-
-            #Load the Active Agent from Team 1
-            self.load_active_agent()
-            #____________________________________________________
-
-            team_order = [1, 2, 1]
-            episodes *= len(team_order)
-        #__________________________________________________________________________
-
+        ########################################
         for episode in range(episodes):
-            
-            if self.use_buffer and episode % (episodes//len(team_order)) == 0:
-                index = int(episode / (episodes//len(team_order)))
-                print(f"Team Loaded is {team_order[index]}")
-                self.load_teammates(team_order[index])
-
 
             if self.use_linear_lr_decay:
                 self.trainer.policy.lr_decay(episode, episodes)
@@ -109,10 +63,11 @@ class SMACRunner(Runner, Buffer_Utils):
             ######################################
 
             # compute return and update network
-            if self.save_buffer:
-                train_infos = self.freeze_save_train()
-            elif self.use_buffer:
-                train_infos = self.train_with_rebuf()
+            self.compute()
+
+            #train
+            train_infos = self.rebuf_training()
+
 
             # post process
             total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads 
@@ -122,6 +77,11 @@ class SMACRunner(Runner, Buffer_Utils):
             if (episode % self.save_interval == 0 or episode == episodes - 1):
                 self.save()
 
+                #Saving the Active Agent
+                if self.use_buffer:
+                    self.save_active_agent()
+                    if episode == episodes - 1:
+                        print(f"Active no {self.active_agent} agent SAVED!")
 
             # log information
             if episode % self.log_interval == 0:
@@ -153,11 +113,17 @@ class SMACRunner(Runner, Buffer_Utils):
                     incre_win_rate = np.sum(incre_battles_won)/np.sum(incre_battles_game) if np.sum(incre_battles_game)>0 else 0.0
                     print("incre win rate is {}.".format(incre_win_rate))
 
+
+                    #______________________________________________
                     #Since log_interval is not 1, in this way the graph is still of the correct length
                     for i in range(self.log_interval):
                         self.win_rate_list.append(incre_win_rate)
                     
-                    self.save_log_infos(self.win_rate_list, increwinrate_path)
+                    if not self.save_buffer:
+                        self.save_log_infos2("incre_win_rate", self.win_rate_list)
+                        # self.save_log_infos(self.win_rate_list, increwinrate_path)
+
+                    #______________________________________________
 
                     if self.use_wandb:
                         wandb.log({"incre_win_rate": incre_win_rate}, step=total_num_steps)
@@ -166,12 +132,13 @@ class SMACRunner(Runner, Buffer_Utils):
                     
                     last_battles_game = battles_game
                     last_battles_won = battles_won
-                # modified
 
-                for agent_id in range(self.num_agents):
-                    train_infos[agent_id]['dead_ratio'] = 1 - self.buffer[agent_id].active_masks.sum() /(self.num_agents* reduce(lambda x, y: x*y, list(self.buffer[agent_id].active_masks.shape)))
-                
-                self.log_train(train_infos, total_num_steps)
+                # modified
+                if not self.buffer_test:
+                    for agent_id in range(self.num_agents):
+                        train_infos[agent_id]['dead_ratio'] = 1 - self.buffer[agent_id].active_masks.sum() /(self.num_agents* reduce(lambda x, y: x*y, list(self.buffer[agent_id].active_masks.shape)))
+                    
+                    self.log_train(train_infos, total_num_steps)
 
             # train_infos[0].update({"average_episode_rewards": np.mean(self.buffer[agent_id].rewards) * self.episode_length})
             # self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
@@ -182,18 +149,19 @@ class SMACRunner(Runner, Buffer_Utils):
 
         ########## END EPISODE LOOP ##############
         # #__________________________________
-        #Plot Episode avg rewards
-        plt.plot(self.win_rate_list, )
+        # #Plot Episode avg rewards
+        # plt.plot(self.win_rate_list, )
 
-        plt.ylabel("Incremental win rate")
-        plt.xlabel("Episodes")
+        # plt.ylabel("Incremental win rate")
+        # plt.xlabel("Episodes")
 
-        if self.save_models_flag:
-            plt.savefig(str(self.trained_models_dir)  + "/" + str(self.all_args.seed) + "/team_train0" + ".png")
-            print("Image Saved!!")
+        # if self.save_models_flag:
+        #     plt.savefig(str(self.trained_models_dir)  + "/" + str(self.all_args.seed) + "/team_train0" + ".png")
+        #     print("Image Saved!!")
         
-        if self.use_buffer():
-            plt.show()
+        # if self.use_buffer:
+        #     plt.savefig(str(self.trained_models_dir)  + "/Rebuf0" + ".png")
+        #     print("Image Saved!!")
 
         # plt.show()
         
