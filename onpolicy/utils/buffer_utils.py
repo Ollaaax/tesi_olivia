@@ -36,7 +36,7 @@ def import_buffer(buffer_team_no):
                         0] + "/scripts/results") / "TRAINING" / all_args.env_name / all_args.map_name / all_args.algorithm_name / all_args.experiment_name / "trained_teams" \
                         / str(buffer_team_no) / ("BufferT" + str(buffer_team_no)) 
     
-    buffer_in = torch.load(str(buffer_path) + "/replay_buffer_ins.npy")
+    buffer_in = torch.load(str(buffer_path) + "/replay_buffer_ins.npy") 
     buffer_out = torch.load(str(buffer_path) +  "/replay_buffer_outs.npy")
 
     return buffer_in, buffer_out
@@ -72,3 +72,4 @@ def pick_sample(self):
         old_sample_out = self.rebuf_out[self.agent][episode_no][s:s+8]  
 
     return old_sample_in, old_sample_out
+

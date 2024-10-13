@@ -53,39 +53,20 @@ class MPERunner(Runner, Buffer_Utils):
             if not self.rebuf_folder_results.exists():
                 os.makedirs(str(self.rebuf_folder_results))            
             #______________________________________________________
-            #Choose, set and load active agent and teams
-  
-            self.active_agent = self.active_agent_choice()
+            #TEAM COMPOSITION
+            self.team_assemblation()    
+            #__________________________________________________________________________
+            episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
+            #_______________________________________________________________
 
-            self.set_active_agent()
-
-            #Load the Active Agent from Team 1
-            self.load_active_agent()
-            #____________________________________________________
-
-            #TODO CREATE A PARENT FOR LOOP TO INSERT THE SWITCHING OF TEAMS
-            #INSTEAD, TAKE THE ENVSTEP, MULTIPLY IT BY 3 AND SWITCH TEAM 
-
-            #TODO TRAIN WITH TEAM 2 AND THEN PUT BACK IN TEAM 1 
-
-            team_order = [2]
-            episodes *= len(team_order)
-        #_______________________________________________________________
-
+        ########################################
         for episode in range(episodes):
-
-            if self.use_buffer and episode % (episodes//len(team_order)) == 0:
-                index = int(episode / (episodes//len(team_order)))
-                print(f"Team Loaded is {team_order[index]}")
-                self.load_teammates(team_order[index])
-
-            
+  
             if self.use_linear_lr_decay:
                 for agent_id in range(self.num_agents):
                     self.trainer[agent_id].policy.lr_decay(episode, episodes)
 
             for step in range(self.episode_length):
-                self.show_biases = True
 
                 # Sample actions
                 values, actions, action_log_probs, rnn_states, rnn_states_critic, actions_env = self.collect(step)
@@ -104,11 +85,7 @@ class MPERunner(Runner, Buffer_Utils):
             self.compute()
 
             # compute return and update network
-            if self.save_buffer:
-                train_infos = self.freeze_save_train()
-            elif self.use_buffer:
-                train_infos = self.train_with_rebuf()
-
+            train_infos = self.rebuf_train()
 
             # post process
             total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads

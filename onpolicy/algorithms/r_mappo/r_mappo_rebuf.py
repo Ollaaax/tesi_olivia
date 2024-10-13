@@ -168,8 +168,11 @@ class R_MAPPO():
         # print(f"Old out {old_sample_out}")
         # print(f"new out {oldsamples_actions_log_probs}")
 
-        #l1 Replay loss 
+        #l1 Replay Loss 
         replay_loss = (torch.exp(old_sample_out) - torch.exp(oldsamples_actions_log_probs)).mean()
+
+        #l2 Replay Loss
+        replay_loss = ()
 
         print("Policy loss is " + str(policy_loss))
         print("Replay loss is " + str(replay_loss))

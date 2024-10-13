@@ -5,6 +5,9 @@ from pathlib import Path
 import random
 import torch
 import shutil
+import random
+
+from onpolicy.utils import buffer_utils
 
 def _t2n(x):
     return x.detach().cpu().numpy()
@@ -276,23 +279,23 @@ class Buffer_Utils():
 
                 self.set_active_agent() #Copies A from T1 in folder
 
-                team = self.manually_choice_of_team() #Choose team
+                self.team = self.manually_choice_of_team() #Choose team
 
                 self.num_env_steps = self.ep_no_rebuf_train * self.episode_length * self.n_rollout_threads
             
             # TEST with buffer
             else:
-                team = 1 #For test use team 1 only
+                self.team = 1 #For test use team 1 only
 
                 #Perform 10 Episodes only
                 self.num_env_steps = 50 * self.episode_length * self.n_rollout_threads
 
-            self.load_teammates(team) #Initialize nets with teammates
+            self.load_teammates(self.team) #Initialize nets with teammates
 
             self.load_active_agent() #Load the Active Agent copied in folder
             #____________________________________________________
 
-    def rebuf_training(self):
+    def rebuf_train(self):
         # compute return and update network
         if self.save_buffer:
             train_infos = self.freeze_save_train()
@@ -302,6 +305,54 @@ class Buffer_Utils():
             if self.buffer_test: 
                 train_infos = self.freeze_train2()
             else:
+                #here i should extract the buffer and pass it
+                #TODO cambiare eventualmente la sqaudra di partenza 
+                self.rebuf_in, self.rebuf_out = buffer_utils.import_buffer(1)
+
+                #PORZIONO IL BUFFER 
+                # 1. seleziono solo la colonna relativa all'active agent
+                self.rebuf_in = self.rebuf_in[self.active_agent] 
+                self.rebuf_out = self.rebuf_out[self.active_agent]
+
+                # 2. Setto la percentuale di uso del buffer (tramite config?)
+                buff_episodes_len = len(self.rebuf_in)
+                
+                index_array = np.arange(buff_episodes_len * self.episode_length)
+                np.random.shuffle(index_array)
+                print(f"Indeces array {index_array}")
+                print(f"Index len {len(index_array)}")
+
+                # 3. Shuffle + Portion
+                new_buf_in = [] 
+                for i in index_array:
+                    ep_no = i // self.episode_length
+                    step_no = i % self.episode_length
+                    print(f"i is {i}")
+                    print(f"ep_no is {ep_no}")
+                    print(f"step_no is {step_no}")
+                    print(f" sample is {self.rebuf_in[ep_no][:][step_no]}")
+                    sys.exit()
+                # 4. Voilà nuovo buffer 
+
+                #train algorithm 
                 train_infos = self.train_with_rebuf()
 
         return train_infos
+    
+
+    def import_buffer(self, buffer_team_no):
+
+        if self.env_name == "MPE":
+            buffer_path = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
+                        0]+ "/scripts/results") / "TRAINING" / self.env_name / self.scenario_name / self.algorithm_name / self.experiment_name / "trained_teams" \
+                        / str(buffer_team_no) / ("BufferT" + str(buffer_team_no)) 
+            
+        if self.env_name == "StarCraft2":
+            buffer_path = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
+                            0] + "/scripts/results") / "TRAINING" / self.env_name / self.map_name / self.algorithm_name / self.experiment_name / "trained_teams" \
+                            / str(buffer_team_no) / ("BufferT" + str(buffer_team_no)) 
+        
+        buffer_in = torch.load(str(buffer_path) + "/replay_buffer_ins.npy") 
+        buffer_out = torch.load(str(buffer_path) +  "/replay_buffer_outs.npy")
+
+        return buffer_in, buffer_out

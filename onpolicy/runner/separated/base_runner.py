@@ -60,6 +60,7 @@ class Runner(object):
         self.use_buffer = self.all_args.use_buffer
         self.buffer_test = self.all_args.buffer_test
         self.ep_no_rebuf_train = self.all_args.ep_no_rebuf_train
+        self.pcnt_buffer = self.all_args.pcnt_buffer
         
         #Other Flags
         self.show_biases = False
@@ -84,19 +85,8 @@ class Runner(object):
         self.eval_interval = self.all_args.eval_interval
         self.log_interval = self.all_args.log_interval
 
-        #IF WORKS, ELIMINATE
         # #_____________________________________________________________________________________________________________________
-        # #CHOOSE whether or not initialize the active agent NAIVE TRAINING
 
-        # if self.naive_training or self.naive_training_seq:
-        #     self.active_agent_init()
-            
-        # #___________________________________________________________________________________
-        # #Choose Active Agent for JOINT TRAINING
-
-        # if self.joint_training:
-        #     self.active_agent_choice()
-        # #_____________________________________________________________________________________________________________________
 
         if self.use_render:
             import imageio

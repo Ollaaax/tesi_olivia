@@ -40,7 +40,6 @@ class SMACRunner(Runner, Buffer_Utils):
         self.team_assemblation()    
         #__________________________________________________________________________
         episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
-
         ########################################
         for episode in range(episodes):
 
@@ -66,7 +65,7 @@ class SMACRunner(Runner, Buffer_Utils):
             self.compute()
 
             #train
-            train_infos = self.rebuf_training()
+            train_infos = self.rebuf_train()
 
 
             # post process
