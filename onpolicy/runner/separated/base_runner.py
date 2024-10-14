@@ -411,18 +411,22 @@ class Runner(object):
         policy_vnrom_state_dict = torch.load(str(self.trained_models_dir)  + "/" + str(team) + "/vnrom_agent" + str(agent_id) + ".pt")
         self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
 
-    def restore_pretrained_models_acquario(self, agent_id):
+    def restore_pretrained_models_acquario(self):
         """
         Load the pretrained teams (as teammates) addressed with the seed to continue the training if the acquario stops
         """
+        for agent_id in range(self.num_agents):
+            policy_actor_state_dict = torch.load(str(self.trained_models_dir) + '/' + str(self.all_args.seed) + '/actor_agent' + str(agent_id) + '.pt')
+            self.policy[agent_id].actor.load_state_dict(policy_actor_state_dict)
 
-        self.iamloadingacquario = True
+            policy_critic_state_dict = torch.load(str(self.trained_models_dir) + '/' + str(self.all_args.seed) + '/critic_agent' + str(agent_id) + '.pt')
+            self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
 
-        policy_actor_state_dict = torch.load(str(self.trained_models_dir) + '/' + str(self.all_args.seed) + '/actor_agent' + str(agent_id) + '.pt')
-        self.policy[agent_id].actor.load_state_dict(policy_actor_state_dict)
+            policy_vnrom_state_dict = torch.load(str(self.trained_models_dir)  + "/" + str(self.all_args.seed) + "/vnrom_agent" + str(agent_id) + ".pt")
+            self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
 
-        policy_critic_state_dict = torch.load(str(self.trained_models_dir) + '/' + str(self.all_args.seed) + '/critic_agent' + str(agent_id) + '.pt')
-        self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
+        print(f"Team {self.all_args.seed} Restored")
+
 
     def load_teammates(self, team):
         """

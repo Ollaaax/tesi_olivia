@@ -6,6 +6,9 @@ from onpolicy.runner.separated.base_runner import Runner
 import wandb
 import matplotlib.pyplot as plt
 
+import sys
+
+
 def _t2n(x):
     return x.detach().cpu().numpy()
 
@@ -16,7 +19,8 @@ class SMACRunner(Runner):
 
     def run(self):
         self.warmup()   
-
+        print(f"Shared Policy? {self.all_args.share_policy}")
+        sys.exit()
         #_____________________________________________________________________________________________________________________
         #CHOOSE whether or not initialize the active agent NAIVE TRAINING
 
@@ -66,14 +70,7 @@ class SMACRunner(Runner):
 ######################################################################################
         for episode in range(episodes):
             
-            # #Episode count for Joint Training _________
-            # if (self.joint_training and episode % 1 == 0 and episode != 0):
-            #     self.episode_count += 1
-            #     team = self.episode_count % 5 + 1
-            #     print("Team is no", + team)
-            #     print(f"Episode count", + self.episode_count)
-
-            #     self.joint_update_teams(team)
+            self.restore_pretrained_models_acquario()
             #___________________________________________
 
             #Sequentially load the teams for Naive Training
