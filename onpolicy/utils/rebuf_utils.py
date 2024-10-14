@@ -151,7 +151,7 @@ class Buffer_Utils():
                                                         self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
                                                         available_actions,
                                                         self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
-            train_info = self.trainer[agent_id].train(self.buffer[agent_id], self.active_agent, update)
+            train_info = self.trainer[agent_id].train(self.buffer[agent_id], update)
 
 
             new_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
@@ -253,6 +253,7 @@ class Buffer_Utils():
             > Choose which agent train 
             > AA copied in the folder from team 1 
             > Net initialized with such agent 
+            > Buffer creation and assigning to my team
             > Model of AA saved in the folder at each episode
             > Team Loaded 1 (not necessary) or 2 (to train)
             > Perform 100 episodes 
@@ -278,6 +279,11 @@ class Buffer_Utils():
                 self.active_agent = self.active_agent_choice()
 
                 self.set_active_agent() #Copies A from T1 in folder
+
+                #Create buffer
+                rebuf_in, rebuf_out = self.shuffle_n_portion_buffer()
+                #It must be passed to trainer
+                self.trainer[self.active_agent].set_buffers(rebuf_in, rebuf_out)
 
                 self.team = self.manually_choice_of_team() #Choose team
 
@@ -305,36 +311,6 @@ class Buffer_Utils():
             if self.buffer_test: 
                 train_infos = self.freeze_train2()
             else:
-                #here i should extract the buffer and pass it
-                #TODO cambiare eventualmente la sqaudra di partenza 
-                self.rebuf_in, self.rebuf_out = buffer_utils.import_buffer(1)
-
-                #PORZIONO IL BUFFER 
-                # 1. seleziono solo la colonna relativa all'active agent
-                self.rebuf_in = self.rebuf_in[self.active_agent] 
-                self.rebuf_out = self.rebuf_out[self.active_agent]
-
-                # 2. Setto la percentuale di uso del buffer (tramite config?)
-                buff_episodes_len = len(self.rebuf_in)
-                
-                index_array = np.arange(buff_episodes_len * self.episode_length)
-                np.random.shuffle(index_array)
-                print(f"Indeces array {index_array}")
-                print(f"Index len {len(index_array)}")
-
-                # 3. Shuffle + Portion
-                new_buf_in = [] 
-                for i in index_array:
-                    ep_no = i // self.episode_length
-                    step_no = i % self.episode_length
-                    print(f"i is {i}")
-                    print(f"ep_no is {ep_no}")
-                    print(f"step_no is {step_no}")
-                    print(f" sample is {self.rebuf_in[ep_no][:][step_no]}")
-                    sys.exit()
-                # 4. Voilà nuovo buffer 
-
-                #train algorithm 
                 train_infos = self.train_with_rebuf()
 
         return train_infos
@@ -356,3 +332,46 @@ class Buffer_Utils():
         buffer_out = torch.load(str(buffer_path) +  "/replay_buffer_outs.npy")
 
         return buffer_in, buffer_out
+    
+    def shuffle_n_portion_buffer(self):
+        """Here I import the buffer, shuffle it along episodes and steps, and take a portion
+        Input: semmai buffer_team_no
+        Output: Shuffled and portioned Buffers
+        """
+        #TODO cambiare eventualmente la sqaudra di partenza 
+        rebuf_in, rebuf_out = buffer_utils.import_buffer(1)
+
+        #PORZIONO IL BUFFER 
+        # 1. seleziono solo la colonna relativa all'active agent
+        rebuf_in = rebuf_in[self.active_agent] 
+        rebuf_out = rebuf_out[self.active_agent]
+
+        # 2. Setto la percentuale di uso del buffer (tramite config?)
+        buff_episodes_len = len(rebuf_in)
+        
+        index_array = np.arange(buff_episodes_len * self.episode_length)
+        np.random.shuffle(index_array)
+        # print(f"Indeces array {index_array}")
+        # print(f"Index len {len(index_array)}")
+
+        # 3. Shuffle + Portion
+        new_buf_in = [] 
+        new_buf_out = []
+        for i in index_array:
+            ep_no = i // self.episode_length
+            step_no = i % self.episode_length
+
+            old_sample_in = [   rebuf_in[ep_no][0][step_no:step_no+self.n_rollout_threads],
+                                rebuf_in[ep_no][1], 
+                                rebuf_in[ep_no][2][step_no:step_no+self.n_rollout_threads], 
+                                rebuf_in[ep_no][3][step_no:step_no+self.n_rollout_threads], 
+                                rebuf_in[ep_no][4], 
+                                rebuf_in[ep_no][5][step_no:step_no+self.n_rollout_threads]]
+            
+            new_buf_in.append(old_sample_in)
+            new_buf_out.append(rebuf_out[ep_no][step_no:step_no+self.n_rollout_threads])
+            
+        rebuf_in = new_buf_in[:len(new_buf_in)*self.pcnt_buffer//100]
+        rebuf_out = new_buf_out[:len(new_buf_in)*self.pcnt_buffer//100]
+        # 4. Voilà nuovo buffer 
+        return rebuf_in, rebuf_out

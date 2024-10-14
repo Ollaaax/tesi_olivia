@@ -43,15 +43,7 @@ class MPERunner(Runner, Buffer_Utils):
             self.buffer_foreachteam_creation()
 
         if self.use_buffer:
-            
-            #FOR THE MOMENTO W/OUT THE BUFFER REPLAY
-            self.do_u_want_to_use_buffer = False
-
-            #____Create the Buffer Folder__________________________
-            self.rebuf_folder_results = Path(os.path.dirname(self.trained_models_dir) + "/Rebuf")
-            
-            if not self.rebuf_folder_results.exists():
-                os.makedirs(str(self.rebuf_folder_results))            
+                  
             #______________________________________________________
             #TEAM COMPOSITION
             self.team_assemblation()    

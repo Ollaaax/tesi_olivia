@@ -73,3 +73,12 @@ def pick_sample(self):
 
     return old_sample_in, old_sample_out
 
+def pick_sample2(self):
+    s = random.randint(0, len(self.rebuf_in))
+
+    old_sample_in = self.rebuf_in[s]
+    old_sample_out = self.rebuf_out[s]
+    
+    return old_sample_in, old_sample_out
+
+

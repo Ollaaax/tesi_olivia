@@ -49,8 +49,8 @@ class R_MAPPO():
 
         #__________________________________________________________________________________________________________
         #TODO tirare fuori il buffer
-        self.rebuf_in, self.rebuf_out = buffer_utils.import_buffer(1)
         self.alpha = args.alpha
+        self.rebuf_in = None
 
         #__________________________________________________________________________________________________________
 
@@ -140,14 +140,7 @@ class R_MAPPO():
                                                                               available_actions_batch,
                                                                               active_masks_batch)
 
-        #____________________________________________________________________________________________________________
-        #         USE THE REPLAY BUFFER IN PIECES
 
-        old_sample_in, old_sample_out = buffer_utils.pick_sample(self)
-
-        # #Run the net with the samples taken from the rebuf
-        oldsamples_actions_log_probs, _ = self.policy.actor.evaluate_actions(*old_sample_in)
-       
         #____________________________________________________________________________________________________________
         # actor update
         imp_weights = torch.exp(action_log_probs - old_action_log_probs_batch)
@@ -164,21 +157,33 @@ class R_MAPPO():
 
         #____________________________________________________________________________________________________________
         ##       NEW LOSS FNC
+        
         policy_loss = policy_action_loss
-        # print(f"Old out {old_sample_out}")
-        # print(f"new out {oldsamples_actions_log_probs}")
+        #____________________________________________________________________________________________________________
+        #         USE THE REPLAY BUFFER IN PIECES
+        if self.rebuf_in is not None:
 
-        #l1 Replay Loss 
-        replay_loss = (torch.exp(old_sample_out) - torch.exp(oldsamples_actions_log_probs)).mean()
+            old_sample_in, old_sample_out = buffer_utils.pick_sample2(self)
 
-        #l2 Replay Loss
-        replay_loss = ()
+            # #Run the net with the samples taken from the rebuf
+            oldsamples_actions_log_probs, _ = self.policy.actor.evaluate_actions(*old_sample_in)
+                
+            # print(f"Old out {old_sample_out}")
+            # print(f"new out {oldsamples_actions_log_probs}")
 
-        print("Policy loss is " + str(policy_loss))
-        print("Replay loss is " + str(replay_loss))
-        policy_loss = policy_loss + self.alpha*replay_loss
+            #l1 Replay Loss 
+            replay_loss = (torch.exp(old_sample_out) - torch.exp(oldsamples_actions_log_probs)).mean()
 
-        print(f"Policy Loss is {policy_loss}")
+            #l2 Replay Loss
+            # replay_loss = ()
+
+            print(f"Alpha {self.alpha}")
+
+            print("Policy loss is " + str(policy_loss))
+            print("Replay loss is " + str(replay_loss))
+            policy_loss = policy_loss + self.alpha*replay_loss
+
+            print(f"Policy Loss is {policy_loss}")
         #____________________________________________________________________________________________________________
 
         self.policy.actor_optimizer.zero_grad()
@@ -210,7 +215,7 @@ class R_MAPPO():
 
         return value_loss, critic_grad_norm, policy_loss, dist_entropy, actor_grad_norm, imp_weights
 
-    def train(self, buffer, agent, update_actor):
+    def train(self, buffer, update_actor):
         """
         Perform a training update using minibatch GD.
         :param buffer: (SharedReplayBuffer) buffer containing training data.
@@ -219,7 +224,6 @@ class R_MAPPO():
         :return train_info: (dict) contains information regarding training update (e.g. loss, grad norms, etc).
         """
         
-        self.agent = agent
         
         if self._use_popart or self._use_valuenorm:
             advantages = buffer.returns[:-1] - self.value_normalizer.denormalize(buffer.value_preds[:-1])
@@ -280,6 +284,10 @@ class R_MAPPO():
 
 #######################################################################
 #######################################################################
+
+    def set_buffers(self, rebuf_in, rebuf_out):
+        self.rebuf_in = rebuf_in
+        self.rebuf_out = rebuf_out
 
     # def pick_sample(self):
     #     episode_no = random.randint(0, 9)
