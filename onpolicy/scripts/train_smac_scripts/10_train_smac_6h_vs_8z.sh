@@ -3,16 +3,16 @@ env="StarCraft2"
 map="6h_vs_8z"
 algo="mappo"
 exp="check"
-seed_max=1
+seed_max=3
 
 #__________________________________________________________________________________
 # num_env_steps=10000000 #default
 # num_env_steps=6400000 #2k Episodes
-num_env_steps=4800000 #1.5k Episodes
+# num_env_steps=4800000 #1.5k Episodes
 # num_env_steps=3200000 #1k Episodes
 # num_env_steps=1920000 #600 Episodes
 # num_env_steps=1600000 #500 Episodes 
-# num_env_steps=960000 #300 Episodes 
+num_env_steps=960000 #300 Episodes 
 # num_env_steps=640000 #200 Episodes  #TO TRAIN TEAMS 
 # num_env_steps=480000 #150 Episodes  
 # num_env_steps=320000 #100 Episodes         
@@ -36,5 +36,5 @@ done
 # --naive_training --naive_test
 # --joint_training
 # --save_buffer
-# --use_buffer 
+# --use_buffer -ep_no_rebuf_train 300
 # --use_buffer --buffer_test

@@ -1,0 +1,3 @@
+train a1 of t1 w/ t2
+alpha 1e-2
+buffer 50%

@@ -210,8 +210,6 @@ class R_MAPPO():
 
             for sample in data_generator:
 
-                # *elements, = sample
-                # print(len(elements))
                 value_loss, critic_grad_norm, policy_loss, dist_entropy, actor_grad_norm, imp_weights \
                     = self.ppo_update(sample, update_actor)
 

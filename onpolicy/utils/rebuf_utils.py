@@ -90,16 +90,8 @@ class Buffer_Utils():
                             available_actions, \
                             self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:])
 
-            # print("Size of input0 " + str(len(input_data[0])))
-            # print("Size of input1 " + str(len(input_data[1])))
-            # print("Size of input2 " + str(len(input_data[2])))
-            # print("Size of input3 " + str(len(input_data[3])))
-
-            # print(input_data[0][0])
-            # print(input_data[0][0])
 
             self.rebuf_ins[agent_id].append(input_data)
-            print(len(self.rebuf_ins[agent_id]))
 
             train_info = self.trainer[agent_id].train(self.buffer[agent_id], update)
 
@@ -193,7 +185,7 @@ class Buffer_Utils():
             
 
 
-            train_info = self.trainer[agent_id].train(self.buffer[agent_id], self.active_agent, update)
+            train_info = self.trainer[agent_id].train(self.buffer[agent_id], update)
 
 
             new_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
@@ -365,7 +357,7 @@ class Buffer_Utils():
                                 rebuf_in[ep_no][1], 
                                 rebuf_in[ep_no][2][step_no:step_no+self.n_rollout_threads], 
                                 rebuf_in[ep_no][3][step_no:step_no+self.n_rollout_threads], 
-                                rebuf_in[ep_no][4], 
+                                rebuf_in[ep_no][4][step_no:step_no+self.n_rollout_threads], 
                                 rebuf_in[ep_no][5][step_no:step_no+self.n_rollout_threads]]
             
             new_buf_in.append(old_sample_in)
@@ -373,5 +365,7 @@ class Buffer_Utils():
             
         rebuf_in = new_buf_in[:len(new_buf_in)*self.pcnt_buffer//100]
         rebuf_out = new_buf_out[:len(new_buf_in)*self.pcnt_buffer//100]
+
+        print(f"The size of the buffer is {len(rebuf_in)}")
         # 4. Voilà nuovo buffer 
         return rebuf_in, rebuf_out

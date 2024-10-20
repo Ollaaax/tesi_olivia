@@ -19,8 +19,6 @@ class SMACRunner(Runner):
 
     def run(self):
         self.warmup()   
-        print(f"Shared Policy? {self.all_args.share_policy}")
-        sys.exit()
         #_____________________________________________________________________________________________________________________
         #CHOOSE whether or not initialize the active agent NAIVE TRAINING
 
@@ -66,11 +64,12 @@ class SMACRunner(Runner):
         #Choose, set and load active agent and teams
         if self.naive_training:
             episodes *= len(team_order)
+        
+        # self.restore_pretrained_models_acquario()
 
 ######################################################################################
         for episode in range(episodes):
             
-            self.restore_pretrained_models_acquario()
             #___________________________________________
 
             #Sequentially load the teams for Naive Training
