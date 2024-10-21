@@ -31,7 +31,7 @@ do
     --map_name ${map} --seed ${seed} --n_training_threads 1 --n_rollout_threads 8 --num_mini_batch 1 --episode_length 400 \
     --num_env_steps ${num_env_steps}  --ppo_epoch 5 --use_value_active_masks --use_eval --eval_episodes 32 --share_policy \
     --use_wandb 0 \
-    --use_buffer --ep_no_rebuf_train 1000 --pcnt_buffer 100
+    --use_buffer --ep_no_rebuf_train 500 --pcnt_buffer 50
 done
 
 # --save_models_flag
@@ -39,5 +39,5 @@ done
 # --naive_training --naive_test
 # --joint_training
 # --save_buffer 
-# --use_buffer --ep_no_rebuf_train 300 --pcnt_buffer 50
+# --use_buffer --ep_no_rebuf_train 500 --pcnt_buffer 50
 # --use_buffer --buffer_test
