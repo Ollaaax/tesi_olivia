@@ -306,6 +306,8 @@ def get_config():
 
     #__________________________________________________________________________
     parser.add_argument("--flag", action='store_true', default = False)
+    parser.add_argument("--multi_agent", action='store_true', default = False)
+
     # parser.add_argument("--continual", action='store_true', default = False)
     parser.add_argument("--save_models_flag", action='store_true', default = False)
 

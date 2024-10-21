@@ -46,6 +46,7 @@ class Runner(object):
         #___________________________________________
         #CONFIG FLAGS
         self.flag = self.all_args.flag
+        self.multi_agent = self.all_args.multi_agent
         # self.continual_flag = self.all_args.continual
 
         self.naive_training = self.all_args.naive_training
@@ -66,17 +67,20 @@ class Runner(object):
         self.show_biases = False
         self.iamloading = False
         self.iamloadingacquario = False
-
-
         #___________________________________________
         #Other
         self.active_agent = 0
 
+        #___________________________________________
         #Directories
         self.trained_models_dir = config["trained_models_dir"]
         if not self.save_buffer:
             self.results_dir = self.create_log_infos2()
-
+        
+        agents_dir = self.trained_models_dir / "Agents"
+        if not agents_dir.exists():
+            os.makedirs(str(agents_dir))
+        self.agents_dir = agents_dir
         #___________________________________________
 
         # interval
@@ -322,7 +326,10 @@ class Runner(object):
 
         agents_list = []
         for i in range(self.num_agents):
-            update = True if i == self.active_agent else False
+            if not self.multi_agent:
+                update = True if i == self.active_agent else False
+            else: 
+                update = True if i in self.multi_active_agent else False
             agents_list.append((i, update))
 
         for i in torch.randperm(self.num_agents):
@@ -542,7 +549,7 @@ class Runner(object):
         print("LOG SAVED!")
         return
 
-    def create_log_infos2(self):
+    def create_log_infos2(self, second_name = None):
         '''
         Function to save into .npy file in the current folder the results of the training
         data : list of relevant information
@@ -553,17 +560,21 @@ class Runner(object):
         if self.save_models_flag:
             log_dir = self.trained_models_dir / str(self.all_args.seed)
             second_name = "training"
+
+        location = self.trained_models_dir
+        if self.multi_agent:
+            location = self.trained_models_dir / "MultiAgent"
         
         if self.naive_training:
-            log_dir = self.trained_models_dir / "NaiveTraining"
+            log_dir = location / "NaiveTraining" 
             second_name = "naive_training"
 
         if self.joint_training:
-            log_dir = self.trained_models_dir
-            second_name = "joint_training" / "JointTraining"
+            log_dir = location
+            second_name = "joint_training" / "JointTraining" 
 
         if self.use_buffer:
-            log_dir = self.trained_models_dir / "BufferReplay"
+            log_dir = location / "BufferReplay"
             second_name = "buffer_replay"
 
         if not log_dir.exists():
@@ -719,7 +730,85 @@ class Runner(object):
         if self.trainer[agent_id]._use_valuenorm:
             policy_vnrom = self.trainer[agent_id].value_normalizer
             torch.save(policy_vnrom.state_dict(), str(self.trained_models_dir) + "/vnrom_agent" + str(agent_id) + "A" + ".pt")
+
+ #________________________________________________________________________
+   ###            MULTI-AGENT TRAINING
+
+    def active_multi_agent_init(self):
         
+        #Ask if we want to initialize 
+        answer_map = {"Y": True, "N": False, "y": True, "n": False}
+
+        while True:
+            try:
+                key_input = input(f"Do you want to start fresh? Y/N ")
+                answer = answer_map[key_input]
+
+                if answer is True:
+                    self.set_active_multi_agent()
+                    break
+                else: break
+            except ValueError:
+                print("Invalid input. Please enter 'y' or 'n'")
+    
+    def set_active_multi_agent(self, aa_team=1):
+        """ 
+        Copies the nets of the active agent -taken from team 1 (the one that will learn to cooperate)
+        with a different suffix (A). The new nets will be updated, preserving the original one. 
+        """
+        #TODO checkare che le reti esistono già
+
+        for agent in self.multi_active_agent:
+            #Copy ACTOR
+            source_path =  f"{self.trained_models_dir}/{aa_team}/actor_agent{agent}.pt"
+            dest_path = str(self.agents_dir) + "/actor_agent" + str(agent) + "A" + ".pt"
+            shutil.copy2(source_path, dest_path)
+
+            #Copy CRITIC
+            source_path = f"{self.trained_models_dir}/{aa_team}/critic_agent{agent}.pt"
+            dest_path = str(self.agents_dir) + "/critic_agent" + str(agent) + "A" + ".pt"
+            shutil.copy2(source_path, dest_path)
+
+            if self.all_args.use_valuenorm:
+                source_path = f"{self.trained_models_dir}/{aa_team}/vnrom_agent{agent}.pt"
+                dest_path = str(self.agents_dir) + '/vnrom_agent' + str(agent) + "A" + ".pt"
+                shutil.copy2(source_path, dest_path)
+              
+    def save_active_multi_agent(self):
+        agent_id = self.active_agent
+
+        policy_actor = self.trainer[agent_id].policy.actor
+        torch.save(policy_actor.state_dict(), str(self.agents_dir)  + "/actor_agent" + str(agent_id) + "A" + ".pt")
+        
+        #Print Biases
+        if self.show_biases:
+            self.extract_biases_from_dict(policy_actor.state_dict(), agent_id, 1)
+
+        policy_critic = self.trainer[agent_id].policy.critic
+        torch.save(policy_critic.state_dict(), str(self.agents_dir)  + "/critic_agent" + str(agent_id) + "A" + ".pt")
+        
+        if self.trainer[agent_id]._use_valuenorm:
+            policy_vnrom = self.trainer[agent_id].value_normalizer
+            torch.save(policy_vnrom.state_dict(), str(self.agents_dir) + "/vnrom_agent" + str(agent_id) + "A" + ".pt")
+  
+    def load_active_multi_agent(self):
+
+        for agent_id in self.multi_active_agent:
+
+            policy_actor_state_dict = torch.load(str(self.agents_dir) + "/actor_agent" + str(agent_id) + "A" + ".pt")
+            self.policy[agent_id].actor.load_state_dict(policy_actor_state_dict)
+            
+            #Bias Check
+            if self.show_biases:
+                self.extract_biases_from_dict(policy_actor_state_dict, agent_id, 1)
+
+            policy_critic_state_dict = torch.load(str(self.agents_dir) + "/critic_agent" + str(agent_id) + "A" + ".pt")
+            self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
+
+            if self.all_args.use_valuenorm:
+                policy_vnrom_state_dict = torch.load(str(self.agents_dir) + '/vnrom_agent' + str(agent_id) + "A" + '.pt')
+                self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
+
  #________________________________________________________________________
     ###           JOINT TRAINING
 

@@ -22,8 +22,8 @@ seed_max=1
 
 
 echo "env is ${env}, map is ${map}, algo is ${algo}, exp is ${exp}, max seed is ${seed_max}"
-# for seed in `seq ${seed_max}`;
-for seed in `seq $(seq 2 3)`;
+for seed in `seq ${seed_max}`;
+# for seed in `seq $(seq 2 3)`;
 do
     echo "seed is ${seed}:"
     CUDA_VISIBLE_DEVICES=1 python ../train/train_smac.py --env_name ${env} --algorithm_name ${algo} --experiment_name ${exp} \
@@ -35,6 +35,7 @@ done
 
 
 # --save_models_flag
+# --multi_agent
 # --naive_training
 # --naive_training --naive_test
 # --joint_training

@@ -33,6 +33,25 @@ class SMACRunner(Runner):
             self.active_agent_init() #Ask if we want to initialize, if yes it does it
             self.load_active_agent() #Load the NN of the AA
 
+        if self.multi_agent:
+            if self.naive_training:
+                if self.naive_test:
+                    new_team = 1
+                else:
+                    new_team = 2
+                #choose which agent train
+
+                # MULTIAGENT SELECTION
+                #mettere metà degli agenti della mappa in questa lista
+                self.multi_active_agent = [1, 2, 3, 4, 5]
+                
+                self.active_multi_agent_init()
+                # LOAD THE NETS FOR THE AGENTS IN THE FOLDER 
+                self.load_active_multi_agent()
+                # LOAD TEAMMATES 
+                self.load_teammates(new_team)   
+
+
         #___________________________________________________________________________________
         #Choose Active Agent for JOINT TRAINING
 
@@ -66,7 +85,7 @@ class SMACRunner(Runner):
             episodes *= len(team_order)
         
         # self.restore_pretrained_models_acquario()
-
+    
 ######################################################################################
         for episode in range(episodes):
             
