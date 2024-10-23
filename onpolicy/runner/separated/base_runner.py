@@ -435,7 +435,6 @@ class Runner(object):
 
         print(f"Team {self.all_args.seed} Restored")
 
-
     def load_teammates(self, team):
         """
         Load the pretrained teams (as teammates) and value normalizer except for the active agent
@@ -634,7 +633,6 @@ class Runner(object):
         print("LOG SAVED!")
         return
 
-
 #________________________________________________________________________
 ###           ACTIVE AGENT MANAGEMENT
 
@@ -798,9 +796,9 @@ class Runner(object):
             policy_actor_state_dict = torch.load(str(self.agents_dir) + "/actor_agent" + str(agent_id) + "A" + ".pt")
             self.policy[agent_id].actor.load_state_dict(policy_actor_state_dict)
             
-            #Bias Check
-            if self.show_biases:
-                self.extract_biases_from_dict(policy_actor_state_dict, agent_id, 1)
+            # #Bias Check
+            # if self.show_biases:
+            #     self.extract_biases_from_dict(policy_actor_state_dict, agent_id, 1)
 
             policy_critic_state_dict = torch.load(str(self.agents_dir) + "/critic_agent" + str(agent_id) + "A" + ".pt")
             self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
@@ -808,6 +806,46 @@ class Runner(object):
             if self.all_args.use_valuenorm:
                 policy_vnrom_state_dict = torch.load(str(self.agents_dir) + '/vnrom_agent' + str(agent_id) + "A" + '.pt')
                 self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
+
+            print(f"Loaded agent {agent_id}")
+
+    def save_active_multi_agent(self):
+
+        agent_id = self.active_agent
+        for agent_id in self.multi_active_agent:
+            policy_actor = self.trainer[agent_id].policy.actor
+            torch.save(policy_actor.state_dict(), str(self.agents_dir)  + "/actor_agent" + str(agent_id) + "A" + ".pt")
+            
+            #Print Biases
+            if self.show_biases:
+                self.extract_biases_from_dict(policy_actor.state_dict(), agent_id, 1)
+
+            policy_critic = self.trainer[agent_id].policy.critic
+            torch.save(policy_critic.state_dict(), str(self.agents_dir)  + "/critic_agent" + str(agent_id) + "A" + ".pt")
+            
+            if self.trainer[agent_id]._use_valuenorm:
+                policy_vnrom = self.trainer[agent_id].value_normalizer
+                torch.save(policy_vnrom.state_dict(), str(self.agents_dir) + "/vnrom_agent" + str(agent_id) + "A" + ".pt")
+        
+    def load_teammates_multi(self, team):
+        """
+        Load the pretrained teams (as teammates) and value normalizer except for the active agent
+        """
+        for agent_id in range(self.num_agents):
+            if agent_id not in self.multi_active_agent:
+                policy_actor_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/actor_agent' + str(agent_id) + '.pt')
+                self.policy[agent_id].actor.load_state_dict(policy_actor_state_dict)
+
+                #Bias Check
+                self.extract_biases_from_dict(policy_actor_state_dict, agent_id, team)
+
+                policy_critic_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/critic_agent' + str(agent_id) + '.pt')
+                self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
+
+                policy_vnrom_state_dict = torch.load(str(self.trained_models_dir)  + "/" + str(team) + "/vnrom_agent" + str(agent_id) + ".pt")
+                self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
+
+                print(f"Loaded teammate {agent_id}")
 
  #________________________________________________________________________
     ###           JOINT TRAINING

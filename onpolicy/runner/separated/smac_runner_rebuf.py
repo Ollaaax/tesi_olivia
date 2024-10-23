@@ -78,7 +78,10 @@ class SMACRunner(Runner, Buffer_Utils):
 
                 #Saving the Active Agent
                 if self.use_buffer:
-                    self.save_active_agent()
+                    if self.multi_agent:
+                        self.save_active_multi_agent()
+                    else:
+                        self.save_active_agent()
                     if episode == episodes - 1:
                         print(f"Active no {self.active_agent} agent SAVED!")
 

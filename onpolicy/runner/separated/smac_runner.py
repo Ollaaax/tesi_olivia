@@ -22,7 +22,7 @@ class SMACRunner(Runner):
         #_____________________________________________________________________________________________________________________
         #CHOOSE whether or not initialize the active agent NAIVE TRAINING
 
-        if self.naive_training:
+        if self.naive_training and not self.multi_agent:
             if self.naive_test:
                 team_order = [1]
             else:
@@ -33,23 +33,23 @@ class SMACRunner(Runner):
             self.active_agent_init() #Ask if we want to initialize, if yes it does it
             self.load_active_agent() #Load the NN of the AA
 
-        if self.multi_agent:
-            if self.naive_training:
-                if self.naive_test:
-                    new_team = 1
-                else:
-                    new_team = 2
-                #choose which agent train
+        if self.multi_agent and self.naive_training:
+            if self.naive_test:
+                new_team = 1
+            else:
+                new_team = 2
+            #choose which agent train
 
-                # MULTIAGENT SELECTION
-                #mettere metà degli agenti della mappa in questa lista
-                self.multi_active_agent = [1, 2, 3, 4, 5]
-                
+            # MULTIAGENT SELECTION
+            #mettere metà degli agenti della mappa in questa lista
+            self.multi_active_agent = [0, 1, 2, 3]
+
+            if not self.naive_test:
                 self.active_multi_agent_init()
-                # LOAD THE NETS FOR THE AGENTS IN THE FOLDER 
-                self.load_active_multi_agent()
-                # LOAD TEAMMATES 
-                self.load_teammates(new_team)   
+            # LOAD THE NETS FOR THE AGENTS IN THE FOLDER 
+            self.load_active_multi_agent()
+            # LOAD TEAMMATES 
+            self.load_teammates_multi(new_team)   
 
 
         #___________________________________________________________________________________
@@ -81,8 +81,8 @@ class SMACRunner(Runner):
 
 
         #Choose, set and load active agent and teams
-        if self.naive_training:
-            episodes *= len(team_order)
+        # if self.naive_training:
+        #     episodes *= len(team_order)
         
         # self.restore_pretrained_models_acquario()
     
@@ -92,10 +92,10 @@ class SMACRunner(Runner):
             #___________________________________________
 
             #Sequentially load the teams for Naive Training
-            if self.naive_training and episode % (episodes//len(team_order)) == 0:
-                index = int(episode / (episodes//len(team_order)))
-                print(f"Team Loaded is {team_order[index]}")
-                self.load_teammates(team_order[index])               
+            # if self.naive_training and episode % (episodes//len(team_order)) == 0:
+            #     index = int(episode / (episodes//len(team_order)))
+            #     print(f"Team Loaded is {team_order[index]}")
+            #     self.load_teammates(team_order[index])               
 
             if self.use_linear_lr_decay:
                 self.trainer.policy.lr_decay(episode, episodes)
@@ -127,15 +127,17 @@ class SMACRunner(Runner):
             total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads 
 
             # save model
-            ### TODO MODFICA ACQUARIO
             if (episode % self.save_interval == 0 or episode == episodes - 1):
                 self.save()
 
                 #Saving the Active Agent
                 if self.naive_training or self.joint_training:
-                    self.save_active_agent()
-                    if episode == episodes - 1:
-                        print(f"Active no {self.active_agent} agent SAVED!")
+                    if not self.multi_agent:
+                        self.save_active_agent()
+                        if episode == episodes - 1:
+                            print(f"Active no {self.active_agent} agent SAVED!")
+                    else: 
+                        self.save_active_multi_agent()
 
                 #Saving Teams
                 if self.save_models_flag:

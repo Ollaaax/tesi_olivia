@@ -49,6 +49,7 @@ class R_MAPPO():
 
         #__________________________________________________________________________________________________________
         #TODO tirare fuori il buffer
+        self.multi_agent = args.multi_agent
         self.alpha = args.alpha
         self.rebuf_in = None
 

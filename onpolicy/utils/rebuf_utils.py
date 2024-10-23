@@ -159,6 +159,50 @@ class Buffer_Utils():
 
         return train_infos
 
+    def train_with_rebuf_multi(self):
+        train_infos = []
+        # random update order
+
+        action_dim=self.buffer[0].actions.shape[-1]
+        factor = np.ones((self.episode_length, self.n_rollout_threads, 1), dtype=np.float32)
+
+        agents_list = []
+        for i in range(self.num_agents):
+            update = True if i in self.multi_active_agent else False
+            agents_list.append((i, update))
+
+        for i in torch.randperm(self.num_agents):
+
+            agent_id, update = agents_list[i]
+
+            self.trainer[agent_id].prep_training()
+            self.buffer[agent_id].update_factor(factor)
+            available_actions = None if self.buffer[agent_id].available_actions is None \
+                else self.buffer[agent_id].available_actions[:-1].reshape(-1, *self.buffer[agent_id].available_actions.shape[2:])
+            
+            
+            old_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
+                                                        self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]),
+                                                        self.buffer[agent_id].actions.reshape(-1, *self.buffer[agent_id].actions.shape[2:]),
+                                                        self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
+                                                        available_actions,
+                                                        self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
+            train_info = self.trainer[agent_id].train(self.buffer[agent_id], update)
+
+
+            new_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
+                                                        self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]),
+                                                        self.buffer[agent_id].actions.reshape(-1, *self.buffer[agent_id].actions.shape[2:]),
+                                                        self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
+                                                        available_actions,
+                                                        self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
+
+            factor = factor*_t2n(torch.prod(torch.exp(new_actions_logprob-old_actions_logprob),dim=-1).reshape(self.episode_length,self.n_rollout_threads,1))
+            train_infos.append(train_info)      
+            self.buffer[agent_id].after_update()
+
+        return train_infos
+
     def freeze_train2(self):
 
         train_infos = []
@@ -264,7 +308,7 @@ class Buffer_Utils():
             self.num_env_steps = self.n_rollout_threads * self.episode_length * 1
         #______________________________________________________
         
-        if self.use_buffer:  
+        if self.use_buffer and not self.multi_agent:  
             # TRAIN WITH BUFFER  
             if not self.buffer_test:
                 #Choose, set and load active agent and teams
@@ -292,6 +336,41 @@ class Buffer_Utils():
 
             self.load_active_agent() #Load the Active Agent copied in folder
             #____________________________________________________
+        
+        #MULTIAGENT
+        if self.use_buffer and self.multi_agent:  
+
+            # TRAIN WITH BUFFER  
+            if not self.buffer_test:
+                #Choose, set and load active agent and teams
+                self.multi_active_agent = [0, 1, 2, 3]
+
+                self.active_multi_agent_init() #Copies A from T1 in folder
+
+                #Create buffer
+                rebuf_in, rebuf_out = self.shuffle_n_portion_multi_buffer()
+     
+                #It must be passed to trainer
+                for agent in self.multi_active_agent:
+                    self.trainer[agent].set_buffers(rebuf_in[agent], rebuf_out[agent])
+
+                self.team = self.manually_choice_of_team() #Choose team
+
+                self.num_env_steps = self.ep_no_rebuf_train * self.episode_length * self.n_rollout_threads
+            
+            # TEST with buffer
+            else:
+                self.team = 1 #For test use team 1 only
+
+                #Perform 50 Episodes only
+                self.num_env_steps = 50 * self.episode_length * self.n_rollout_threads
+
+            self.load_teammates_multi(self.team) #Initialize nets with teammates
+
+            #TODO CHANGE 
+            self.load_active_multi_agent() #Load the Active Agent copied in folder
+            #____________________________________________________
+
 
     def rebuf_train(self):
         # compute return and update network
@@ -303,7 +382,10 @@ class Buffer_Utils():
             if self.buffer_test: 
                 train_infos = self.freeze_train2()
             else:
-                train_infos = self.train_with_rebuf()
+                if self.multi_agent:
+                    train_infos = self.train_with_rebuf_multi()
+                else: 
+                    train_infos = self.train_with_rebuf()
 
         return train_infos
     
@@ -369,3 +451,52 @@ class Buffer_Utils():
         print(f"The size of the buffer is {len(rebuf_in)}")
         # 4. Voilà nuovo buffer 
         return rebuf_in, rebuf_out
+
+    def shuffle_n_portion_multi_buffer(self):
+        """Here I import the buffer, shuffle it along episodes and steps, and take a portion
+        Input: semmai buffer_team_no
+        Output: Shuffled and portioned Buffers
+        """
+        #TODO cambiare eventualmente la sqaudra di partenza 
+        rebuf_in, rebuf_out = buffer_utils.import_buffer(1)
+
+        new_rebuf_outs = [[] for _ in range(len(self.multi_active_agent))]
+        new_rebuf_ins = [[] for _ in range(len(self.multi_active_agent))]
+
+        #PORZIONO IL BUFFER 
+        # 1. seleziono solo la colonna relativa all'active agent
+        for agent in self.multi_active_agent:
+            print(f"AGENT is {agent}")
+
+            # 2. Setto la percentuale di uso del buffer (tramite config?)
+            buff_episodes_len = len(rebuf_in[agent])
+            
+            index_array = np.arange(buff_episodes_len * self.episode_length)
+            np.random.shuffle(index_array)
+            # print(f"Indeces array {index_array}")
+            # print(f"Index len {len(index_array)}")
+
+            # 3. Shuffle + Portion
+            new_buf_in = [] 
+            new_buf_out = []
+            for i in index_array:
+                ep_no = i // self.episode_length
+                step_no = i % self.episode_length
+
+                old_sample_in = [   rebuf_in[agent][ep_no][0][step_no:step_no+self.n_rollout_threads],
+                                    rebuf_in[agent][ep_no][1], 
+                                    rebuf_in[agent][ep_no][2][step_no:step_no+self.n_rollout_threads], 
+                                    rebuf_in[agent][ep_no][3][step_no:step_no+self.n_rollout_threads], 
+                                    rebuf_in[agent][ep_no][4][step_no:step_no+self.n_rollout_threads], 
+                                    rebuf_in[agent][ep_no][5][step_no:step_no+self.n_rollout_threads]]
+                
+                new_buf_in.append(old_sample_in)
+                new_buf_out.append(rebuf_out[agent][ep_no][step_no:step_no+self.n_rollout_threads])
+                
+            new_rebuf_ins[agent] = new_buf_in[:len(new_buf_in)*self.pcnt_buffer//100]
+            new_rebuf_outs[agent] = new_buf_out[:len(new_buf_in)*self.pcnt_buffer//100]
+
+        print(f"The size of the buffer is {len(new_rebuf_ins)}")
+        print(f"The size of the buffer is {len(new_rebuf_ins[0])}")
+        # 4. Voilà nuovo buffer 
+        return new_rebuf_ins, new_rebuf_outs
