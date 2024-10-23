@@ -124,7 +124,9 @@ class Runner(object):
             #Load the Rebuf Algo if needed (only with use_buffer)
             if self.use_buffer: 
                 from onpolicy.algorithms.r_mappo.r_mappo_rebuf import R_MAPPO as TrainAlgo
-            else: 
+            elif self.use_lwf:
+                from onpolicy.algorithms.r_mappo.r_mappo_lwf import R_MAPPO as TrainAlgo
+            else:
                 from onpolicy.algorithms.r_mappo.r_mappo import R_MAPPO as TrainAlgo
 
             from onpolicy.algorithms.r_mappo.algorithm.rMAPPOPolicy import R_MAPPOPolicy as Policy
