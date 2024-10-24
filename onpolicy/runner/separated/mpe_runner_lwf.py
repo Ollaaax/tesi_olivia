@@ -13,10 +13,13 @@ from onpolicy.utils.util import update_linear_schedule
 from onpolicy.runner.separated.base_runner import Runner
 import imageio
 
+##########################
+from onpolicy.utils.lwf_utils import LwF_Utils
+
 def _t2n(x):
     return x.detach().cpu().numpy()
 
-class MPERunner(Runner):
+class MPERunner(Runner, LwF_Utils):
     def __init__(self, config):
         super(MPERunner, self).__init__(config)
        
@@ -28,25 +31,51 @@ class MPERunner(Runner):
         print("Self Naive Train is ", + self.naive_training)
         #___________________________________________________________________________
 
-        share_observation_space = self.envs.share_observation_space[agent_id] if self.use_centralized_V else self.envs.observation_space[agent_id]
+        share_observation_space = self.envs.share_observation_space[self.active_agent] if self.use_centralized_V else self.envs.observation_space[self.active_agent]
         # policy network
         
         #Select the AA 
+        self.active_agent = self.active_agent_choice()
 
         #Create the teacher net 
         from onpolicy.algorithms.r_mappo.algorithm.rMAPPOPolicy import R_MAPPOPolicy as Policy
-        teacher = Policy(self.all_args,
-                    self.envs.observation_space[agent_id],
-                    share_observation_space,
-                    self.envs.action_space[agent_id],
-                    device = self.device)
-        self.policy.append(teacher)
+        from onpolicy.utils.separated_buffer import SeparatedReplayBuffer
+        from onpolicy.algorithms.r_mappo.r_mappo_lwf import R_MAPPO as TrainAlgo
 
-        #Load the Teacher of the AA
+        self.teacher = Policy(self.all_args,
+                    self.envs.observation_space[self.active_agent],
+                    share_observation_space,
+                    self.envs.action_space[self.active_agent],
+                    device = self.device)
         
 
+        # algorithm
+        self.teach_tr = TrainAlgo(self.all_args, self.teacher, device = self.device)
+        # buffer
+        share_observation_space = self.envs.share_observation_space[self.active_agent] if self.use_centralized_V else self.envs.observation_space[self.active_agent]
+        self.teach_buf = SeparatedReplayBuffer(self.all_args,
+                                    self.envs.observation_space[self.active_agent],
+                                    share_observation_space,
+                                    self.envs.action_space[self.active_agent])
 
 
+        #Load the Teacher of the AA
+        team = 1
+        agent_id = self.active_agent
+        teacher_actor_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/actor_agent' + str(agent_id) + '.pt')
+        self.teacher.actor.load_state_dict(teacher_actor_state_dict)
+
+        #Bias Check
+        self.extract_biases_from_dict(teacher_actor_state_dict, agent_id, team)
+
+        policy_critic_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/critic_agent' + str(agent_id) + '.pt')
+        self.teacher.critic.load_state_dict(policy_critic_state_dict)
+
+        policy_vnrom_state_dict = torch.load(str(self.trained_models_dir)  + "/" + str(team) + "/vnrom_agent" + str(agent_id) + ".pt")
+        self.teach_tr.value_normalizer.load_state_dict(policy_vnrom_state_dict)
+        print(f"Loaded Team no {team}")     
+
+        #Pass the nets to the TrainAlgo
         #_____________________________________________________________________________________________________________________
 
         start = time.time()
@@ -81,8 +110,7 @@ class MPERunner(Runner):
             self.compute()
 
             #Train
-            if self.naive_training or self.joint_training:
-                train_infos = self.continual_train()
+            train_infos = self.lwf_train()
             #_________________________________________
             
             # post process

@@ -181,6 +181,8 @@ def main(args):
         # IF USING BUFFER REPLAY, SWITCH TO BUFFER ENVIRONMENT
         if all_args.use_buffer or all_args.save_buffer:
             from onpolicy.runner.separated.mpe_runner_rebuf import MPERunner as Runner
+        elif all_args.use_lwf:
+            from onpolicy.runner.separated.mpe_runner_lwf import MPERunner as Runner
         else:
             from onpolicy.runner.separated.mpe_runner import MPERunner as Runner
 

@@ -28,7 +28,7 @@ do
     --scenario_name ${scenario} --num_agents ${num_agents} --num_landmarks ${num_landmarks} --seed ${seed} \
     --n_training_threads 1 --n_rollout_threads 128 --num_mini_batch 1 --episode_length ${episode_length} --num_env_steps ${num_env_steps} \
     --ppo_epoch 15 --gain 0.01 --lr 7e-4 --critic_lr 7e-4 --use_wandb 0 --wandb_name "xxx" --user_name "yuchao" --share_policy \
-    --use_buffer
+    --use_lwf
 done
 
 
@@ -39,3 +39,4 @@ done
     # --n_ep_switch 5 
     # --save_buffer
     # --use_buffer
+    # --use_lwf

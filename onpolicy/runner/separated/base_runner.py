@@ -79,10 +79,14 @@ class Runner(object):
         if not self.save_buffer:
             self.results_dir = self.create_log_infos2()
         
-        agents_dir = self.trained_models_dir / "Agents"
-        if not agents_dir.exists():
-            os.makedirs(str(agents_dir))
-        self.agents_dir = agents_dir
+        if self.multi_agent:
+            if self.naive_training:
+                agents_dir = self.trained_models_dir  / "MultiAgent" / "NaiveTraining"  / "Agents"
+            if self.use_buffer:
+                agents_dir = self.trained_models_dir  / "MultiAgent" / "BufferReplay" / "Agents"
+            if not agents_dir.exists():
+                os.makedirs(str(agents_dir))
+            self.agents_dir = agents_dir
         #___________________________________________
 
         # interval
@@ -580,6 +584,10 @@ class Runner(object):
             log_dir = location / "BufferReplay"
             second_name = "buffer_replay"
 
+        if self.use_lwf:
+            log_dir = location / "LwF"
+            second_name = "training"
+
         if not log_dir.exists():
             os.makedirs(str(log_dir))
             curr_run = 'run_1'
@@ -642,7 +650,7 @@ class Runner(object):
 
     def active_agent_choice(self):
         '''
-        This function returns nothing but makes you choose the active agent and assigns it to the self variable 
+        This function returns the AA but makes you choose the active agent 
         '''
         while True:
             try:

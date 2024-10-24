@@ -5,7 +5,7 @@ from onpolicy.utils.util import get_gard_norm, huber_loss, mse_loss
 from onpolicy.utils.valuenorm import ValueNorm
 from onpolicy.algorithms.utils.util import check
 
-from onpolicy.utils import buffer_utils
+from onpolicy.utils import lwf_utils
 
 import sys
 import random
@@ -25,8 +25,6 @@ class R_MAPPO():
         self.device = device
         self.tpdv = dict(dtype=torch.float32, device=device)
         self.policy = policy
-
-        
 
         self.clip_param = args.clip_param
         self.ppo_epoch = args.ppo_epoch
@@ -147,7 +145,9 @@ class R_MAPPO():
 
         #_______________________________________________________________
         #Sample evaluated by freezed net and student
-        action_old, _  = self.teacher.act(obs_batch, 
+        self.teach_tr.policy.actor.eval()
+        self.teach_tr.policy.critic.eval()
+        action_old, _  = self.teach_tr.policy.act(obs_batch, 
                                             rnn_states_batch,
                                             masks_batch, 
                                             available_actions_batch)
@@ -178,8 +178,6 @@ class R_MAPPO():
         self.policy.actor_optimizer.step()
 
 
-
-
         # critic update
         value_loss = self.cal_value_loss(values, value_preds_batch, return_batch, active_masks_batch)
 
@@ -197,7 +195,7 @@ class R_MAPPO():
 
         return value_loss, critic_grad_norm, policy_loss, dist_entropy, actor_grad_norm, imp_weights
 
-    def train(self, buffer, update_actor=True):
+    def train(self, buffer, teacher_trainer, update_actor=True):
         """
         Perform a training update using minibatch GD.
         :param buffer: (SharedReplayBuffer) buffer containing training data.
@@ -205,6 +203,9 @@ class R_MAPPO():
 
         :return train_info: (dict) contains information regarding training update (e.g. loss, grad norms, etc).
         """
+
+        self.teach_tr = teacher_trainer
+
         if self._use_popart or self._use_valuenorm:
             advantages = buffer.returns[:-1] - self.value_normalizer.denormalize(buffer.value_preds[:-1])
         else:
