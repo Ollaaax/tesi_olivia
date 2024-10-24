@@ -49,6 +49,8 @@ class Runner(object):
         self.multi_agent = self.all_args.multi_agent
         # self.continual_flag = self.all_args.continual
 
+        self.use_lwf = self.all_args.use_lwf
+
         self.naive_training = self.all_args.naive_training
         self.naive_test = self.all_args.naive_test
 
