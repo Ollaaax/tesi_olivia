@@ -439,7 +439,8 @@ class Buffer_Utils():
                                 rebuf_in[ep_no][1], 
                                 rebuf_in[ep_no][2][step_no:step_no+self.n_rollout_threads], 
                                 rebuf_in[ep_no][3][step_no:step_no+self.n_rollout_threads], 
-                                rebuf_in[ep_no][4][step_no:step_no+self.n_rollout_threads], 
+                                # rebuf_in[ep_no][4][step_no:step_no+self.n_rollout_threads], 
+                                rebuf_in[ep_no][4], 
                                 rebuf_in[ep_no][5][step_no:step_no+self.n_rollout_threads]]
             
             new_buf_in.append(old_sample_in)

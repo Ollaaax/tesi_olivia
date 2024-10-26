@@ -40,6 +40,8 @@ class LwF_Utils():
                                                         self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
                                                         available_actions,
                                                         self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
+            print(f"gfgfhdh {old_actions_logprob.shape}")
+            sys.exit()
             train_info = self.trainer[agent_id].train(self.buffer[agent_id], self.teach_tr, update)
 
 

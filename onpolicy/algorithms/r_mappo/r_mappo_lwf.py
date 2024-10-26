@@ -130,6 +130,8 @@ class R_MAPPO():
                                                                               masks_batch, 
                                                                               available_actions_batch,
                                                                               active_masks_batch)
+        
+        print(f"actions log prob {action_log_probs}")
         # actor update
         imp_weights = torch.exp(action_log_probs - old_action_log_probs_batch)
 
@@ -152,13 +154,18 @@ class R_MAPPO():
                                             masks_batch, 
                                             available_actions_batch)
         
-        action_new, _  = self.policy.act(obs_batch, 
+        
+        action_new, action_log_prob_cc  = self.policy.act(obs_batch, 
                                             rnn_states_batch,
                                             masks_batch, 
                                             available_actions_batch)
         
+        print(f"logp batch: {action_log_prob_cc.shape}")
+        # print(f"Action_logprob New: {action_log_probs[0][0]}")
+        # print(f"Action Old: {action_old.shape}")
+
         #_______________________________________________________________
-        #New Loss
+        #New Loss #l2
         lwf_loss = nn.CrossEntropyLoss(action_new, action_old)
         print(f"LwF loss is {lwf_loss}")
         #_______________________________________________________________

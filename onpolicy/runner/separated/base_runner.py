@@ -269,6 +269,7 @@ class Runner(object):
                                                             available_actions,
                                                             self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
 
+
             factor = factor*_t2n(torch.prod(torch.exp(new_actions_logprob-old_actions_logprob),dim=-1).reshape(self.episode_length,self.n_rollout_threads,1))
             train_infos.append(train_info)      
             self.buffer[agent_id].after_update()
@@ -380,6 +381,18 @@ class Runner(object):
                                                             available_actions,
                                                             self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
             
+            actions_logit = self.trainer[agent_id].policy.actor.act.action_logits
+            # print(f"tua mamma 1: {len(actions_logit_1)}")
+            # print(f"tua mamma 4: {(actions_logit[0])}")
+            # print(f"tua mamma probs: {(actions_logit_1[0].probs[0,:])}")
+            # print(f"tua mamma probs: {(actions_logit_1[0].probs[0,:])}")
+            # print(f"tua mamma sum probs: {(torch.sum(actions_logit[0].probs[0,:]))}")
+            # print(f"tua mamma mode: {(actions_logit[0].logits[0,:])}")
+            # # print(f"tua mamma lp: {(actions_logit[0].log_probs(actions_logit[0].mode()))}")
+            # # print(f"tua mamma lp: {(actions_logit[0].log_probs(actions_logit[0].mode()))}")
+
+            # sys.exit()
+
             # y = new_actions_logprob[:,0].detach().numpy()
             # # print(y)
             # x = np.random.rand(len(y))

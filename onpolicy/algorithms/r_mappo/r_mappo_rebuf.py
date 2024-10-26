@@ -165,26 +165,29 @@ class R_MAPPO():
         if self.rebuf_in is not None:
 
             old_sample_in, old_sample_out = buffer_utils.pick_sample2(self)
+            # print(f"Old Sample Out : {len(old_sample_out[0])}")
 
             # #Run the net with the samples taken from the rebuf
-            oldsamples_actions_log_probs, _ = self.policy.actor.evaluate_actions(*old_sample_in)
-                
-            # print(f"Old out {old_sample_out}")
-            # print(f"new out {oldsamples_actions_log_probs}")
+            oldsamples_actions_log_probs, old_samples_action = self.policy.actor.evaluate_actions(*old_sample_in)
+
 
             #l1 Replay Loss 
-            replay_loss = (torch.exp(old_sample_out) - torch.exp(oldsamples_actions_log_probs)).mean()
+            # replay_diff = (torch.exp(old_sample_out) - torch.exp(oldsamples_actions_log_probs)).mean()
+            replay_diff = (old_sample_out - oldsamples_actions_log_probs).mean()
 
-            #l2 Replay Loss
-            # replay_loss = ()
+            #l2 Replay Loss #TODO!!
+            replay_loss_l2 = -torch.sum(replay_diff ** 2, dim=-1, keepdim=True).mean()
+            print(f"replay loss {replay_loss_l2}")
+            print(f"policy loss {policy_loss}")
 
-            print(f"Alpha {self.alpha}")
+            # print(f"Alpha {self.alpha}")
 
-            print("Policy loss is " + str(policy_loss))
-            print("Replay loss is " + str(replay_loss))
-            policy_loss = policy_loss + self.alpha*replay_loss
+            # print("Policy loss is " + str(policy_loss))
+            # print("Replay loss is " + str(replay_loss))
+            # policy_loss = policy_loss + self.alpha*replay_loss
+            policy_loss = policy_loss + self.alpha*replay_loss_l2
 
-            print(f"Policy Loss is {policy_loss}")
+            # print(f"Policy Loss is {policy_loss}")
         #____________________________________________________________________________________________________________
 
         self.policy.actor_optimizer.zero_grad()

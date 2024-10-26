@@ -18,6 +18,8 @@ class ACTLayer(nn.Module):
         self.mujoco_box = False
         self.action_type = action_space.__class__.__name__
 
+        self.action_logits = []
+
         if action_space.__class__.__name__ == "Discrete":
             action_dim = action_space.n
             self.action_out = Categorical(inputs_dim, action_dim, use_orthogonal, gain)
@@ -53,6 +55,7 @@ class ACTLayer(nn.Module):
         :return actions: (torch.Tensor) actions to take.
         :return action_log_probs: (torch.Tensor) log probabilities of taken actions.
         """
+        
         if self.mixed_action :
             actions = []
             action_log_probs = []
@@ -69,8 +72,12 @@ class ACTLayer(nn.Module):
         elif self.multi_discrete:
             actions = []
             action_log_probs = []
+
             for action_out in self.action_outs:
                 action_logit = action_out(x)
+                ##########################################
+                self.action_logits.append(action_logit)
+                ##########################################
                 action = action_logit.mode() if deterministic else action_logit.sample()
                 action_log_prob = action_logit.log_probs(action)
                 actions.append(action)
@@ -88,7 +95,8 @@ class ACTLayer(nn.Module):
             action_logits = self.action_out(x, available_actions)
             actions = action_logits.mode() if deterministic else action_logits.sample() 
             action_log_probs = action_logits.log_probs(actions)
-        
+            self.action_logits = action_logits
+
         return actions, action_log_probs
 
     def get_probs(self, x, available_actions=None):

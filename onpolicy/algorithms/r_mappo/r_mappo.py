@@ -139,7 +139,7 @@ class R_MAPPO():
             policy_action_loss = -torch.sum(torch.min(surr1, surr2), dim=-1, keepdim=True).mean()
 
         policy_loss = policy_action_loss
-
+        print(f"Policy loss is {policy_loss}")
         self.policy.actor_optimizer.zero_grad()
 
         if update_actor:
