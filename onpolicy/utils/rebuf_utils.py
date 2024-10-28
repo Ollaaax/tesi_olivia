@@ -485,6 +485,7 @@ class Buffer_Utils():
         
         #MULTIAGENT
         if self.use_buffer and self.multi_agent:  
+            self.multi_active_agent = [0, 1, 2, 3]
 
             # TRAIN WITH BUFFER  
             if not self.buffer_test:
