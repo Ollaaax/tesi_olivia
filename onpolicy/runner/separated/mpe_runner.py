@@ -105,11 +105,13 @@ class MPERunner(Runner):
                         print(f"Active no {self.active_agent} agent SAVED!")
 
             #__________________________________________________________________________________
-            # SAVING THE TEAMS 
-            if (episode == episodes - 1 and self.save_models_flag):
-                self.save_teams_seed()
-                print('TEAM SAVED')
-            #__________________________________________________________________________________
+                # SAVING THE TEAMS 
+                if self.save_models_flag:
+                    if (episode == episodes - 1  or episode % self.save_interval == 0):
+                        self.save_teams_seed()
+                        # print('TEAM SAVED')
+
+        #__________________________________________________________________________________
 
             # log information
             if episode % self.log_interval == 0:
@@ -133,14 +135,27 @@ class MPERunner(Runner):
                                     idv_rews.append(infos[count][agent_id].get('individual_reward', 0))
                         train_infos[agent_id].update({'individual_rewards': np.mean(idv_rews)})
                         train_infos[agent_id].update({"average_episode_rewards": np.mean(self.buffer[agent_id].rewards) * self.episode_length})
+
+                        # self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
+
                         # print("individual episode rewards is {}".format(train_infos[agent_id]['average_episode_rewards']))
                             
                     print("average episode rewards is {}".format(train_infos[0]['average_episode_rewards']))
+
+                    #______________________________________________
+                    for i in range(self.log_interval):
+                        self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
+                    
+                    # self.save_log_infos(self.win_rate_list, increwinrate_path)
+                    self.save_log_infos2('average_episode_rewards', self.episode_reward_list)
+                    #______________________________________________
+
+
                 self.log_train(train_infos, total_num_steps)
 
-            # print(f"agent_id is {agent_id}")
-            train_infos[0].update({"average_episode_rewards": np.mean(self.buffer[0].rewards) * self.episode_length})
-            self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
+            # # print(f"agent_id is {agent_id}")
+            # train_infos[0].update({"average_episode_rewards": np.mean(self.buffer[0].rewards) * self.episode_length})
+            # self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
             
             # eval
             if episode % self.eval_interval == 0 and self.use_eval:

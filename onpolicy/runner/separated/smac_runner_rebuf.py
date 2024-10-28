@@ -36,6 +36,12 @@ class SMACRunner(Runner, Buffer_Utils):
         #Save log information for performance plotting
         self.win_rate_list = []
         
+        ppo_loss = []
+        l1_rebuf_loss = []
+        l2_rebuf_loss = []
+        overall_loss = []
+
+        
         #__________________________________________________________________________
         #TEAM COMPOSITION
         self.team_assemblation()    
@@ -69,11 +75,6 @@ class SMACRunner(Runner, Buffer_Utils):
             train_infos = self.rebuf_train()
 
             ##Loss infos 
-
-            ppo_loss = []
-            l1_rebuf_loss = []
-            l2_rebuf_loss = []
-            overall_loss = []
 
             if not (self.buffer_test or self.save_buffer):
                 loss_data = self.trainer[self.active_agent].loss_data_trace if not self.multi_agent else self.trainer[self.multi_active_agent[0]].loss_data_trace

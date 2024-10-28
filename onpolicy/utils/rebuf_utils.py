@@ -451,7 +451,7 @@ class Buffer_Utils():
         if self.save_buffer:
             #Create the empty Replay Buffer
             self.buffer_foreachteam_creation()
-            self.num_env_steps = self.n_rollout_threads * self.episode_length * 3
+            self.num_env_steps = self.n_rollout_threads * self.episode_length * 1
         #______________________________________________________
         
         if self.use_buffer and not self.multi_agent:  

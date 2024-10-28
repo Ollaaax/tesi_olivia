@@ -35,21 +35,20 @@ class MPERunner(Runner, Buffer_Utils):
         
 
         self.episode_reward_list = []
+        ppo_loss = []
+        l1_rebuf_loss = []
+        l2_rebuf_loss = []
+        overall_loss = []
+
+        
         self.episode_count = 0
 
-        #CREATION OF THE BUFFER
-        if self.save_buffer:
-            #Create the empty Replay Buffer
-            self.buffer_foreachteam_creation()
-
-        if self.use_buffer:
-                  
-            #______________________________________________________
-            #TEAM COMPOSITION
-            self.team_assemblation()    
-            #__________________________________________________________________________
-            episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
-            #_______________________________________________________________
+        #______________________________________________________
+        #TEAM COMPOSITION
+        self.team_assemblation()    
+        #__________________________________________________________________________
+        episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
+        #_______________________________________________________________
 
         ########################################
         for episode in range(episodes):
@@ -79,10 +78,38 @@ class MPERunner(Runner, Buffer_Utils):
             # compute return and update network
             train_infos = self.rebuf_train()
 
+            ##Loss infos 
+
+            if not (self.buffer_test or self.save_buffer):
+                loss_data = self.trainer[self.active_agent].loss_data_trace if not self.multi_agent else self.trainer[self.multi_active_agent[0]].loss_data_trace
+
+                ppo_loss.append(loss_data['ppo_loss'])
+                l1_rebuf_loss.append(loss_data['l1_rebuf_loss'])
+                l2_rebuf_loss.append(loss_data['l2_rebuf_loss'])
+                overall_loss.append(loss_data['overall_loss'])
+
+
+
             # post process
             total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads
+
             #________________
-            
+            # save teams
+            if (episode % self.save_interval == 0 or episode == episodes - 1):
+                self.save()
+
+                #Saving the Active Agent
+                if self.use_buffer:
+                    if self.multi_agent:
+                        self.save_active_multi_agent()
+                    else:
+                        self.save_active_agent()
+                        # print("I am Saving the agent")
+                    if episode == episodes - 1:
+                        print(f"Active no {self.active_agent} agent SAVED!")
+
+
+
             # log information
             if episode % self.log_interval == 0:
                 end = time.time()
@@ -107,12 +134,25 @@ class MPERunner(Runner, Buffer_Utils):
                         train_infos[agent_id].update({"average_episode_rewards": np.mean(self.buffer[agent_id].rewards) * self.episode_length})
                         # print("individual episode rewards is {}".format(train_infos[agent_id]['average_episode_rewards']))
                             
-                    print("average episode rewards is {}".format(train_infos[0]['average_episode_rewards']))
+                        # print("average episode rewards is {}".format(train_infos[agent_id]['average_episode_rewards']))
+                        print(f"average episode for agent {agent_id} rewards is {train_infos[agent_id]['average_episode_rewards']}")
+
+                    #______________________________________________
+                    #Since log_interval is not 1, in this way the graph is still of the correct length
+                    for i in range(self.log_interval):
+                        self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
+                    
+                    if not self.save_buffer:
+                        self.save_log_infos2("average_episode_rewards", self.episode_reward_list)
+                        if not self.buffer_test:
+                            self.save_log_losses(ppo_loss, l1_rebuf_loss, l2_rebuf_loss, overall_loss) 
+
+                    #______________________________________________
                 self.log_train(train_infos, total_num_steps)
 
-            # print(f"agent_id is {agent_id}")
-            train_infos[0].update({"average_episode_rewards": np.mean(self.buffer[0].rewards) * self.episode_length})
-            self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
+            # # print(f"agent_id is {agent_id}")
+            # train_infos[0].update({"average_episode_rewards": np.mean(self.buffer[0].rewards) * self.episode_length})
+            # self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
             
             # eval
             if episode % self.eval_interval == 0 and self.use_eval:
