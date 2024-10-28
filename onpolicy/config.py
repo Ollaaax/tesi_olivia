@@ -321,7 +321,7 @@ def get_config():
     
     parser.add_argument("--save_buffer", action='store_true', default = False)
     parser.add_argument("--use_buffer", action='store_true', default = False)
-    parser.add_argument("--alpha", type=int, default=1e-2)
+    parser.add_argument("--alpha", type=float, default=1e-2)
     parser.add_argument("--ep_no_rebuf_train", type=int, default=100)
     parser.add_argument("--pcnt_buffer", type=int, default=100)
     parser.add_argument("--buffer_test", action='store_true', default = False)

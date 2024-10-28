@@ -53,6 +53,12 @@ class R_MAPPO():
         self.alpha = args.alpha
         self.rebuf_in = None
 
+        #Loss fncs 
+        self.loss_data_trace = None
+        self.ppo_loss = 0
+        self.replay_loss_l1 = 0
+        self.replay_loss_l2 = 0
+        self.policy_loss = 0
         #__________________________________________________________________________________________________________
 
         assert (self._use_popart and self._use_valuenorm) == False, ("self._use_popart and self._use_valuenorm can not be set True simultaneously")
@@ -149,6 +155,8 @@ class R_MAPPO():
         surr1 = imp_weights * adv_targ
         surr2 = torch.clamp(imp_weights, 1.0 - self.clip_param, 1.0 + self.clip_param) * adv_targ
 
+        # print(f"dim imp pesi: {imp_weights.shape}")
+
         if self._use_policy_active_masks:
             policy_action_loss = (-torch.sum(torch.min(surr1, surr2),
                                              dim=-1,
@@ -160,33 +168,34 @@ class R_MAPPO():
         ##       NEW LOSS FNC
         
         policy_loss = policy_action_loss
+        # replay_loss_l1 = 0
+        # replay_loss_l2 = 0
         #____________________________________________________________________________________________________________
-        #         USE THE REPLAY BUFFER IN PIECES
+        #         USE THE REPLAY BUFFER IN PIECES\
+        # print("__________________________________________")
         if self.rebuf_in is not None:
 
             old_sample_in, old_sample_out = buffer_utils.pick_sample2(self)
-            # print(f"Old Sample Out : {len(old_sample_out[0])}")
 
             # #Run the net with the samples taken from the rebuf
-            oldsamples_actions_log_probs, old_samples_action = self.policy.actor.evaluate_actions(*old_sample_in)
-
+            predicted_out = self.policy.actor.get_logit_forward(*old_sample_in)
+            predicted_out = predicted_out.logits
 
             #l1 Replay Loss 
-            # replay_diff = (torch.exp(old_sample_out) - torch.exp(oldsamples_actions_log_probs)).mean()
-            replay_diff = (old_sample_out - oldsamples_actions_log_probs).mean()
+            replay_diff = (old_sample_out - predicted_out)
+
+            #l1
+            replay_loss_l1 = torch.sum(torch.abs(replay_diff), dim=-1, keepdim=True).mean()
 
             #l2 Replay Loss #TODO!!
-            replay_loss_l2 = -torch.sum(replay_diff ** 2, dim=-1, keepdim=True).mean()
-            print(f"replay loss {replay_loss_l2}")
-            print(f"policy loss {policy_loss}")
+            replay_loss_l2 = torch.sum(replay_diff ** 2, dim=-1, keepdim=True).mean()
 
-            # print(f"Alpha {self.alpha}")
-
-            # print("Policy loss is " + str(policy_loss))
-            # print("Replay loss is " + str(replay_loss))
-            # policy_loss = policy_loss + self.alpha*replay_loss
             policy_loss = policy_loss + self.alpha*replay_loss_l2
 
+            self.ppo_loss = policy_action_loss
+            self.replay_loss_l1 = replay_loss_l1
+            self.replay_loss_l2 = replay_loss_l2
+            self.policy_loss = policy_loss
             # print(f"Policy Loss is {policy_loss}")
         #____________________________________________________________________________________________________________
 
@@ -217,7 +226,9 @@ class R_MAPPO():
 
         self.policy.critic_optimizer.step()
 
-        return value_loss, critic_grad_norm, policy_loss, dist_entropy, actor_grad_norm, imp_weights
+        #_________________
+
+        return value_loss, critic_grad_norm, policy_loss, dist_entropy, actor_grad_norm, imp_weights, 
 
     def train(self, buffer, update_actor):
         """
@@ -249,6 +260,17 @@ class R_MAPPO():
         train_info['critic_grad_norm'] = 0
         train_info['ratio'] = 0
 
+        #_______________________________________________________-
+        ## Dict to save loss fncs
+        if self.rebuf_in is not None:
+            loss_data = {}  
+
+            loss_data['ppo_loss'] = 0
+            loss_data['l1_rebuf_loss'] = 0
+            loss_data['l2_rebuf_loss'] = 0
+            loss_data['overall_loss'] = 0
+
+
         for _ in range(self.ppo_epoch):
             if self._use_recurrent_policy:
                 data_generator = buffer.recurrent_generator(advantages, self.num_mini_batch, self.data_chunk_length)
@@ -256,11 +278,15 @@ class R_MAPPO():
                 data_generator = buffer.naive_recurrent_generator(advantages, self.num_mini_batch)
             else:
                 data_generator = buffer.feed_forward_generator(advantages, self.num_mini_batch)
-
+            
             for sample in data_generator:
-
+                
+                # if self.rebuf_in is None:
                 value_loss, critic_grad_norm, policy_loss, dist_entropy, actor_grad_norm, imp_weights \
-                    = self.ppo_update(sample, update_actor)
+                        = self.ppo_update(sample, update_actor)
+                # else: 
+                #     value_loss, critic_grad_norm, policy_loss, dist_entropy, actor_grad_norm, imp_weights, replay_loss_l1, replay_loss_l2, ppo_loss \
+                #         = self.ppo_update(sample, update_actor)                    
 
                 train_info['value_loss'] += value_loss.item()
                 train_info['policy_loss'] += policy_loss.item()
@@ -269,11 +295,24 @@ class R_MAPPO():
                 train_info['critic_grad_norm'] += critic_grad_norm
                 train_info['ratio'] += imp_weights.mean()
 
+                if self.rebuf_in is not None:
+                    loss_data['ppo_loss'] += self.ppo_loss.item()
+                    loss_data['l1_rebuf_loss'] += self.replay_loss_l1.item()
+                    loss_data['l2_rebuf_loss'] += self.replay_loss_l2.item()
+                    loss_data['overall_loss'] += self.policy_loss.item()
+
         num_updates = self.ppo_epoch * self.num_mini_batch
 
         for k in train_info.keys():
             train_info[k] /= num_updates
- 
+
+       
+        if self.rebuf_in is not None:
+            for j in loss_data.keys():
+                loss_data[j] /= num_updates
+
+            self.loss_data_trace = loss_data
+        
         return train_info
 
     def prep_training(self):

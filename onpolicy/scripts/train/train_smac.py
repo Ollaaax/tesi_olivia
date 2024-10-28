@@ -254,6 +254,8 @@ def main(args):
         # IF USING BUFFER REPLAY, SWITCH TO BUFFER ENVIRONMENT
         if all_args.use_buffer or all_args.save_buffer:
             from onpolicy.runner.separated.smac_runner_rebuf import SMACRunner as Runner
+        elif all_args.use_lwf:
+            from onpolicy.runner.separated.smac_runner_lwf import SMACRunner as Runner
         else:
             from onpolicy.runner.separated.smac_runner import SMACRunner as Runner
 

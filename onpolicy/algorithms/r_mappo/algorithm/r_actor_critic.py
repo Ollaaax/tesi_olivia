@@ -39,7 +39,6 @@ class R_Actor(nn.Module):
 
         self.act = ACTLayer(action_space, self.hidden_size, self._use_orthogonal, self._gain, args)
 
-
         self.to(device)
         self.algo = args.algorithm_name
 
@@ -118,6 +117,37 @@ class R_Actor(nn.Module):
                                                                     else None)
 
         return action_log_probs, dist_entropy
+    
+    @torch.no_grad()
+    def get_logit_forward(self, obs, rnn_states, masks, available_actions=None, deterministic=False):
+        """
+        Compute actions from the given inputs.
+        :param obs: (np.ndarray / torch.Tensor) observation inputs into network.
+        :param rnn_states: (np.ndarray / torch.Tensor) if RNN network, hidden states for RNN.
+        :param masks: (np.ndarray / torch.Tensor) mask tensor denoting if hidden states should be reinitialized to zeros.
+        :param available_actions: (np.ndarray / torch.Tensor) denotes which actions are available to agent
+                                                              (if None, all actions available)
+        :param deterministic: (bool) whether to sample from action distribution or return the mode.
+
+        :return actions: (torch.Tensor) actions to take.
+        :return action_log_probs: (torch.Tensor) log probabilities of taken actions.
+        :return rnn_states: (torch.Tensor) updated RNN hidden states.
+        """
+        obs = check(obs).to(**self.tpdv)
+        rnn_states = check(rnn_states).to(**self.tpdv)
+        masks = check(masks).to(**self.tpdv)
+        if available_actions is not None:
+            available_actions = check(available_actions).to(**self.tpdv)
+
+        actor_features = self.base(obs)
+
+        if self._use_naive_recurrent_policy or self._use_recurrent_policy:
+            actor_features, rnn_states = self.rnn(actor_features, rnn_states, masks)
+
+        action_logits_actor = self.act.get_logits(actor_features, available_actions)
+
+        return action_logits_actor
+
 
 
 class R_Critic(nn.Module):

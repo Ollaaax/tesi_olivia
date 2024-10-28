@@ -1,4 +1,4 @@
-    
+ls    
 import time
 import wandb
 import os

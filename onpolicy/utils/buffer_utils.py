@@ -29,12 +29,12 @@ def import_buffer(buffer_team_no):
     if all_args.env_name == "MPE":
         buffer_path = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
                     0]+ "/scripts/results") / "TRAINING" / all_args.env_name / all_args.scenario_name / all_args.algorithm_name / all_args.experiment_name / "trained_teams" \
-                    / str(buffer_team_no) / ("BufferT" + str(buffer_team_no)) 
+                    / str(buffer_team_no) / ("Buffer2T" + str(buffer_team_no)) 
         
     if all_args.env_name == "StarCraft2":
         buffer_path = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
                         0] + "/scripts/results") / "TRAINING" / all_args.env_name / all_args.map_name / all_args.algorithm_name / all_args.experiment_name / "trained_teams" \
-                        / str(buffer_team_no) / ("BufferT" + str(buffer_team_no)) 
+                        / str(buffer_team_no) / ("Buffer2T" + str(buffer_team_no)) 
     
     buffer_in = torch.load(str(buffer_path) + "/replay_buffer_ins.npy") 
     buffer_out = torch.load(str(buffer_path) +  "/replay_buffer_outs.npy")

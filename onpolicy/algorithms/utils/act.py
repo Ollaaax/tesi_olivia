@@ -243,3 +243,28 @@ class ACTLayer(nn.Module):
                 dist_entropy = action_logits.entropy().mean()
         
         return action_log_probs, dist_entropy, action_mu, action_std, all_probs
+
+
+        ################
+
+    def get_logits(self, x, available_actions=None):
+        """
+        Compute action probabilities from inputs.
+        :param x: (torch.Tensor) input to network.
+        :param available_actions: (torch.Tensor) denotes which actions are available to agent
+                                  (if None, all actions available)
+
+        :return action_probs: (torch.Tensor)
+        """
+        if self.mixed_action or self.multi_discrete:
+            action_probs = []
+            for action_out in self.action_outs:
+                action_logit = action_out(x)
+                action_prob = action_logit.probs
+                action_probs.append(action_prob)
+            action_probs = torch.cat(action_probs, -1)
+        else:
+            action_logits = self.action_out(x, available_actions)
+            action_probs = action_logits.probs
+        
+        return action_logits

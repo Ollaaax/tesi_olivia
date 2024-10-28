@@ -46,7 +46,7 @@ class Buffer_Utils():
         #25*10*128 numero degli step (delle traiettorie), ogni 25 steps viene fatto il ppo update. Prendiamo 
 
         #Create the directory to save the buffers
-        self.buffer_dir = self.trained_models_dir / str(buffer_team_no) / ("BufferT" + str(buffer_team_no))
+        self.buffer_dir = self.trained_models_dir / str(buffer_team_no) / ("Buffer2T" + str(buffer_team_no))
         if not os.path.exists(self.buffer_dir):
             os.makedirs(self.buffer_dir)
         else: 
@@ -57,7 +57,7 @@ class Buffer_Utils():
 
     #____________TRAIN FUNCTIONS________________________________________
 
-    def freeze_save_train(self):
+    def freeze_save_trainoldold(self):
 
         train_infos = []
         update = False
@@ -68,11 +68,33 @@ class Buffer_Utils():
         factor = np.ones((self.episode_length, self.n_rollout_threads, 1), dtype=np.float32)
 
         for agent_id in range(self.num_agents):
-            self.trainer[agent_id].prep_training()
-            self.buffer[agent_id].update_factor(factor)
+            #_____________________________________________________________
             available_actions = None if self.buffer[agent_id].available_actions is None \
                 else self.buffer[agent_id].available_actions[:-1].reshape(-1, *self.buffer[agent_id].available_actions.shape[2:])
             
+
+            self.trainer[agent_id].prep_rollout()
+        #1. costruire il sample in 
+    
+            # obs, rnn_states, masks, available_actions
+            input_data = self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]), \
+                            self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]), \
+                            self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]), \
+                            available_actions
+            
+            # print(available_actions.shape)
+
+            self.rebuf_ins[agent_id].append(input_data)
+        #3. prendere il sample out da act.get_logits
+
+            sample_logits_out = self.trainer[agent_id].policy.actor.get_logit_forward(*input_data)
+
+            self.rebuf_outs[agent_id].append(sample_logits_out.logits)
+
+            #_____________________________________________________________
+            self.trainer[agent_id].prep_training()
+            self.buffer[agent_id].update_factor(factor)
+
 
             old_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
                                                             self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]),
@@ -81,6 +103,7 @@ class Buffer_Utils():
                                                             available_actions,
                                                             self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
             
+
 
             #come input data abbiamo al momento: obs, rnn_states, actions, masks, available_actions, active masks 
             input_data = self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]), \
@@ -91,7 +114,7 @@ class Buffer_Utils():
                             self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:])
 
 
-            self.rebuf_ins[agent_id].append(input_data)
+            # self.rebuf_ins[agent_id].append(input_data)
 
             train_info = self.trainer[agent_id].train(self.buffer[agent_id], update)
 
@@ -104,7 +127,7 @@ class Buffer_Utils():
                                                             self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
             
 
-            self.rebuf_outs[agent_id].append(new_actions_logprob)
+            # self.rebuf_outs[agent_id].append(new_actions_logprob)
 
             factor = factor*_t2n(torch.prod(torch.exp(new_actions_logprob-old_actions_logprob),dim=-1).reshape(self.episode_length,self.n_rollout_threads,1))
             train_infos.append(train_info)      
@@ -113,6 +136,126 @@ class Buffer_Utils():
         torch.save(self.rebuf_ins, str(self.buffer_dir) + "/replay_buffer_ins.npy")
         torch.save(self.rebuf_outs, str(self.buffer_dir) + "/replay_buffer_outs.npy")
 
+        return train_infos
+
+    def freeze_save_train(self):
+
+        train_infos = []
+        update = False
+
+        # random update order not needed
+
+        action_dim=self.buffer[0].actions.shape[-1]
+        factor = np.ones((self.episode_length, self.n_rollout_threads, 1), dtype=np.float32)
+
+        for agent_id in range(self.num_agents):
+
+            #_____________________________________________________________
+            available_actions = None if self.buffer[agent_id].available_actions is None \
+                else self.buffer[agent_id].available_actions[:-1].reshape(-1, *self.buffer[agent_id].available_actions.shape[2:])
+            
+
+            self.trainer[agent_id].prep_rollout()
+        #1. costruire il sample in 
+    
+            # obs, rnn_states, masks, available_actions
+            input_data = self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]), \
+                            self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]), \
+                            self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]), \
+                            available_actions
+            
+            # print(available_actions.shape)
+
+            self.rebuf_ins[agent_id].append(input_data)
+        #3. prendere il sample out da act.get_logits
+
+            sample_logits_out = self.trainer[agent_id].policy.actor.get_logit_forward(*input_data)
+
+            self.rebuf_outs[agent_id].append(sample_logits_out.logits)
+
+            #_____________________________________________________________
+            self.trainer[agent_id].prep_training()
+            self.buffer[agent_id].update_factor(factor)
+
+
+            old_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
+                                                            self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]),
+                                                            self.buffer[agent_id].actions.reshape(-1, *self.buffer[agent_id].actions.shape[2:]),
+                                                            self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
+                                                            available_actions,
+                                                            self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
+            
+
+            # self.rebuf_ins[agent_id].append(input_data)
+
+            train_info = self.trainer[agent_id].train(self.buffer[agent_id], update)
+
+
+            new_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
+                                                            self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]),
+                                                            self.buffer[agent_id].actions.reshape(-1, *self.buffer[agent_id].actions.shape[2:]),
+                                                            self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
+                                                            available_actions,
+                                                            self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
+            
+
+            # self.rebuf_outs[agent_id].append(new_actions_logprob)
+
+            factor = factor*_t2n(torch.prod(torch.exp(new_actions_logprob-old_actions_logprob),dim=-1).reshape(self.episode_length,self.n_rollout_threads,1))
+            train_infos.append(train_info)      
+            self.buffer[agent_id].after_update()
+        
+        torch.save(self.rebuf_ins, str(self.buffer_dir) + "/replay_buffer_ins.npy")
+        torch.save(self.rebuf_outs, str(self.buffer_dir) + "/replay_buffer_outs.npy")
+
+        return train_infos
+
+
+    def freeze_save_trainnew(self):
+
+        train_infos = []
+        
+        #1. eval mode 
+        for agent_id in range(self.num_agents):
+
+            available_actions = None if self.buffer[agent_id].available_actions is None \
+                else self.buffer[agent_id].available_actions[:-1].reshape(-1, *self.buffer[agent_id].available_actions.shape[2:])
+
+            self.trainer[agent_id].prep_rollout()
+        
+        
+        #1. costruire il sample in 
+    
+            # obs, rnn_states, masks, available_actions
+            input_data = self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]), \
+                            self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]), \
+                            self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]), \
+                            available_actions
+            
+            # print(available_actions.shape)
+
+            self.rebuf_ins[agent_id].append(input_data)
+        #3. prendere il sample out da act.get_logits
+
+            sample_logits_out = self.trainer[agent_id].policy.actor.get_logit_forward(*input_data)
+
+            self.rebuf_outs[agent_id].append(sample_logits_out.logits)
+
+        torch.save(self.rebuf_ins, str(self.buffer_dir) + "/replay_buffer_ins.npy")
+        torch.save(self.rebuf_outs, str(self.buffer_dir) + "/replay_buffer_outs.npy")
+
+
+        # print(f"len buff in: {len(self.rebuf_ins)}")
+        # print(f"len buffagents in: {len(self.rebuf_ins[0])}")
+        # print(f"len buff ep in: {len(self.rebuf_ins[0][0])}")
+        # print(f"len buff robe (4): {len(self.rebuf_ins[0][0][0])}")
+        # print(f"len buff obs: {len(self.rebuf_ins[0][0][0][0])}")
+
+        # print(f"len buff out: {len(self.rebuf_outs)}")
+        # print(f"len buff ag: {len(self.rebuf_outs[0])}")
+
+        # print(f"len buff logt: {self.rebuf_outs[0][0]}")
+        # print(f"len buff logt: {(self.rebuf_outs[0][0]).shape}")
         return train_infos
 
     def train_with_rebuf(self):
@@ -136,6 +279,7 @@ class Buffer_Utils():
             available_actions = None if self.buffer[agent_id].available_actions is None \
                 else self.buffer[agent_id].available_actions[:-1].reshape(-1, *self.buffer[agent_id].available_actions.shape[2:])
             
+            # print(f"Availbale acltion: {available_actions.shape}")
             
             old_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
                                                         self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]),
@@ -145,6 +289,7 @@ class Buffer_Utils():
                                                         self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
             train_info = self.trainer[agent_id].train(self.buffer[agent_id], update)
 
+            
 
             new_actions_logprob, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
                                                         self.buffer[agent_id].rnn_states[0:1].reshape(-1, *self.buffer[agent_id].rnn_states.shape[2:]),
@@ -158,6 +303,7 @@ class Buffer_Utils():
             self.buffer[agent_id].after_update()
 
         return train_infos
+    
 
     def train_with_rebuf_multi(self):
         train_infos = []
@@ -305,7 +451,7 @@ class Buffer_Utils():
         if self.save_buffer:
             #Create the empty Replay Buffer
             self.buffer_foreachteam_creation()
-            self.num_env_steps = self.n_rollout_threads * self.episode_length * 1
+            self.num_env_steps = self.n_rollout_threads * self.episode_length * 3
         #______________________________________________________
         
         if self.use_buffer and not self.multi_agent:  
@@ -324,7 +470,7 @@ class Buffer_Utils():
                 self.team = self.manually_choice_of_team() #Choose team
 
                 self.num_env_steps = self.ep_no_rebuf_train * self.episode_length * self.n_rollout_threads
-            
+
             # TEST with buffer
             else:
                 self.team = 1 #For test use team 1 only
@@ -390,30 +536,16 @@ class Buffer_Utils():
         return train_infos
     
 
-    def import_buffer(self, buffer_team_no):
-
-        if self.env_name == "MPE":
-            buffer_path = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
-                        0]+ "/scripts/results") / "TRAINING" / self.env_name / self.scenario_name / self.algorithm_name / self.experiment_name / "trained_teams" \
-                        / str(buffer_team_no) / ("BufferT" + str(buffer_team_no)) 
-            
-        if self.env_name == "StarCraft2":
-            buffer_path = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
-                            0] + "/scripts/results") / "TRAINING" / self.env_name / self.map_name / self.algorithm_name / self.experiment_name / "trained_teams" \
-                            / str(buffer_team_no) / ("BufferT" + str(buffer_team_no)) 
-        
-        buffer_in = torch.load(str(buffer_path) + "/replay_buffer_ins.npy") 
-        buffer_out = torch.load(str(buffer_path) +  "/replay_buffer_outs.npy")
-
-        return buffer_in, buffer_out
     
-    def shuffle_n_portion_buffer(self):
+    def OLDshuffle_n_portion_buffer(self):
         """Here I import the buffer, shuffle it along episodes and steps, and take a portion
         Input: semmai buffer_team_no
         Output: Shuffled and portioned Buffers
         """
         #TODO cambiare eventualmente la sqaudra di partenza 
         rebuf_in, rebuf_out = buffer_utils.import_buffer(1)
+        # print(f"Buff out len: {len(rebuf_out)}")
+        # print(f"Buff out 2: {(rebuf_out[0][0])}")
 
         #PORZIONO IL BUFFER 
         # 1. seleziono solo la colonna relativa all'active agent
@@ -439,8 +571,8 @@ class Buffer_Utils():
                                 rebuf_in[ep_no][1], 
                                 rebuf_in[ep_no][2][step_no:step_no+self.n_rollout_threads], 
                                 rebuf_in[ep_no][3][step_no:step_no+self.n_rollout_threads], 
-                                # rebuf_in[ep_no][4][step_no:step_no+self.n_rollout_threads], 
-                                rebuf_in[ep_no][4], 
+                                rebuf_in[ep_no][4][step_no:step_no+self.n_rollout_threads], 
+                                # rebuf_in[ep_no][4], 
                                 rebuf_in[ep_no][5][step_no:step_no+self.n_rollout_threads]]
             
             new_buf_in.append(old_sample_in)
@@ -453,7 +585,68 @@ class Buffer_Utils():
         # 4. Voilà nuovo buffer 
         return rebuf_in, rebuf_out
 
-    def shuffle_n_portion_multi_buffer(self):
+    def shuffle_n_portion_buffer(self):
+        """Here I import the buffer, shuffle it along episodes and steps, and take a portion
+        Input: semmai buffer_team_no
+        Output: Shuffled and portioned Buffers
+        """
+        #TODO cambiare eventualmente la sqaudra di partenza 
+        rebuf_in, rebuf_out = buffer_utils.import_buffer(1)
+
+        #PORZIONO IL BUFFER 
+        # 1. seleziono solo la colonna relativa all'active agent
+        rebuf_in = rebuf_in[self.active_agent] 
+        rebuf_out = rebuf_out[self.active_agent]
+
+        # print(len(rebuf_in[0][3][0]))
+        # 2. Setto la percentuale di uso del buffer (tramite config?)
+        buff_episodes_len = len(rebuf_in)
+        
+        index_array = np.arange(buff_episodes_len * self.episode_length)
+        np.random.shuffle(index_array)
+        # print(f"Indeces array {index_array}")
+        # print(f"Index len {len(index_array)}")
+
+        # 3. Shuffle + Portion
+        new_buf_in = [] 
+        new_buf_out = []
+
+        for i in index_array:
+            ep_no = i // self.episode_length
+            step_no = i % self.episode_length
+
+            step_no = step_no * self.n_rollout_threads
+
+            # print(rebuf_in[ep_no][3][0])
+            old_sample_in = [   rebuf_in[ep_no][0][step_no:step_no+self.n_rollout_threads],  #obs
+                                rebuf_in[ep_no][1],  #rnn_states
+                                rebuf_in[ep_no][2][step_no:step_no+self.n_rollout_threads],  #masks
+                                rebuf_in[ep_no][3][step_no:step_no+self.n_rollout_threads],  #available_actions
+                                # rebuf_in[ep_no][3]
+                            ]
+
+            # print(len(rebuf_in[ep_no][3][0]))
+            # print(rebuf_in[ep_no][0][step_no:step_no+self.n_rollout_threads].shape)
+            # sys.exit()
+            new_buf_in.append(old_sample_in)
+            new_buf_out.append(rebuf_out[ep_no][step_no:step_no+self.n_rollout_threads])
+            
+        rebuf_in = new_buf_in[:len(new_buf_in)*self.pcnt_buffer//100]
+        rebuf_out = new_buf_out[:len(new_buf_in)*self.pcnt_buffer//100]
+
+        print(f"The size of the buffer is {len(rebuf_in)}")
+        # print(f"The size of the OSI {len(rebuf_in[0][3][0])}")
+        # print(f"The size of the OSO is 400 {len(rebuf_out)}")
+        # print(f"The size of the OSO is 1 il logit {rebuf_out[0]}")
+
+        # logit = torch.nn.functional.softmax(rebuf_out[0], dim=1)
+        # print(torch.round(logit*100))
+        #  print(torch.sum(logit, dim=1))
+        # 4. Voilà nuovo buffer 
+        return rebuf_in, rebuf_out
+
+
+    def shuffle_n_portion_multi_bufferOLD(self):
         """Here I import the buffer, shuffle it along episodes and steps, and take a portion
         Input: semmai buffer_team_no
         Output: Shuffled and portioned Buffers
@@ -501,3 +694,54 @@ class Buffer_Utils():
         print(f"The size of the buffer is {len(new_rebuf_ins[0])}")
         # 4. Voilà nuovo buffer 
         return new_rebuf_ins, new_rebuf_outs
+
+    def shuffle_n_portion_multi_buffer(self):
+        """Here I import the buffer, shuffle it along episodes and steps, and take a portion
+        Input: semmai buffer_team_no
+        Output: Shuffled and portioned Buffers
+        """
+        #TODO cambiare eventualmente la sqaudra di partenza 
+        rebuf_in, rebuf_out = buffer_utils.import_buffer(1)
+
+        new_rebuf_outs = [[] for _ in range(len(self.multi_active_agent))]
+        new_rebuf_ins = [[] for _ in range(len(self.multi_active_agent))]
+
+        #PORZIONO IL BUFFER 
+        # 1. seleziono solo la colonna relativa all'active agent
+        for agent in self.multi_active_agent:
+            print(f"AGENT is {agent}")
+
+            # 2. Setto la percentuale di uso del buffer (tramite config?)
+            buff_episodes_len = len(rebuf_in[agent])
+            
+            index_array = np.arange(buff_episodes_len * self.episode_length)
+            np.random.shuffle(index_array)
+            # print(f"Indeces array {index_array}")
+            # print(f"Index len {len(index_array)}")
+
+            # 3. Shuffle + Portion
+            new_buf_in = [] 
+            new_buf_out = []
+            for i in index_array:
+                ep_no = i // self.episode_length
+                step_no = i % self.episode_length
+
+                step_no = step_no * self.n_rollout_threads
+
+                old_sample_in = [   rebuf_in[agent][ep_no][0][step_no:step_no+self.n_rollout_threads],  #obs
+                                    rebuf_in[agent][ep_no][1],                                          #rnn_states
+                                    rebuf_in[agent][ep_no][2][step_no:step_no+self.n_rollout_threads],  #masks
+                                    rebuf_in[agent][ep_no][3][step_no:step_no+self.n_rollout_threads],  #available_actions
+                                ]   
+                
+                new_buf_in.append(old_sample_in)
+                new_buf_out.append(rebuf_out[agent][ep_no][step_no:step_no+self.n_rollout_threads])
+                
+            new_rebuf_ins[agent] = new_buf_in[:len(new_buf_in)*self.pcnt_buffer//100]
+            new_rebuf_outs[agent] = new_buf_out[:len(new_buf_in)*self.pcnt_buffer//100]
+
+        print(f"The size of the buffer is {len(new_rebuf_ins)}")
+        # print(f"The size of the buffer is {len(new_rebuf_ins[0])}")
+        # 4. Voilà nuovo buffer 
+        return new_rebuf_ins, new_rebuf_outs
+

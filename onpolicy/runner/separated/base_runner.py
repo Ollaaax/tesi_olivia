@@ -364,7 +364,8 @@ class Runner(object):
                                                             self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
                                                             available_actions,
                                                             self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
-            train_info = self.trainer[agent_id].train(self.buffer[agent_id], update)
+            train_info = self.trainer[agent_id].train(self.buffer[agent_id], update
+                                                      )
 
             if self.all_args.algorithm_name == "hatrpo":
                 new_actions_logprob, _, _, _, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
@@ -658,6 +659,46 @@ class Runner(object):
         print("LOG SAVED!")
         return
 
+    def save_log_losses(self, ppo_loss, l1_rebuf_loss, l2_rebuf_loss, overall_loss):
+        
+        losses = {
+                    "ppo_loss": ppo_loss,
+                    "l1_rebuf_loss": l1_rebuf_loss,
+                    "l2_rebuf_loss": l2_rebuf_loss,
+                    "overall_loss": overall_loss
+                }
+        extension = ".npy"
+        extension_mat = ".mat"
+        extension_plot = ".png"
+
+        loss_dir = self.results_dir / "Losses"
+        if not loss_dir.exists():
+            os.makedirs(str(loss_dir))
+
+        for name, el in losses.items():
+            file_path = f"{loss_dir}/{name}{extension}"
+            file_path_mat = f"{loss_dir}/{name}{extension_mat}"
+            file_path_plot = f"{loss_dir}/{name}{extension_plot}"
+
+            #Convert to array
+            el = np.array(el)
+
+            np.save(str(file_path), el)
+
+            #__ MATLAB save ____________
+            savemat(str(file_path_mat), {'data': el})
+
+            #__Plot Save________________
+            plt.plot(el, )
+
+            plt.ylabel(f"{name}")
+            plt.xlabel("Episodes")
+
+            plt.savefig(str(file_path_plot))
+
+            print("Losses LOG SAVED!")
+
+       
 #________________________________________________________________________
 ###           ACTIVE AGENT MANAGEMENT
 

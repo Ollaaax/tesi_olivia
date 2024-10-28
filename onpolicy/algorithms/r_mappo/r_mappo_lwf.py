@@ -147,26 +147,31 @@ class R_MAPPO():
 
         #_______________________________________________________________
         #Sample evaluated by freezed net and student
+        
         self.teach_tr.policy.actor.eval()
         self.teach_tr.policy.critic.eval()
-        action_old, _  = self.teach_tr.policy.act(obs_batch, 
-                                            rnn_states_batch,
-                                            masks_batch, 
-                                            available_actions_batch)
+
+        # obs, rnn, mask, aval_act
+        action_teach = self.teach_tr.policy.actor.get_logit_forward(obs_batch, 
+                                                                    rnn_states_batch, 
+                                                                    masks_batch, 
+                                                                    available_actions_batch ).detach()
         
+        action_teach = action_teach.logit
+        action_stud = self.policy.actor.get_logit_forward(  obs_batch, 
+                                                            rnn_states_batch, 
+                                                            masks_batch, 
+                                                            available_actions_batch ).logit
         
-        action_new, action_log_prob_cc  = self.policy.act(obs_batch, 
-                                            rnn_states_batch,
-                                            masks_batch, 
-                                            available_actions_batch)
-        
-        print(f"logp batch: {action_log_prob_cc.shape}")
         # print(f"Action_logprob New: {action_log_probs[0][0]}")
         # print(f"Action Old: {action_old.shape}")
 
         #_______________________________________________________________
         #New Loss #l2
-        lwf_loss = nn.CrossEntropyLoss(action_new, action_old)
+        diff = action_teach - action_stud
+        replay_loss_l2 = torch.sum(diff ** 2, dim=-1, keepdim=True).mean()
+
+        lwf_loss = nn.CrossEntropyLoss(action_teach, action_stud)
         print(f"LwF loss is {lwf_loss}")
         #_______________________________________________________________
 

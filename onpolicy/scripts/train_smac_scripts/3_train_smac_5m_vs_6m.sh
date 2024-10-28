@@ -3,7 +3,7 @@ env="StarCraft2"
 map="5m_vs_6m"
 algo="mappo"
 exp="check"
-seed_max=1
+seed_max=3
 
 #__________________________________________________________________________________
 # num_env_steps=10000000 #default
@@ -38,7 +38,7 @@ seed=1
     --map_name ${map} --seed ${seed} --n_training_threads 1 --n_rollout_threads 8 --num_mini_batch 1 --episode_length 400 \
     --num_env_steps ${num_env_steps} --ppo_epoch 10 --clip_param 0.05 --use_value_active_masks --use_eval --eval_episodes 32 --share_policy \
     --use_wandb 0 \
-    --use_buffer --buffer_test 
+    --use_buffer --ep_no_rebuf_train 10 --pcnt_buffer 100
 # done 
 
 # --save_models_flag
@@ -46,5 +46,5 @@ seed=1
 # --naive_training --naive_test
 # --joint_training
 # --save_buffer
-# --use_buffer -ep_no_rebuf_train 1500 --pcnt_buffer 50
+# --use_buffer --ep_no_rebuf_train 1500 --pcnt_buffer 50
 # --use_buffer --buffer_test 

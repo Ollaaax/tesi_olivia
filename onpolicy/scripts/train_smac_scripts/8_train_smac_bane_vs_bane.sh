@@ -14,7 +14,7 @@ seed_max=1
 # num_env_steps=1600000 #500 Episodes 
 # num_env_steps=960000 #300 Episodes 
 # num_env_steps=640000 #200 Episodes  #TO TRAIN TEAMS 
-# num_env_steps=480000 #150 Episodes  
+num_env_steps=480000 #150 Episodes  
 # num_env_steps=320000 #100 Episodes         
 # num_env_steps=32000 #10 Episodes
 # num_env_steps=16000 #5 Episodes
@@ -22,16 +22,17 @@ seed_max=1
 
 
 echo "env is ${env}, map is ${map}, algo is ${algo}, exp is ${exp}, max seed is ${seed_max}"
-for seed in `seq ${seed_max}`;
+# for seed in `seq ${seed_max}`;
 # for seed in `seq $(seq 2 3)`;
-do
+# do
+seed=2
     echo "seed is ${seed}:"
     CUDA_VISIBLE_DEVICES=1 python ../train/train_smac.py --env_name ${env} --algorithm_name ${algo} --experiment_name ${exp} \
     --map_name ${map} --seed ${seed} --n_training_threads 1 --n_rollout_threads 8 --num_mini_batch 1 --episode_length 400 \
     --num_env_steps ${num_env_steps} --ppo_epoch 15 --use_value_active_masks --use_eval --eval_episodes 32 --share_policy \
-    --use_wandb 0 \
-    --save_buffer
-done
+    --use_wandb 0 --alpha 1e-3 \
+    --naive_training 
+# done
 
 
 # --save_models_flag

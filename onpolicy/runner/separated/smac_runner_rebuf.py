@@ -35,6 +35,7 @@ class SMACRunner(Runner, Buffer_Utils):
 
         #Save log information for performance plotting
         self.win_rate_list = []
+        
         #__________________________________________________________________________
         #TEAM COMPOSITION
         self.team_assemblation()    
@@ -67,6 +68,21 @@ class SMACRunner(Runner, Buffer_Utils):
             #train
             train_infos = self.rebuf_train()
 
+            ##Loss infos 
+
+            ppo_loss = []
+            l1_rebuf_loss = []
+            l2_rebuf_loss = []
+            overall_loss = []
+
+            if not (self.buffer_test or self.save_buffer):
+                loss_data = self.trainer[self.active_agent].loss_data_trace if not self.multi_agent else self.trainer[self.multi_active_agent[0]].loss_data_trace
+
+                ppo_loss.append(loss_data['ppo_loss'])
+                l1_rebuf_loss.append(loss_data['l1_rebuf_loss'])
+                l2_rebuf_loss.append(loss_data['l2_rebuf_loss'])
+                overall_loss.append(loss_data['overall_loss'])
+
 
             # post process
             total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads 
@@ -82,6 +98,7 @@ class SMACRunner(Runner, Buffer_Utils):
                         self.save_active_multi_agent()
                     else:
                         self.save_active_agent()
+                        # print("I am Saving the agent")
                     if episode == episodes - 1:
                         print(f"Active no {self.active_agent} agent SAVED!")
 
@@ -123,7 +140,8 @@ class SMACRunner(Runner, Buffer_Utils):
                     
                     if not self.save_buffer:
                         self.save_log_infos2("incre_win_rate", self.win_rate_list)
-                        # self.save_log_infos(self.win_rate_list, increwinrate_path)
+                        if not self.buffer_test:
+                            self.save_log_losses(ppo_loss, l1_rebuf_loss, l2_rebuf_loss, overall_loss) 
 
                     #______________________________________________
 
@@ -136,7 +154,7 @@ class SMACRunner(Runner, Buffer_Utils):
                     last_battles_won = battles_won
 
                 # modified
-                if not self.buffer_test:
+                if not (self.buffer_test or self.save_buffer):
                     for agent_id in range(self.num_agents):
                         train_infos[agent_id]['dead_ratio'] = 1 - self.buffer[agent_id].active_masks.sum() /(self.num_agents* reduce(lambda x, y: x*y, list(self.buffer[agent_id].active_masks.shape)))
                     
