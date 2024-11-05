@@ -147,7 +147,8 @@ class R_MAPPO():
                                                                               available_actions_batch,
                                                                               active_masks_batch)
 
-
+        # print(obs_batch)
+        # print(action_log_probs)
         #____________________________________________________________________________________________________________
         # actor update
         imp_weights = torch.exp(action_log_probs - old_action_log_probs_batch)
@@ -177,20 +178,33 @@ class R_MAPPO():
 
             old_sample_in, old_sample_out = buffer_utils.pick_sample2(self)
 
+            # print([*old_sample_in[:][0]])
+            a = old_sample_in[0]
+            b = old_sample_in[1]
+            c = old_sample_in[2]
+            d = old_sample_in[3]
+            
+            # print(old_sample_in[0][0][0])
+            # print(old_sample_out[:][0])
             # #Run the net with the samples taken from the rebuf
-            predicted_out = self.policy.actor.get_logit_forward(*old_sample_in)
+            predicted_out = self.policy.actor.get_logit_forward(a, b, c, d)
             predicted_out = predicted_out.logits
 
             #l1 Replay Loss 
             replay_diff = (old_sample_out - predicted_out)
+            # print(f" differenze {replay_diff}")
 
             #l1
             replay_loss_l1 = torch.sum(torch.abs(replay_diff), dim=-1, keepdim=True).mean()
+            # print(replay_loss_l1)
+            # print(a[:10])
+            # print(f"old out {old_sample_out[:][:10]}")
+            # print(f"pred {predicted_out[:][:10]}")
 
             #l2 Replay Loss #TODO!!
             replay_loss_l2 = torch.sum(replay_diff ** 2, dim=-1, keepdim=True).mean()
 
-            policy_loss = policy_loss + self.alpha*replay_loss_l2
+            policy_loss = policy_action_loss + self.alpha*replay_loss_l1
 
             self.ppo_loss = policy_action_loss
             self.replay_loss_l1 = replay_loss_l1
@@ -200,14 +214,16 @@ class R_MAPPO():
         #____________________________________________________________________________________________________________
 
         self.policy.actor_optimizer.zero_grad()
-
+        # print(policy_loss - dist_entropy * self.entropy_coef)
         if update_actor:
-            (policy_loss - dist_entropy * self.entropy_coef).backward()
+            # (policy_loss - dist_entropy * self.entropy_coef).backward()
+            (policy_loss).backward()
 
         if self._use_max_grad_norm:
             actor_grad_norm = nn.utils.clip_grad_norm_(self.policy.actor.parameters(), self.max_grad_norm)
         else:
             actor_grad_norm = get_gard_norm(self.policy.actor.parameters())
+
 
         self.policy.actor_optimizer.step()
 

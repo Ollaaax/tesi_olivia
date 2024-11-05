@@ -40,12 +40,9 @@ class MPERunner(Runner, Buffer_Utils):
         l2_rebuf_loss = []
         overall_loss = []
 
-        
-        self.episode_count = 0
-
         #______________________________________________________
         #TEAM COMPOSITION
-        self.team_assemblation()    
+        self.rebuf_team_assemblation()    
         #__________________________________________________________________________
         episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
         #_______________________________________________________________
@@ -134,8 +131,8 @@ class MPERunner(Runner, Buffer_Utils):
                         train_infos[agent_id].update({"average_episode_rewards": np.mean(self.buffer[agent_id].rewards) * self.episode_length})
                         # print("individual episode rewards is {}".format(train_infos[agent_id]['average_episode_rewards']))
                             
-                        # print("average episode rewards is {}".format(train_infos[agent_id]['average_episode_rewards']))
-                        print(f"average episode for agent {agent_id} rewards is {train_infos[agent_id]['average_episode_rewards']}")
+                        print("average episode rewards is {}".format(train_infos[agent_id]['average_episode_rewards']))
+                        # print(f"average episode for agent {agent_id} rewards is {train_infos[agent_id]['average_episode_rewards']}")
 
                     #______________________________________________
                     #Since log_interval is not 1, in this way the graph is still of the correct length
@@ -143,7 +140,9 @@ class MPERunner(Runner, Buffer_Utils):
                         self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
                     
                     if not self.save_buffer:
-                        self.save_log_infos2("average_episode_rewards", self.episode_reward_list)
+                        self.save_log_infos2('average_episode_rewards', 
+                                            self.episode_reward_list,
+                                            additional_info= "TEST" if self.naive_test else None)
                         if not self.buffer_test:
                             self.save_log_losses(ppo_loss, l1_rebuf_loss, l2_rebuf_loss, overall_loss) 
 
@@ -159,15 +158,15 @@ class MPERunner(Runner, Buffer_Utils):
                 self.eval(total_num_steps)
 
 
-        #__________________________________
-        #Plot Episode avg rewards
-        if self.use_buffer: 
-            plt.plot(self.episode_reward_list, )
+        # #__________________________________
+        # #Plot Episode avg rewards
+        # if self.use_buffer: 
+        #     plt.plot(self.episode_reward_list, )
 
-            plt.ylabel("Episode reward")
-            plt.xlabel("Episodes")
+        #     plt.ylabel("Episode reward")
+        #     plt.xlabel("Episodes")
 
-            plt.show()
+        #     plt.show()
             # plt.savefig(str(self.trained_models_dir) + "/" + str(self.buffer_team_no) + "/training0" + ".png")
 
 #________________________________________________________________________________________

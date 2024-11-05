@@ -44,7 +44,7 @@ class SMACRunner(Runner, Buffer_Utils):
         
         #__________________________________________________________________________
         #TEAM COMPOSITION
-        self.team_assemblation()    
+        self.rebuf_team_assemblation()    
         #__________________________________________________________________________
         episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
         ########################################
@@ -140,7 +140,8 @@ class SMACRunner(Runner, Buffer_Utils):
                         self.win_rate_list.append(incre_win_rate)
                     
                     if not self.save_buffer:
-                        self.save_log_infos2("incre_win_rate", self.win_rate_list)
+                        self.save_log_infos2("incre_win_rate", self.win_rate_list,
+                                             additional_info= "TEST" if self.naive_test else None)
                         if not self.buffer_test:
                             self.save_log_losses(ppo_loss, l1_rebuf_loss, l2_rebuf_loss, overall_loss) 
 

@@ -6,6 +6,8 @@ import random
 import torch
 import shutil
 import random
+from scipy.io import savemat
+import copy
 
 from onpolicy.utils import buffer_utils
 
@@ -150,6 +152,8 @@ class Buffer_Utils():
 
         for agent_id in range(self.num_agents):
 
+        # for agent_id in range(1):
+
             #_____________________________________________________________
             available_actions = None if self.buffer[agent_id].available_actions is None \
                 else self.buffer[agent_id].available_actions[:-1].reshape(-1, *self.buffer[agent_id].available_actions.shape[2:])
@@ -164,15 +168,37 @@ class Buffer_Utils():
                             self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]), \
                             available_actions
             
+            a = copy.deepcopy(input_data[0])
+            b = copy.deepcopy(input_data[1])
+            c = copy.deepcopy(input_data[2])
+            d = copy.deepcopy(input_data[3])
+            
             # print(available_actions.shape)
-
-            self.rebuf_ins[agent_id].append(input_data)
+            # print(f"before{self.rebuf_ins[agent_id]}")
+            self.rebuf_ins[agent_id].append(copy.deepcopy(input_data))
         #3. prendere il sample out da act.get_logits
+            # print(f"FWET{self.rebuf_ins[agent_id]}")
 
-            sample_logits_out = self.trainer[agent_id].policy.actor.get_logit_forward(*input_data)
+            # a = copy.deepcopy(input_data[0])
+            # b = copy.deepcopy(input_data[1])
+            # c = copy.deepcopy(input_data[2])
+            # d = copy.deepcopy(input_data[3])
+
+            
+
+            sample_logits_out = self.trainer[agent_id].policy.actor.get_logit_forward(a, b, c, d)
 
             self.rebuf_outs[agent_id].append(sample_logits_out.logits)
+            
 
+            if 0:
+                print(f" a: {a[:10]}")
+                print(f"out {sample_logits_out.logits[:10]}")
+                p = self.rebuf_ins[0][0][0][:10]
+                q = self.rebuf_outs[0][0][:10]
+                print(f"obs {p}")
+                print(f"act {q}")
+            
             #_____________________________________________________________
             self.trainer[agent_id].prep_training()
             self.buffer[agent_id].update_factor(factor)
@@ -203,10 +229,33 @@ class Buffer_Utils():
 
             factor = factor*_t2n(torch.prod(torch.exp(new_actions_logprob-old_actions_logprob),dim=-1).reshape(self.episode_length,self.n_rollout_threads,1))
             train_infos.append(train_info)      
+            if  0:
+                print("OLD")
+                print(f" a: {a[:10]}")
+                p = self.rebuf_ins[0][0][0][:10]
+                print(f"obs {p}")
+            
             self.buffer[agent_id].after_update()
+
+            if 0:
+                print("OLD NEW")
+                print(f" a: {a[:10]}")
+                p = self.rebuf_ins[0][0][0][:10]
+                print(f"obs {p}")
+            
+
         
+        
+        # print(f"act {len(q)}")
+        # p = self.rebuf_ins[0][0][0][:10]
+        # q = self.rebuf_outs[0][0][:10]
+        # print(f"obs {p}")
+        # print(f"act {q}")
+
         torch.save(self.rebuf_ins, str(self.buffer_dir) + "/replay_buffer_ins.npy")
+        savemat(str(self.buffer_dir) + "/replay_buffer_ins.mat", {'buff_in': self.rebuf_ins})
         torch.save(self.rebuf_outs, str(self.buffer_dir) + "/replay_buffer_outs.npy")
+        savemat(str(self.buffer_dir) + "/replay_buffer_outs.mat", {'buff_out': self.rebuf_outs})
 
         return train_infos
 
@@ -360,7 +409,7 @@ class Buffer_Utils():
         factor = np.ones((self.episode_length, self.n_rollout_threads, 1), dtype=np.float32)
 
         for agent_id in range(self.num_agents):
-            self.trainer[agent_id].prep_training()
+            self.trainer[agent_id].prep_rollout()
             self.buffer[agent_id].update_factor(factor)
             available_actions = None if self.buffer[agent_id].available_actions is None \
                 else self.buffer[agent_id].available_actions[:-1].reshape(-1, *self.buffer[agent_id].available_actions.shape[2:])
@@ -426,7 +475,7 @@ class Buffer_Utils():
 
     #___________MANAGEMENT_______________________________________________
 
-    def team_assemblation(self):
+    def rebuf_team_assemblation(self):
         '''Idea: 
         if i want to SAVE the buffer
             > la funzione ci pensa da sé
@@ -446,53 +495,67 @@ class Buffer_Utils():
             > Load the original team (= 1)
             > Perform 10 Episodes 
         '''
+        if not self.multi_agent:
+            self.singleagent_setting()
+            #____________________________________________________
+        
+        #MULTIAGENT
+        else: 
+            self.multiagent_setting()
+            #____________________________________________________
 
+    def singleagent_setting(self):
         #CREATION OF THE BUFFER
+        ##### SAVE BUFFER ############################################################################
+        ##############################################################################################       
         if self.save_buffer:
+
             #Create the empty Replay Buffer
             self.buffer_foreachteam_creation()
-            self.num_env_steps = self.n_rollout_threads * self.episode_length * 1
+            self.num_env_steps = self.n_rollout_threads * self.episode_length * 10
         #______________________________________________________
+
+
+        ########################################################################################
+        ##### USE BUFFER #######################################################################
+        ########################################################################################
         
-        if self.use_buffer and not self.multi_agent:  
-            # TRAIN WITH BUFFER  
+        if self.use_buffer:
+            # _____TRAIN WITH BUFFER_______________________
             if not self.buffer_test:
                 #Choose, set and load active agent and teams
                 self.active_agent = self.active_agent_choice()
 
-                self.set_active_agent() #Copies A from T1 in folder
+                self.active_agent_init() #Ask if we want to initialize, if yes it does it
+                self.load_active_agent() #Load the NN of the AA
 
                 #Create buffer
                 rebuf_in, rebuf_out = self.shuffle_n_portion_buffer()
+
                 #It must be passed to trainer
                 self.trainer[self.active_agent].set_buffers(rebuf_in, rebuf_out)
 
                 self.team = self.manually_choice_of_team() #Choose team
 
-                self.num_env_steps = self.ep_no_rebuf_train * self.episode_length * self.n_rollout_threads
-
-            # TEST with buffer
+            ##### TEST WITH REBUF #######################################################################
             else:
+                self.active_agent = self.active_agent_choice()
                 self.team = 1 #For test use team 1 only
-
-                #Perform 10 Episodes only
-                self.num_env_steps = 50 * self.episode_length * self.n_rollout_threads
+                self.load_active_agent() #Load the Active Agent copied in folder
 
             self.load_teammates(self.team) #Initialize nets with teammates
-
             self.load_active_agent() #Load the Active Agent copied in folder
-            #____________________________________________________
-        
-        #MULTIAGENT
-        if self.use_buffer and self.multi_agent:  
+            self.num_env_steps = self.episodes_no * self.episode_length * self.n_rollout_threads
+
+    def multiagent_setting(self):
+        if self.use_buffer:  
             self.multi_active_agent = [0, 1, 2, 3]
 
-            # TRAIN WITH BUFFER  
+           #_____TRAIN setting___________
             if not self.buffer_test:
-                #Choose, set and load active agent and teams
-                self.multi_active_agent = [0, 1, 2, 3]
 
-                self.active_multi_agent_init() #Copies A from T1 in folder
+                self.multi_active_agent = [0, 1, 2, 3]
+                self.active_multi_agent_init() 
 
                 #Create buffer
                 rebuf_in, rebuf_out = self.shuffle_n_portion_multi_buffer()
@@ -502,41 +565,35 @@ class Buffer_Utils():
                     self.trainer[agent].set_buffers(rebuf_in[agent], rebuf_out[agent])
 
                 self.team = self.manually_choice_of_team() #Choose team
-
-                self.num_env_steps = self.ep_no_rebuf_train * self.episode_length * self.n_rollout_threads
             
             # TEST with buffer
             else:
                 self.team = 1 #For test use team 1 only
 
-                #Perform 50 Episodes only
-                self.num_env_steps = 50 * self.episode_length * self.n_rollout_threads
 
             self.load_teammates_multi(self.team) #Initialize nets with teammates
-
+            self.num_env_steps = self.self.episodes_no * self.episode_length * self.n_rollout_threads
             #TODO CHANGE 
             self.load_active_multi_agent() #Load the Active Agent copied in folder
-            #____________________________________________________
-
 
     def rebuf_train(self):
         # compute return and update network
         if self.save_buffer:
             train_infos = self.freeze_save_train()
 
-        elif self.use_buffer:
-            # train_infos = (0 if self.buffer_test else self.train_with_rebuf())
-            if self.buffer_test: 
-                train_infos = self.freeze_train2()
+        if self.use_buffer and not self.multi_agent:
+            if not self.buffer_test: 
+                train_infos = self.train_with_rebuf()
             else:
-                if self.multi_agent:
-                    train_infos = self.train_with_rebuf_multi()
-                else: 
-                    train_infos = self.train_with_rebuf()
+                train_infos = self.freeze_train2()
+
+        if self.use_buffer and self.multi_agent:
+            if not self.buffer_test: 
+                train_infos = self.train_with_rebuf_multi()
+            else: 
+                train_infos = self.freeze_train2()
 
         return train_infos
-    
-
     
     def OLDshuffle_n_portion_buffer(self):
         """Here I import the buffer, shuffle it along episodes and steps, and take a portion
@@ -599,6 +656,12 @@ class Buffer_Utils():
         rebuf_in = rebuf_in[self.active_agent] 
         rebuf_out = rebuf_out[self.active_agent]
 
+        # p = rebuf_in[0][0][:20]
+        # q= rebuf_out[0][:20]
+
+        # print(f"{p}")
+        # print(f"{q}")
+
         # print(len(rebuf_in[0][3][0]))
         # 2. Setto la percentuale di uso del buffer (tramite config?)
         buff_episodes_len = len(rebuf_in)
@@ -611,6 +674,7 @@ class Buffer_Utils():
         # 3. Shuffle + Portion
         new_buf_in = [] 
         new_buf_out = []
+        # jj = 1
 
         for i in index_array:
             ep_no = i // self.episode_length
@@ -625,17 +689,23 @@ class Buffer_Utils():
                                 rebuf_in[ep_no][3][step_no:step_no+self.n_rollout_threads],  #available_actions
                                 # rebuf_in[ep_no][3]
                             ]
-
+            # print(f"intervallo n {jj}: [{step_no}, {step_no+self.n_rollout_threads}]")
+            # jj += 1
             # print(len(rebuf_in[ep_no][3][0]))
             # print(rebuf_in[ep_no][0][step_no:step_no+self.n_rollout_threads].shape)
             # sys.exit()
             new_buf_in.append(old_sample_in)
             new_buf_out.append(rebuf_out[ep_no][step_no:step_no+self.n_rollout_threads])
+
+            # print(old_sample_in[0])
+            # print(rebuf_out[ep_no][step_no:step_no+self.n_rollout_threads])
+
             
         rebuf_in = new_buf_in[:len(new_buf_in)*self.pcnt_buffer//100]
-        rebuf_out = new_buf_out[:len(new_buf_in)*self.pcnt_buffer//100]
+        rebuf_out = new_buf_out[:len(new_buf_out)*self.pcnt_buffer//100]
 
-        print(f"The size of the buffer is {len(rebuf_in)}")
+        print(f"The size of the buffer is {len(rebuf_in[0])}")
+        # print(f"The size of the buffer is {len(rebuf_out[0])}")
         # print(f"The size of the OSI {len(rebuf_in[0][3][0])}")
         # print(f"The size of the OSO is 400 {len(rebuf_out)}")
         # print(f"The size of the OSO is 1 il logit {rebuf_out[0]}")
@@ -644,6 +714,9 @@ class Buffer_Utils():
         # print(torch.round(logit*100))
         #  print(torch.sum(logit, dim=1))
         # 4. Voilà nuovo buffer 
+        # print(f"in {rebuf_in[0][0][:10]}")
+        # print(f"out {rebuf_out[0][:10]}")
+
         return rebuf_in, rebuf_out
 
 

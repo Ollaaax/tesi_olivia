@@ -52,14 +52,6 @@ class SMACRunner(Runner):
             self.load_teammates_multi(new_team)   
 
 
-        #___________________________________________________________________________________
-        #Choose Active Agent for JOINT TRAINING
-
-        if self.joint_training:
-            self.active_agent_choice()
-        #_____________________________________________________________________________________________________________________
-
-
         start = time.time()
         episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
 

@@ -12,6 +12,7 @@ import torch.nn as nn
 import sys
 import matplotlib.pyplot as plt
 from scipy.io import savemat
+from pathlib import Path
 
 from onpolicy.utils.separated_buffer import SeparatedReplayBuffer
 from onpolicy.utils.util import update_linear_schedule
@@ -47,6 +48,7 @@ class Runner(object):
         #CONFIG FLAGS
         self.flag = self.all_args.flag
         self.multi_agent = self.all_args.multi_agent
+        self.episodes_no = self.all_args.ep_no
         # self.continual_flag = self.all_args.continual
 
         self.use_lwf = self.all_args.use_lwf
@@ -77,16 +79,7 @@ class Runner(object):
         #Directories
         self.trained_models_dir = config["trained_models_dir"]
         if not self.save_buffer:
-            self.results_dir = self.create_log_infos2()
-        
-        if self.multi_agent:
-            if self.naive_training:
-                agents_dir = self.trained_models_dir  / "MultiAgent" / "NaiveTraining"  / "Agents"
-            if self.use_buffer:
-                agents_dir = self.trained_models_dir  / "MultiAgent" / "BufferReplay" / "Agents"
-            if not agents_dir.exists():
-                os.makedirs(str(agents_dir))
-            self.agents_dir = agents_dir
+            self.results_dir, self.agents_dir = self.create_log_infos2()
         #___________________________________________
 
         # interval
@@ -364,8 +357,7 @@ class Runner(object):
                                                             self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
                                                             available_actions,
                                                             self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
-            train_info = self.trainer[agent_id].train(self.buffer[agent_id], update
-                                                      )
+            train_info = self.trainer[agent_id].train(self.buffer[agent_id], update)
 
             if self.all_args.algorithm_name == "hatrpo":
                 new_actions_logprob, _, _, _, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
@@ -382,28 +374,6 @@ class Runner(object):
                                                             available_actions,
                                                             self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
             
-            actions_logit = self.trainer[agent_id].policy.actor.act.action_logits
-            # print(f"tua mamma 1: {len(actions_logit_1)}")
-            # print(f"tua mamma 4: {(actions_logit[0])}")
-            # print(f"tua mamma probs: {(actions_logit_1[0].probs[0,:])}")
-            # print(f"tua mamma probs: {(actions_logit_1[0].probs[0,:])}")
-            # print(f"tua mamma sum probs: {(torch.sum(actions_logit[0].probs[0,:]))}")
-            # print(f"tua mamma mode: {(actions_logit[0].logits[0,:])}")
-            # # print(f"tua mamma lp: {(actions_logit[0].log_probs(actions_logit[0].mode()))}")
-            # # print(f"tua mamma lp: {(actions_logit[0].log_probs(actions_logit[0].mode()))}")
-
-            # sys.exit()
-
-            # y = new_actions_logprob[:,0].detach().numpy()
-            # # print(y)
-            # x = np.random.rand(len(y))
-            # plt.scatter(x, np.exp(y))
-            # plt.xlabel('x')
-            # plt.ylabel('Value')
-            # plt.title('Scatter Plot')
-            # plt.show(block=False)
-            # plt.pause(1)
-            # plt.close()
 
             factor = factor*_t2n(torch.prod(torch.exp(new_actions_logprob-old_actions_logprob),dim=-1).reshape(self.episode_length,self.n_rollout_threads,1))
             train_infos.append(train_info)      
@@ -413,6 +383,28 @@ class Runner(object):
 
 #________________________________________________________________________
 ###           TEAMS MANAGEMENT
+
+    def manually_choice_of_team(self):
+
+        #Check how many teams are trained
+        exst_teams_no = [int(str(folder.name)) for folder in self.trained_models_dir.iterdir() if str(folder.name).isdigit()]
+        if len(exst_teams_no) == 0:
+            print("No TEAMS trained. SORRY")
+            sys.exit()
+
+        exst_teams_no = len(exst_teams_no)
+
+        while True:
+            try:
+                team_no = input(f"Choose the Team ")
+                if team_no.isdigit() and 1 <= int(team_no) <= exst_teams_no:
+                    print(f"You chose to load team {team_no}")
+                    team_no = int(team_no)
+                    break
+                else: print(f"Insert a valid number between 1 and {exst_teams_no}")
+            except ValueError:
+                print(f"Invalid input. Please enter a number between 1 and {exst_teams_no}.")  
+        return team_no
 
     def ssave(self):
         for agent_id in range(self.num_agents):
@@ -496,81 +488,7 @@ class Runner(object):
                 policy_vnrom = self.trainer[agent_id].value_normalizer
                 torch.save(policy_vnrom.state_dict(), str(curr_team) + "/vnrom_agent" + str(agent_id) + ".pt")
 
-    def create_log_infos(self, base_name):
-        '''
-        Function to save into .npy file in the current folder the results of the training
-        data : list of relevant information
-        returns: file_path : path to save the relevant information
-        '''        
-        #Identify the correct path:
-        extension = ".npy"
-        extension_mat = ".mat"
-
-        if self.save_models_flag:
-            curr_dir = self.trained_models_dir / str(self.all_args.seed)
-            second_name = "training"
-        
-        if self.naive_training:
-            curr_dir = self.trained_models_dir
-            second_name = "naive_training"
-
-        if self.joint_training:
-            curr_dir = self.trained_models_dir
-            second_name = "joint_training"
-
-        if self.use_buffer:
-            curr_dir = self.trained_models_dir
-            second_name = "buffer_replay"
-
-        if not curr_dir.exists():
-            os.makedirs(str(curr_dir))
-
-        existing_files = [f for f in os.listdir(curr_dir) if f.endswith(str(second_name) + ".npy")]
-
-        # Extract existing file numbers (if any)
-        existing_numbers = []
-        for file in existing_files:
-            try:
-                # Assuming counter is separated by underscore before the extension
-                number_str = file.split("_")[-1].split(extension)[0]
-                existing_numbers.append(int(number_str))
-            except ValueError:
-                # Skip files without a counter in the name
-                pass
-
-        # Determine the next file number (considering existing files)
-        if not existing_numbers:
-            file_count = 1
-        else:
-            file_count = len(existing_numbers) + 1
-
-        print(f"Previous training no is {file_count}")
-
-        file_path = f"{base_name}_{second_name}_{file_count}{extension}"
-        file_path_mat = f"{base_name}_{second_name}_{file_count}{extension_mat}"
-
-        file_path = curr_dir / file_path
-        file_path_mat = curr_dir / file_path_mat
-        
-        return [file_path, file_path_mat]
-
-    def save_log_infos(self, data, file_path):
-
-        npy_path = file_path[0]
-        mat_path = file_path[1]
-
-        #Convert to array
-        data = np.array(data)
-
-        np.save(str(npy_path), data)
-
-        #__ MATLAB save ____________
-        savemat(str(mat_path), {'data': data})
-
-        print("LOG SAVED!")
-        return
-
-    def create_log_infos2(self, second_name = None):
+    def create_log_infos2(self):
         '''
         Function to save into .npy file in the current folder the results of the training
         data : list of relevant information
@@ -578,29 +496,40 @@ class Runner(object):
         '''        
         #Identify the correct path:
 
+        location = Path(os.path.dirname(self.trained_models_dir))
+        ##_____ SAVE TEAMS _______
         if self.save_models_flag:
             log_dir = self.trained_models_dir / str(self.all_args.seed)
-            second_name = "training"
+    
 
-        location = self.trained_models_dir
-        if self.multi_agent:
-            location = self.trained_models_dir / "MultiAgent"
+        ##_____ MULTIAGENT _______
         
+        if self.multi_agent:
+            log_dir = location / "MultiAgent"
+            if self.naive_training:
+                log_dir = log_dir / "NaiveTraining" 
+            if self.use_buffer:
+                log_dir = log_dir / "BufferReplay"               
+            
+        ##______ NAIVE ____________
         if self.naive_training:
             log_dir = location / "NaiveTraining" 
-            second_name = "naive_training"
+            
 
-        if self.joint_training:
-            log_dir = location
-            second_name = "joint_training" / "JointTraining" 
+        # if self.joint_training:
+        #     log_dir = location
+        #     second_name = "joint_training" / "JointTraining" 
 
+        ##______ BUFFER ____________
         if self.use_buffer:
             log_dir = location / "BufferReplay"
-            second_name = "buffer_replay"
-
+            
+        ##______ LwF ____________
         if self.use_lwf:
             log_dir = location / "LwF"
-            second_name = "training"
+            
+        #____ AGENTS ______________________
+        agent_dir = Path(log_dir) / "Agents"
 
         if not log_dir.exists():
             os.makedirs(str(log_dir))
@@ -615,30 +544,36 @@ class Runner(object):
         log_dir = log_dir / curr_run
         if not log_dir.exists():
             os.makedirs(str(log_dir))
-        
-        return log_dir
+    
+        if not agent_dir.exists():
+            os.makedirs(str(agent_dir))
 
-    def save_log_infos2(self, base_name, data, additional_info = None):
+        
+        return log_dir, agent_dir
+
+    def save_log_infos2OLD(self, base_name, data, additional_info = None):
 
         extension = ".npy"
         extension_mat = ".mat"
         extension_plot = ".png"
 
-        if self.save_models_flag:
-            second_name = "training"
+        # if self.save_models_flag:
+        #     second_name = "training"
         
-        if self.naive_training:
-            second_name = "naive_training"
+        # if self.naive_training:
+        #     second_name = "naive_training"
 
-        if self.joint_training:
-            second_name = "joint_training"
+        # if self.joint_training:
+        #     second_name = "joint_training"
 
-        if self.use_buffer:
-            second_name = "buffer_replay"
+        # if self.use_buffer:
+        #     second_name = "buffer_replay"
 
-        file_path = f"{self.results_dir}/{base_name}_{second_name}{extension}"
-        file_path_mat = f"{self.results_dir}/{base_name}_{second_name}{extension_mat}"
-        file_path_plot = f"{self.results_dir}/{base_name}_{second_name}_{additional_info}{extension_plot}"
+
+        if additional_info is not None: 
+            file_path = f"{self.results_dir}/{base_name}_{second_name}{additional_info}{extension}"
+            file_path_mat = f"{self.results_dir}/{base_name}_{second_name}{additional_info}{extension_mat}"
+            file_path_plot = f"{self.results_dir}/{base_name}_{second_name}{additional_info}{extension_plot}"
 
         #Convert to array
         data = np.array(data)
@@ -657,6 +592,56 @@ class Runner(object):
         plt.savefig(str(file_path_plot))
 
         print("LOG SAVED!")
+        return
+
+    def save_log_infos2(self, base_name, data, additional_info = None):
+
+        extension = ".npy"
+        extension_mat = ".mat"
+        extension_plot = ".png"
+
+        if self.save_models_flag:
+            second_name = "team"
+            additional_info = self.all_args.seed
+        
+        if self.naive_training:
+            second_name = "naive"
+
+        # if self.joint_training:
+        #     second_name = "joint_training"
+
+        if self.use_buffer:
+            second_name = "rebuf"
+
+
+        if additional_info is not None: 
+            file_path = f"{self.results_dir}/{base_name}_{second_name}{additional_info}{extension}"
+            file_path_mat = f"{self.results_dir}/{base_name}_{second_name}{additional_info}{extension_mat}"
+            file_path_plot = f"{self.results_dir}/{base_name}_{second_name}{additional_info}{extension_plot}"
+
+        else: 
+            file_path = f"{self.results_dir}/{base_name}_{second_name}{extension}"
+            file_path_mat = f"{self.results_dir}/{base_name}_{second_name}{extension_mat}"
+            file_path_plot = f"{self.results_dir}/{base_name}_{second_name}{extension_plot}"
+
+        #Convert to array
+        data = np.array(data)
+
+        np.save(str(file_path), data)
+
+        #__ MATLAB save ____________
+        savemat(str(file_path_mat), {'data': data})
+
+        #__Plot Save________________
+        plt.figure()
+        plt.plot(data, )
+
+        plt.ylabel("incremental win rate")
+        plt.xlabel("Episodes")
+
+        plt.savefig(str(file_path_plot))
+
+        # print("LOG SAVED!")
         return
 
     def save_log_losses(self, ppo_loss, l1_rebuf_loss, l2_rebuf_loss, overall_loss):
@@ -686,9 +671,10 @@ class Runner(object):
             np.save(str(file_path), el)
 
             #__ MATLAB save ____________
-            savemat(str(file_path_mat), {'data': el})
+            savemat(str(file_path_mat), {f'{name}': el})
 
             #__Plot Save________________
+            plt.figure()
             plt.plot(el, )
 
             plt.ylabel(f"{name}")
@@ -696,7 +682,7 @@ class Runner(object):
 
             plt.savefig(str(file_path_plot))
 
-            print("Losses LOG SAVED!")
+            # print("Losses LOG SAVED!")
 
        
 #________________________________________________________________________
@@ -747,53 +733,53 @@ class Runner(object):
 
         #Copy ACTOR
         source_path =  f"{self.trained_models_dir}/{aa_team}/actor_agent{agent}.pt"
-        dest_path = str(self.trained_models_dir) + "/actor_agent" + str(agent) + "A" + ".pt"
+        dest_path = str(self.agents_dir) + "/actor_agent" + str(agent) + "A" + ".pt"
         shutil.copy2(source_path, dest_path)
 
         #Copy CRITIC
         source_path = f"{self.trained_models_dir}/{aa_team}/critic_agent{agent}.pt"
-        dest_path = str(self.trained_models_dir) + "/critic_agent" + str(agent) + "A" + ".pt"
+        dest_path = str(self.agents_dir) + "/critic_agent" + str(agent) + "A" + ".pt"
         shutil.copy2(source_path, dest_path)
 
         if self.all_args.use_valuenorm:
             source_path = f"{self.trained_models_dir}/{aa_team}/vnrom_agent{agent}.pt"
-            dest_path = str(self.trained_models_dir) + '/vnrom_agent' + str(agent) + "A" + ".pt"
+            dest_path = str(self.agents_dir) + '/vnrom_agent' + str(agent) + "A" + ".pt"
             shutil.copy2(source_path, dest_path)
 
     def load_active_agent(self):
 
         agent_id = self.active_agent
 
-        policy_actor_state_dict = torch.load(str(self.trained_models_dir) + "/actor_agent" + str(agent_id) + "A" + ".pt")
+        policy_actor_state_dict = torch.load(str(self.agents_dir) + "/actor_agent" + str(agent_id) + "A" + ".pt")
         self.policy[agent_id].actor.load_state_dict(policy_actor_state_dict)
         
         #Bias Check
         if self.show_biases:
             self.extract_biases_from_dict(policy_actor_state_dict, agent_id, 1)
 
-        policy_critic_state_dict = torch.load(str(self.trained_models_dir) + "/critic_agent" + str(agent_id) + "A" + ".pt")
+        policy_critic_state_dict = torch.load(str(self.agents_dir) + "/critic_agent" + str(agent_id) + "A" + ".pt")
         self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
 
         if self.all_args.use_valuenorm:
-            policy_vnrom_state_dict = torch.load(str(self.trained_models_dir) + '/vnrom_agent' + str(agent_id) + "A" + '.pt')
+            policy_vnrom_state_dict = torch.load(str(self.agents_dir) + '/vnrom_agent' + str(agent_id) + "A" + '.pt')
             self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
 
     def save_active_agent(self):
         agent_id = self.active_agent
 
         policy_actor = self.trainer[agent_id].policy.actor
-        torch.save(policy_actor.state_dict(), str(self.trained_models_dir)  + "/actor_agent" + str(agent_id) + "A" + ".pt")
+        torch.save(policy_actor.state_dict(), str(self.agents_dir)  + "/actor_agent" + str(agent_id) + "A" + ".pt")
         
         #Print Biases
         if self.show_biases:
             self.extract_biases_from_dict(policy_actor.state_dict(), agent_id, 1)
 
         policy_critic = self.trainer[agent_id].policy.critic
-        torch.save(policy_critic.state_dict(), str(self.trained_models_dir)  + "/critic_agent" + str(agent_id) + "A" + ".pt")
+        torch.save(policy_critic.state_dict(), str(self.agents_dir)  + "/critic_agent" + str(agent_id) + "A" + ".pt")
         
         if self.trainer[agent_id]._use_valuenorm:
             policy_vnrom = self.trainer[agent_id].value_normalizer
-            torch.save(policy_vnrom.state_dict(), str(self.trained_models_dir) + "/vnrom_agent" + str(agent_id) + "A" + ".pt")
+            torch.save(policy_vnrom.state_dict(), str(self.agents_dir) + "/vnrom_agent" + str(agent_id) + "A" + ".pt")
 
  #________________________________________________________________________
    ###            MULTI-AGENT TRAINING
@@ -912,6 +898,66 @@ class Runner(object):
                 self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
 
                 print(f"Loaded teammate {agent_id}")
+
+  #________________________________________________________________________
+    ###           NAIVE/SAVE MODELS TRAINING
+    def naive_training_setting(self):
+
+        #_____TRAIN setting___________
+        if not self.naive_test:
+        #ACTIVE AGENT
+            self.active_agent = self.active_agent_choice() #choice -> copy2dir -> init the nets
+    
+            self.active_agent_init() #Ask if we want to initialize, if yes it does it
+            self.load_active_agent() #Load the NN of the AA
+
+            #TEAMMATES
+            team = self.manually_choice_of_team()
+
+        #_____TEST setting______________
+        else: 
+            self.active_agent = self.active_agent_choice()
+            self.load_active_agent() #Load the NN of the AA
+            
+            team = 1
+        
+        self.load_teammates(team)
+        self.num_env_steps = self.episode_length * self.n_rollout_threads * self.episodes_no
+
+    def naive_training_setting_multi(self):
+
+        self.multi_active_agent = [0, 1, 2, 3]
+
+        #_____TRAIN setting___________
+        if not self.naive_test:
+
+            self.active_multi_agent_init()
+            self.load_active_multi_agent()
+
+            team = self.manually_choice_of_team()
+
+        #_____TEST setting______________
+        else:
+            self.load_active_multi_agent()
+            team = 1
+            
+        self.load_teammates_multi(team)
+        self.num_env_steps = self.episode_length * self.n_rollout_threads * self.episodes_no
+
+    def saving_agents(self):
+        #_____ NAIVE TRAINING______________________________
+        if self.naive_training and not self.multi_agent:
+            self.save_active_agent()
+        
+        if self.naive_training and self.multi_agent:
+            self.ave_active_multi_agent()
+
+        #__________________________________________________________________________________
+        #_____SAVING MODELS_________________________________
+        if self.save_models_flag:
+            self.save_teams_seed()
+
+#__________________________________________________________________________________
 
  #________________________________________________________________________
     ###           JOINT TRAINING

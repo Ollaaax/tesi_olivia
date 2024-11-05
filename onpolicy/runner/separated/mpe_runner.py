@@ -27,40 +27,23 @@ class MPERunner(Runner):
         print("Self Joint Train is ", + self.joint_training)
         print("Self Naive Train is ", + self.naive_training)
         #___________________________________________________________________________
-        #_____________________________________________________________________________________________________________________
-        #CHOOSE whether or not initialize the active agent NAIVE TRAINING
+        #___________________________________________________________________________
+        ### NAIVE TRAINING TEAM COMPOSITION ####
+        
+        if self.naive_training and not self.multi_agent:
+            #Set team configuration with AA and teammates
+            self.naive_training_setting()
 
-        if self.naive_training:
-            team_order = [1, 2, 1]
-            #choose which agent train
-            self.active_agent = self.active_agent_choice() #choice -> copy2dir -> init the nets
-    
-            self.active_agent_init() #Ask if we want to initialize, if yes it does it
-            self.load_active_agent() #Load the NN of the AA
+        if self.naive_training and self.multi_agent:
+            self.naive_training_setting_multi()
 
-        #___________________________________________________________________________________
-        #!!!!!!!TODO Choose Active Agent for JOINT TRAINING !!!!!do it later
-
-        if self.joint_training:
-            self.active_agent_choice()
-        #_____________________________________________________________________________________________________________________
-
+        #______________________________________________________________________________________
         start = time.time()
         episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
 
         self.episode_reward_list = []
         self.episode_count = 0
 
-        # #TEAM LOADING 
-        # #Naive Training
-        # if self.naive_training:
-        #     self.naive_load_teams(agent_id)
-
-        # #Joint Training
-        # if self.joint_training and agent_id != self.active_agent:
-        #     teammates = 1
-        #     self.restore_pretrained_models(agent_id, teammates) 
-    
 
         for episode in range(episodes):
 
@@ -86,9 +69,10 @@ class MPERunner(Runner):
             # compute return and update network
             self.compute()
 
-            #Train
-            if self.naive_training or self.joint_training:
-                train_infos = self.continual_train()
+            if self.naive_training is True:
+                train_infos = self.freeze_train() if self.naive_test else self.continual_train()
+            else:
+                train_infos = self.train()
             #_________________________________________
             
             # post process
@@ -98,19 +82,8 @@ class MPERunner(Runner):
             # save model
             if (episode % self.save_interval == 0 or episode == episodes - 1):
                 self.save()
-
-                if self.naive_training or self.joint_training:
-                    self.save_active_agent()
-                    if episode == episodes - 1:
-                        print(f"Active no {self.active_agent} agent SAVED!")
-
-            #__________________________________________________________________________________
-                # SAVING THE TEAMS 
-                if self.save_models_flag:
-                    if (episode == episodes - 1  or episode % self.save_interval == 0):
-                        self.save_teams_seed()
-                        # print('TEAM SAVED')
-
+                
+                self.saving_agents()
         #__________________________________________________________________________________
 
             # log information
@@ -147,7 +120,9 @@ class MPERunner(Runner):
                         self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
                     
                     # self.save_log_infos(self.win_rate_list, increwinrate_path)
-                    self.save_log_infos2('average_episode_rewards', self.episode_reward_list)
+                    self.save_log_infos2('average_episode_rewards', 
+                                         self.episode_reward_list,
+                                         additional_info= "TEST" if self.naive_test else None)
                     #______________________________________________
 
 
@@ -162,21 +137,21 @@ class MPERunner(Runner):
                 self.eval(total_num_steps)
 
 
-        #__________________________________
-        #Plot Episode avg rewards
-        plt.switch_backend('Agg')
-        plt.plot(self.episode_reward_list, )
+        # #__________________________________
+        # #Plot Episode avg rewards
+        # plt.switch_backend('Agg')
+        # plt.plot(self.episode_reward_list, )
 
-        plt.ylabel("Episode reward")
-        # if self.naive_training == True and self.all_args.scenario_name == "simple_reference":
-        #     plt.ylim(-30, -15)
+        # plt.ylabel("Episode reward")
+        # # if self.naive_training == True and self.all_args.scenario_name == "simple_reference":
+        # #     plt.ylim(-30, -15)
 
-        plt.xlabel("tempo")
-        if not self.save_models_flag:
-            plt.show()
+        # plt.xlabel("tempo")
+        # if not self.save_models_flag:
+        #     plt.show()
         
-        if self.save_models_flag:
-            plt.savefig(str(self.trained_models_dir) + "/" + str(self.all_args.seed) + "/training0" + ".png")
+        # if self.save_models_flag:
+        #     plt.savefig(str(self.trained_models_dir) + "/" + str(self.all_args.seed) + "/training0" + ".png")
 
 
         #Fare Cartella

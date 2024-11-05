@@ -109,7 +109,7 @@ def main(args):
     #DIRECTORY TO SAVE TRAINED TEAMS
 
     trained_models_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
-                   0] + "/results") / "TRAINING" / all_args.env_name / all_args.scenario_name / all_args.algorithm_name / all_args.experiment_name / "trained_teams"
+                   0] + "/results") / "TRAINING" / all_args.env_name / all_args.scenario_name / all_args.algorithm_name / "trained_teams"
     if not trained_models_dir.exists():
         print("No models pretrained")
         if all_args.save_models_flag:

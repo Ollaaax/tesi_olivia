@@ -118,7 +118,6 @@ class R_Actor(nn.Module):
 
         return action_log_probs, dist_entropy
     
-    @torch.no_grad()
     def get_logit_forward(self, obs, rnn_states, masks, available_actions=None, deterministic=False):
         """
         Compute actions from the given inputs.
