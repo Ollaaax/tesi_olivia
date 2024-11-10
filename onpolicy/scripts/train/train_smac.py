@@ -174,7 +174,7 @@ def main(args):
 #_______________________________________________________________________________________
     #TRAIN_DIRECTORY
     trained_models_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
-                    0] + "/results") / "TRAINING" / all_args.env_name / all_args.map_name / all_args.algorithm_name / all_args.experiment_name / "trained_teams"
+                    0] + "/results") / "TRAINING" / all_args.env_name / all_args.map_name / all_args.algorithm_name / "trained_teams"
     if not trained_models_dir.exists():
         print("No models pretrained")
         os.makedirs(str(trained_models_dir))

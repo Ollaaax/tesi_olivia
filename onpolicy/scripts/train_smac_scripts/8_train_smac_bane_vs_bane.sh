@@ -3,7 +3,7 @@ env="StarCraft2"
 map="bane_vs_bane"
 algo="mappo"
 exp="check"
-seed_max=1
+seed_max=2
 
 #__________________________________________________________________________________
 # num_env_steps=10000000 #default
@@ -22,17 +22,18 @@ num_env_steps=480000 #150 Episodes
 
 
 echo "env is ${env}, map is ${map}, algo is ${algo}, exp is ${exp}, max seed is ${seed_max}"
-# for seed in `seq ${seed_max}`;
+for seed in `seq ${seed_max}`;
 # for seed in `seq $(seq 2 3)`;
-# do
-seed=2
+do
+# seed=2
     echo "seed is ${seed}:"
     CUDA_VISIBLE_DEVICES=1 python ../train/train_smac.py --env_name ${env} --algorithm_name ${algo} --experiment_name ${exp} \
     --map_name ${map} --seed ${seed} --n_training_threads 1 --n_rollout_threads 8 --num_mini_batch 1 --episode_length 400 \
     --num_env_steps ${num_env_steps} --ppo_epoch 15 --use_value_active_masks --use_eval --eval_episodes 32 --share_policy \
-    --use_wandb 0 --alpha 1e-3 \
-    --naive_training 
-# done
+    --use_wandb 0 \
+    --aplha 1e-3 --ep_no 2000 \
+    --save_buffer 
+done
 
 
 # --save_models_flag
@@ -40,6 +41,7 @@ seed=2
 # --naive_training
 # --naive_training --naive_test
 # --joint_training
-# --save_buffer
-# --use_buffer 
+# --save_buffer 
+# --use_buffer --ep_no 1000 --pcnt_buffer 50
 # --use_buffer --buffer_test
+# --use_lwf

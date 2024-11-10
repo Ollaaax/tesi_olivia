@@ -512,7 +512,7 @@ class Buffer_Utils():
 
             #Create the empty Replay Buffer
             self.buffer_foreachteam_creation()
-            self.num_env_steps = self.n_rollout_threads * self.episode_length * 10
+            self.num_env_steps = self.n_rollout_threads * self.episode_length * 1
         #______________________________________________________
 
 

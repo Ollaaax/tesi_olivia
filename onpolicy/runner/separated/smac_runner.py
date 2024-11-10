@@ -23,34 +23,13 @@ class SMACRunner(Runner):
         #CHOOSE whether or not initialize the active agent NAIVE TRAINING
 
         if self.naive_training and not self.multi_agent:
-            if self.naive_test:
-                team_order = [1]
-            else:
-                team_order = [2]
-            #choose which agent train
-            self.active_agent = self.active_agent_choice() #choice 
-    
-            self.active_agent_init() #Ask if we want to initialize, if yes it does it
-            self.load_active_agent() #Load the NN of the AA
+            #Set team configuration with AA and teammates
+            self.naive_training_setting()
 
-        if self.multi_agent and self.naive_training:
-            if self.naive_test:
-                new_team = 1
-            else:
-                new_team = 2
-            #choose which agent train
+        if self.naive_training and self.multi_agent:
+            self.naive_training_setting_multi()
 
-            # MULTIAGENT SELECTION
-            #mettere metà degli agenti della mappa in questa lista
-            self.multi_active_agent = [0, 1, 2, 3]
-
-            if not self.naive_test:
-                self.active_multi_agent_init()
-            # LOAD THE NETS FOR THE AGENTS IN THE FOLDER 
-            self.load_active_multi_agent()
-            # LOAD TEAMMATES 
-            self.load_teammates_multi(new_team)   
-
+        #______________________________________________________________________________________
 
         start = time.time()
         episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
@@ -110,32 +89,20 @@ class SMACRunner(Runner):
             # compute return and update network
             self.compute()
             
-            if self.naive_training or self.joint_training is True:
+            if self.naive_training is True:
                 train_infos = self.freeze_train() if self.naive_test else self.continual_train()
             else:
                 train_infos = self.train()
-            
+            #_________________________________________
+
             # post process
             total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads 
 
             # save model
             if (episode % self.save_interval == 0 or episode == episodes - 1):
                 self.save()
-
-                #Saving the Active Agent
-                if self.naive_training or self.joint_training:
-                    if not self.multi_agent:
-                        self.save_active_agent()
-                        if episode == episodes - 1:
-                            print(f"Active no {self.active_agent} agent SAVED!")
-                    else: 
-                        self.save_active_multi_agent()
-
-                #Saving Teams
-                if self.save_models_flag:
-                    if (episode == episodes - 1  or episode % self.save_interval == 0):
-                        self.save_teams_seed()
-                        # print('TEAM SAVED')
+                
+                self.saving_agents()
 
             # log information
             if episode % self.log_interval == 0:

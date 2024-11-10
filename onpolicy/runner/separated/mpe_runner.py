@@ -135,33 +135,10 @@ class MPERunner(Runner):
             # eval
             if episode % self.eval_interval == 0 and self.use_eval:
                 self.eval(total_num_steps)
-
-
-        # #__________________________________
-        # #Plot Episode avg rewards
-        # plt.switch_backend('Agg')
-        # plt.plot(self.episode_reward_list, )
-
-        # plt.ylabel("Episode reward")
-        # # if self.naive_training == True and self.all_args.scenario_name == "simple_reference":
-        # #     plt.ylim(-30, -15)
-
-        # plt.xlabel("tempo")
-        # if not self.save_models_flag:
-        #     plt.show()
-        
-        # if self.save_models_flag:
-        #     plt.savefig(str(self.trained_models_dir) + "/" + str(self.all_args.seed) + "/training0" + ".png")
-
-
-        #Fare Cartella
-        # last_team = [int(str(folder.name).split('train')[1]) for folder in self.trained_models_dir.iterdir() if str(folder.name).startswith('train')]
-        # last_team = 1 if len(last_team) == 0 else max(last_team)
-        # last_team = [int(str(folder.name).split('team')[1]) for folder in self.trained_models_dir.iterdir() if str(folder.name).startswith('team')]
-        # last_team = 1 if len(last_team) == 0 else max(last_team)
-        # plt.savefig(str(self.trained_models_dir) + "/train" + str(last_team) + ".png")
-
-        # plt.close()
+                
+ ######################################################################################################################################
+ ######################################################################################################################################
+ ######################################################################################################################################
 
     def warmup(self):
         # reset env
