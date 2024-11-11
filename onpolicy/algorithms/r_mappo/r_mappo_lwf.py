@@ -44,6 +44,14 @@ class R_MAPPO():
         self._use_valuenorm = args.use_valuenorm
         self._use_value_active_masks = args.use_value_active_masks
         self._use_policy_active_masks = args.use_policy_active_masks
+        #____________________________________
+        self.alpha = args.alpha
+        self.loss_data_trace = None
+        self.ppo_loss = 0
+        self.xentropy_loss = 0
+        self.lwf_loss_l2 = 0
+        self.policy_loss = 0     
+        #____________________________________
         
         assert (self._use_popart and self._use_valuenorm) == False, ("self._use_popart and self._use_valuenorm can not be set True simultaneously")
         
@@ -131,7 +139,7 @@ class R_MAPPO():
                                                                               available_actions_batch,
                                                                               active_masks_batch)
         
-        print(f"actions log prob {action_log_probs}")
+        # print(f"actions log prob {action_log_probs}")
         # actor update
         imp_weights = torch.exp(action_log_probs - old_action_log_probs_batch)
 
@@ -145,42 +153,54 @@ class R_MAPPO():
         else:
             policy_action_loss = -torch.sum(torch.min(surr1, surr2), dim=-1, keepdim=True).mean()
 
-        #_______________________________________________________________
+        #_______________________________________________________________________________
         #Sample evaluated by freezed net and student
-        
-        self.teach_tr.policy.actor.eval()
-        self.teach_tr.policy.critic.eval()
-
-        # obs, rnn, mask, aval_act
-        action_teach = self.teach_tr.policy.actor.get_logit_forward(obs_batch, 
-                                                                    rnn_states_batch, 
-                                                                    masks_batch, 
-                                                                    available_actions_batch ).detach()
-        
-        action_teach = action_teach.logit
-        action_stud = self.policy.actor.get_logit_forward(  obs_batch, 
-                                                            rnn_states_batch, 
-                                                            masks_batch, 
-                                                            available_actions_batch ).logit
-        
-        # print(f"Action_logprob New: {action_log_probs[0][0]}")
-        # print(f"Action Old: {action_old.shape}")
-
-        #_______________________________________________________________
-        #New Loss #l2
-        diff = action_teach - action_stud
-        replay_loss_l2 = torch.sum(diff ** 2, dim=-1, keepdim=True).mean()
-
-        lwf_loss = nn.CrossEntropyLoss(action_teach, action_stud)
-        print(f"LwF loss is {lwf_loss}")
-        #_______________________________________________________________
-
         policy_loss = policy_action_loss
 
+        if update_actor:    
+            self.teach_tr.policy.actor.eval()
+            self.teach_tr.policy.critic.eval()
+
+            # obs, rnn, mask, aval_act
+            action_teach = self.teach_tr.policy.actor.get_logit_forward(obs_batch, 
+                                                                        rnn_states_batch, 
+                                                                        masks_batch, 
+                                                                        available_actions_batch)
+            
+            action_teach = action_teach.logits.detach()
+            # print(action_teach)
+            action_stud = self.policy.actor.get_logit_forward(  obs_batch, 
+                                                                rnn_states_batch, 
+                                                                masks_batch, 
+                                                                available_actions_batch ).logits
+            
+            # print(f"Action_logprob New: {action_log_probs[0][0]}")
+            # print(f"Action Old: {action_old.shape}")
+
+            #_______________________________________________________________
+            #New Loss #l2
+            diff = action_teach - action_stud
+            lwf_loss_l2 = torch.sum(diff ** 2, dim=-1, keepdim=True).mean()
+
+            # xentropy_loss = nn.CrossEntropyLoss(action_teach, action_stud)
+            xentropy_loss = 0
+            # print(f"LwF loss is {lwf_loss_l2}")
+            #_______________________________________________________________
+
+            policy_loss = policy_action_loss + self.alpha*lwf_loss_l2
+
+            self.ppo_loss = policy_action_loss
+            self.xentropy_loss = xentropy_loss
+            self.lwf_loss_l2 = lwf_loss_l2
+            self.policy_loss = policy_loss
+
+        #________________________________________________________________________________
+        
         self.policy.actor_optimizer.zero_grad()
 
         if update_actor:
-            (policy_loss - dist_entropy * self.entropy_coef).backward()
+            # (policy_loss - dist_entropy * self.entropy_coef).backward()
+            (policy_loss).backward()
 
         if self._use_max_grad_norm:
             actor_grad_norm = nn.utils.clip_grad_norm_(self.policy.actor.parameters(), self.max_grad_norm)
@@ -238,6 +258,17 @@ class R_MAPPO():
         train_info['critic_grad_norm'] = 0
         train_info['ratio'] = 0
 
+        #_______________________________________________________-
+        ## Dict to save loss fncs
+        if update_actor:
+            loss_data = {}  
+
+            loss_data['ppo_loss'] = 0
+            loss_data['xentropy_loss'] = 0
+            loss_data['l2_lwf_loss'] = 0
+            loss_data['overall_loss'] = 0
+
+
         for _ in range(self.ppo_epoch):
             if self._use_recurrent_policy:
                 data_generator = buffer.recurrent_generator(advantages, self.num_mini_batch, self.data_chunk_length)
@@ -258,10 +289,23 @@ class R_MAPPO():
                 train_info['critic_grad_norm'] += critic_grad_norm
                 train_info['ratio'] += imp_weights.mean()
 
+    
+                if update_actor:
+                    loss_data['ppo_loss'] += self.ppo_loss.item()
+                    loss_data['xentropy_loss'] += self.ppo_loss.item()
+                    loss_data['l2_lwf_loss'] += self.lwf_loss_l2.item()
+                    loss_data['overall_loss'] += self.policy_loss.item()            
+
         num_updates = self.ppo_epoch * self.num_mini_batch
 
         for k in train_info.keys():
             train_info[k] /= num_updates
+
+        if update_actor:
+            for j in loss_data.keys():
+                loss_data[j] /= num_updates
+
+            self.loss_data_trace = loss_data
  
         return train_info
 

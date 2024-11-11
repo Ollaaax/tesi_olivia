@@ -253,9 +253,9 @@ class Buffer_Utils():
         # print(f"act {q}")
 
         torch.save(self.rebuf_ins, str(self.buffer_dir) + "/replay_buffer_ins.npy")
-        savemat(str(self.buffer_dir) + "/replay_buffer_ins.mat", {'buff_in': self.rebuf_ins})
+        # savemat(str(self.buffer_dir) + "/replay_buffer_ins.mat", {'buff_in': self.rebuf_ins})
         torch.save(self.rebuf_outs, str(self.buffer_dir) + "/replay_buffer_outs.npy")
-        savemat(str(self.buffer_dir) + "/replay_buffer_outs.mat", {'buff_out': self.rebuf_outs})
+        # savemat(str(self.buffer_dir) + "/replay_buffer_outs.mat", {'buff_out': self.rebuf_outs})
 
         return train_infos
 
@@ -512,7 +512,7 @@ class Buffer_Utils():
 
             #Create the empty Replay Buffer
             self.buffer_foreachteam_creation()
-            self.num_env_steps = self.n_rollout_threads * self.episode_length * 1
+            self.num_env_steps = self.n_rollout_threads * self.episode_length * 10
         #______________________________________________________
 
 

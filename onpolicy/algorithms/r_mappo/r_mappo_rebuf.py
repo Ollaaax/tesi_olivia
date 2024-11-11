@@ -174,7 +174,7 @@ class R_MAPPO():
         #____________________________________________________________________________________________________________
         #         USE THE REPLAY BUFFER IN PIECES\
         # print("__________________________________________")
-        if self.rebuf_in is not None:
+        if update_actor:
 
             old_sample_in, old_sample_out = buffer_utils.pick_sample2(self)
 
@@ -188,6 +188,7 @@ class R_MAPPO():
             # print(old_sample_out[:][0])
             # #Run the net with the samples taken from the rebuf
             predicted_out = self.policy.actor.get_logit_forward(a, b, c, d)
+            # print(predicted_out)
             predicted_out = predicted_out.logits
 
             #l1 Replay Loss 
@@ -204,7 +205,7 @@ class R_MAPPO():
             #l2 Replay Loss #TODO!!
             replay_loss_l2 = torch.sum(replay_diff ** 2, dim=-1, keepdim=True).mean()
 
-            policy_loss = policy_action_loss + self.alpha*replay_loss_l1
+            policy_loss = policy_action_loss + self.alpha*replay_loss_l2
 
             self.ppo_loss = policy_action_loss
             self.replay_loss_l1 = replay_loss_l1

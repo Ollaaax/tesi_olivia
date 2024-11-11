@@ -9,10 +9,10 @@ seed_max=1
 
 #______________________________________________________________________
 # num_env_steps=20000000 #default
-# num_env_steps=640000 #200 Episodes
+num_env_steps=640000 #200 Episodes
 # num_env_steps=480000 #150 episodes
 # num_env_steps=160000 #50 Episodes
-num_env_steps=80000 #25 Episodes
+# num_env_steps=80000 #25 Episodes
 # num_env_steps=32000 #10 Episodes
 #_____________________________________________________________________
 
@@ -25,9 +25,10 @@ do
     --scenario_name ${scenario} --num_agents ${num_agents} --num_landmarks ${num_landmarks} --seed ${seed} \
     --n_training_threads 1 --n_rollout_threads 128 --num_mini_batch 1 --episode_length 25 --num_env_steps ${num_env_steps} \
     --ppo_epoch 10 --use_ReLU --gain 0.01 --lr 7e-4 --critic_lr 7e-4 --wandb_name "xxx" --user_name "yuchao" --use_wandb 0 --share_policy \
-    --log_interval 1 \
-    --ep_no 25 \
-    --naive_training
+    --log_interval 5 \
+    --ep_no 140 \
+    --alpha 0 \
+    --use_buffer 
 
 done
 

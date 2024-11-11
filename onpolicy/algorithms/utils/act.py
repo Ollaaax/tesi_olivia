@@ -1,4 +1,4 @@
-from .distributions import Bernoulli, Categorical, DiagGaussian
+from .distributions import Bernoulli, Categorical, DiagGaussian, FixedCategorical
 import torch
 import torch.nn as nn
 import sys
@@ -258,11 +258,16 @@ class ACTLayer(nn.Module):
         """
         if self.mixed_action or self.multi_discrete:
             action_probs = []
+            action_logits = []
             for action_out in self.action_outs:
                 action_logit = action_out(x)
+                # print(action_logit)
                 action_prob = action_logit.probs
                 action_probs.append(action_prob)
+                action_logits.append(action_logit.logits)
             action_probs = torch.cat(action_probs, -1)
+            step_2 = torch.cat(action_logits, -1)
+            action_logits = FixedCategorical(logits = step_2)
         else:
             action_logits = self.action_out(x, available_actions)
             action_probs = action_logits.probs

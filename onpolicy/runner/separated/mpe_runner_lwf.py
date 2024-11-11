@@ -1,4 +1,3 @@
-ls    
 import time
 import wandb
 import os
@@ -26,55 +25,11 @@ class MPERunner(Runner, LwF_Utils):
     def run(self):
         self.warmup()   
 
-        #___________________________________________________________________________
-        print("Self Joint Train is ", + self.joint_training)
-        print("Self Naive Train is ", + self.naive_training)
-        #___________________________________________________________________________
-
         share_observation_space = self.envs.share_observation_space[self.active_agent] if self.use_centralized_V else self.envs.observation_space[self.active_agent]
         # policy network
         
-        #Select the AA 
-        self.active_agent = self.active_agent_choice()
-
-        #Create the teacher net 
-        from onpolicy.algorithms.r_mappo.algorithm.rMAPPOPolicy import R_MAPPOPolicy as Policy
-        from onpolicy.utils.separated_buffer import SeparatedReplayBuffer
-        from onpolicy.algorithms.r_mappo.r_mappo_lwf import R_MAPPO as TrainAlgo
-
-        self.teacher = Policy(self.all_args,
-                    self.envs.observation_space[self.active_agent],
-                    share_observation_space,
-                    self.envs.action_space[self.active_agent],
-                    device = self.device)
-        
-
-        # algorithm
-        self.teach_tr = TrainAlgo(self.all_args, self.teacher, device = self.device)
-        # buffer
-        share_observation_space = self.envs.share_observation_space[self.active_agent] if self.use_centralized_V else self.envs.observation_space[self.active_agent]
-        self.teach_buf = SeparatedReplayBuffer(self.all_args,
-                                    self.envs.observation_space[self.active_agent],
-                                    share_observation_space,
-                                    self.envs.action_space[self.active_agent])
-
-
-        #Load the Teacher of the AA
-        team = 1
-        agent_id = self.active_agent
-        teacher_actor_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/actor_agent' + str(agent_id) + '.pt')
-        self.teacher.actor.load_state_dict(teacher_actor_state_dict)
-
-        #Bias Check
-        self.extract_biases_from_dict(teacher_actor_state_dict, agent_id, team)
-
-        policy_critic_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/critic_agent' + str(agent_id) + '.pt')
-        self.teacher.critic.load_state_dict(policy_critic_state_dict)
-
-        policy_vnrom_state_dict = torch.load(str(self.trained_models_dir)  + "/" + str(team) + "/vnrom_agent" + str(agent_id) + ".pt")
-        self.teach_tr.value_normalizer.load_state_dict(policy_vnrom_state_dict)
-        print(f"Loaded Team no {team}")     
-
+        #TEAM COMPOSITION: select and initialize AA and choose the team to train w/
+        self.team_assemblation_lwf()
         #Pass the nets to the TrainAlgo
         #_____________________________________________________________________________________________________________________
 
@@ -82,8 +37,10 @@ class MPERunner(Runner, LwF_Utils):
         episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
 
         self.episode_reward_list = []
-        self.episode_count = 0
-
+        ppo_loss = []
+        xentropy_loss = []
+        l2_lwf_loss = []
+        overall_loss = []
 
         for episode in range(episodes):
 
@@ -110,27 +67,34 @@ class MPERunner(Runner, LwF_Utils):
             self.compute()
 
             #Train
-            train_infos = self.lwf_train()
+            if not self.lwf_test:
+                train_infos = self.lwf_train()
+            else: 
+                train_infos = self.freeze_train2()
             #_________________________________________
             
             # post process
             total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads
             #_________________________________________
-            
+            #Loss Infos
+
+            if not self.lwf_test:
+                loss_data = self.trainer[self.active_agent].loss_data_trace
+
+                ppo_loss.append(loss_data['ppo_loss'])
+                xentropy_loss.append(loss_data['xentropy_loss'])
+                l2_lwf_loss.append(loss_data['l2_lwf_loss'])
+                overall_loss.append(loss_data['overall_loss'])
+
+
             # save model
             if (episode % self.save_interval == 0 or episode == episodes - 1):
                 self.save()
-
-                if self.naive_training or self.joint_training:
+                if not self.lwf_test:
                     self.save_active_agent()
                     if episode == episodes - 1:
                         print(f"Active no {self.active_agent} agent SAVED!")
 
-            #__________________________________________________________________________________
-            # SAVING THE TEAMS 
-            if (episode == episodes - 1 and self.save_models_flag):
-                self.save_teams_seed()
-                print('TEAM SAVED')
             #__________________________________________________________________________________
 
             # log information
@@ -156,35 +120,31 @@ class MPERunner(Runner, LwF_Utils):
                         train_infos[agent_id].update({'individual_rewards': np.mean(idv_rews)})
                         train_infos[agent_id].update({"average_episode_rewards": np.mean(self.buffer[agent_id].rewards) * self.episode_length})
                         # print("individual episode rewards is {}".format(train_infos[agent_id]['average_episode_rewards']))
-                            
-                    print("average episode rewards is {}".format(train_infos[0]['average_episode_rewards']))
+                        print("average episode rewards is {}".format(train_infos[agent_id]['average_episode_rewards']))
+
+                    #______________________________________________
+                    #Since log_interval is not 1, in this way the graph is still of the correct length
+                    for i in range(self.log_interval):
+                        self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
+                    
+                    
+                    self.save_log_infos2('average_episode_rewards', 
+                                        self.episode_reward_list,
+                                        additional_info= "TEST" if self.lwf_test else None)
+                    if not self.lwf_test:
+                        self.save_log_losses_lwf(ppo_loss, xentropy_loss, l2_lwf_loss, overall_loss) 
+
+                    #______________________________________________                          
                 self.log_train(train_infos, total_num_steps)
 
-            # print(f"agent_id is {agent_id}")
-            train_infos[0].update({"average_episode_rewards": np.mean(self.buffer[0].rewards) * self.episode_length})
-            self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
-            
             # eval
             if episode % self.eval_interval == 0 and self.use_eval:
                 self.eval(total_num_steps)
 
 
-        #__________________________________
-        #Plot Episode avg rewards
-        plt.switch_backend('Agg')
-        plt.plot(self.episode_reward_list, )
-
-        plt.ylabel("Episode reward")
-        # if self.naive_training == True and self.all_args.scenario_name == "simple_reference":
-        #     plt.ylim(-30, -15)
-
-        plt.xlabel("tempo")
-        if not self.save_models_flag:
-            plt.show()
-        
-        if self.save_models_flag:
-            plt.savefig(str(self.trained_models_dir) + "/" + str(self.all_args.seed) + "/training0" + ".png")
-
+#########################################################################################
+#########################################################################################
+#########################################################################################    
 
     def warmup(self):
         # reset env

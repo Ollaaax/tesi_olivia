@@ -52,6 +52,7 @@ class Runner(object):
         # self.continual_flag = self.all_args.continual
 
         self.use_lwf = self.all_args.use_lwf
+        self.lwf_test = self.all_args.lwf_test
 
         self.naive_training = self.all_args.naive_training
         self.naive_test = self.all_args.naive_test
@@ -613,6 +614,8 @@ class Runner(object):
         if self.use_buffer:
             second_name = "rebuf"
 
+        if self.use_lwf:
+            second_name = "rebuf"
 
         if additional_info is not None: 
             file_path = f"{self.results_dir}/{base_name}_{second_name}{additional_info}{extension}"
@@ -630,13 +633,14 @@ class Runner(object):
         np.save(str(file_path), data)
 
         #__ MATLAB save ____________
-        savemat(str(file_path_mat), {'data': data})
+        mat_name = "TRAIN" if not (self.buffer_test or self.lwf_test or self.naive_test) else "TEST"
+        savemat(str(file_path_mat), {f'{mat_name}': data})
 
         #__Plot Save________________
         plt.figure()
         plt.plot(data, )
 
-        plt.ylabel("incremental win rate")
+        plt.ylabel(f"{base_name}")
         plt.xlabel("Episodes")
 
         plt.savefig(str(file_path_plot))
@@ -684,6 +688,47 @@ class Runner(object):
 
             # print("Losses LOG SAVED!")
 
+    def save_log_losses_lwf(self, ppo_loss, xentropy_loss, l2_lwf_loss, overall_loss):
+        
+        losses = {
+                    "ppo_loss": ppo_loss,
+                    "xentropy_loss": xentropy_loss,
+                    "l2_lwf_loss": l2_lwf_loss,
+                    "overall_loss": overall_loss
+                }
+        extension = ".npy"
+        extension_mat = ".mat"
+        extension_plot = ".png"
+
+        loss_dir = self.results_dir / "Losses"
+        if not loss_dir.exists():
+            os.makedirs(str(loss_dir))
+
+        for name, el in losses.items():
+            file_path = f"{loss_dir}/{name}{extension}"
+            file_path_mat = f"{loss_dir}/{name}{extension_mat}"
+            file_path_plot = f"{loss_dir}/{name}{extension_plot}"
+
+            #Convert to array
+            el = np.array(el)
+
+            np.save(str(file_path), el)
+
+            #__ MATLAB save ____________
+            savemat(str(file_path_mat), {f'{name}': el})
+
+            #__Plot Save________________
+            plt.figure()
+            plt.plot(el, )
+
+            plt.ylabel(f"{name}")
+            plt.xlabel("Episodes")
+
+            plt.savefig(str(file_path_plot))
+
+            # print("Losses LOG SAVED!")
+
+       
        
 #________________________________________________________________________
 ###           ACTIVE AGENT MANAGEMENT
