@@ -24,8 +24,6 @@ class MPERunner(Runner, LwF_Utils):
        
     def run(self):
         self.warmup()   
-
-        share_observation_space = self.envs.share_observation_space[self.active_agent] if self.use_centralized_V else self.envs.observation_space[self.active_agent]
         # policy network
         
         #TEAM COMPOSITION: select and initialize AA and choose the team to train w/

@@ -8,8 +8,8 @@ seed_max=1
 #__________________________________________________________________________________
 # num_env_steps=10000000 #default
 # num_env_steps=6400000 #2k Episodes
-# num_env_steps=4800000 #1.5k Episodes
-num_env_steps=3200000 #1k Episodes
+num_env_steps=4800000 #1.5k Episodes
+# num_env_steps=3200000 #1k Episodes
 # num_env_steps=1920000 #600 Episodes
 # num_env_steps=1600000 #500 Episodes 
 # num_env_steps=960000 #300 Episodes 
@@ -27,12 +27,13 @@ echo "env is ${env}, map is ${map}, algo is ${algo}, exp is ${exp}, max seed is 
 # do
 seed=3
     echo "seed is ${seed}:"
-    CUDA_VISIBLE_DEVICES=1 python ../train/train_smac.py --env_name ${env} --algorithm_name ${algo} --experiment_name ${exp} \
+    CUDA_VISIBLE_DEVICES=0 python ../train/train_smac.py --env_name ${env} --algorithm_name ${algo} --experiment_name ${exp} \
     --map_name ${map} --seed ${seed} --n_training_threads 1 --n_rollout_threads 8 --num_mini_batch 1 --episode_length 400 \
     --num_env_steps ${num_env_steps} --ppo_epoch 15 --use_value_active_masks --use_eval --eval_episodes 32 --share_policy \
     --use_wandb 0 \
-    --alpha 1e-3 --ep_no 100 \
-    --naive_training --naive_test
+    --ep_no 300 \
+    --aplha 1e-3 \
+    --use_lwf --lwf_test
 # done
 
 # --save_models_flag
@@ -43,3 +44,5 @@ seed=3
 # --save_buffer
 # --use_buffer --ep_no 500 --pcnt_buffer 50
 # --use_buffer --buffer_test
+# --use_lwf
+# --use_lwf --lwf_test

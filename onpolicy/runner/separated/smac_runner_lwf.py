@@ -20,53 +20,11 @@ class SMACRunner(Runner, LwF_Utils):
     def run(self):
         self.warmup()
 
-        #Select the AA 
-        self.active_agent = self.active_agent_choice()
-
-        #Create the teacher net 
-        from onpolicy.algorithms.r_mappo.algorithm.rMAPPOPolicy import R_MAPPOPolicy as Policy
-        from onpolicy.utils.separated_buffer import SeparatedReplayBuffer
-        from onpolicy.algorithms.r_mappo.r_mappo_lwf import R_MAPPO as TrainAlgo
-
-        share_observation_space = self.envs.share_observation_space[self.active_agent] if self.use_centralized_V else self.envs.observation_space[self.active_agent]
-        self.teacher = Policy(self.all_args,
-                    self.envs.observation_space[self.active_agent],
-                    share_observation_space,
-                    self.envs.action_space[self.active_agent],
-                    device = self.device)
-        
-
-        # algorithm
-        self.teach_tr = TrainAlgo(self.all_args, self.teacher, device = self.device)
-        # buffer
-
-        self.teach_buf = SeparatedReplayBuffer(self.all_args,
-                                    self.envs.observation_space[self.active_agent],
-                                    share_observation_space,
-                                    self.envs.action_space[self.active_agent])
-
-
-        #Load the Teacher of the AA
-        team = 1
-        agent_id = self.active_agent
-        teacher_actor_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/actor_agent' + str(agent_id) + '.pt')
-        self.teacher.actor.load_state_dict(teacher_actor_state_dict)
-
-        #Bias Check
-        self.extract_biases_from_dict(teacher_actor_state_dict, agent_id, team)
-
-        policy_critic_state_dict = torch.load(str(self.trained_models_dir) + "/" + str(team) + '/critic_agent' + str(agent_id) + '.pt')
-        self.teacher.critic.load_state_dict(policy_critic_state_dict)
-
-        policy_vnrom_state_dict = torch.load(str(self.trained_models_dir)  + "/" + str(team) + "/vnrom_agent" + str(agent_id) + ".pt")
-        self.teach_tr.value_normalizer.load_state_dict(policy_vnrom_state_dict)
-        print(f"Loaded Team no {team}")     
-
         #Pass the nets to the TrainAlgo
         #_____________________________________________________________________________________________________________________
-        
-        #Load Teammates
-        self.load_teammates()
+         #TEAM COMPOSITION: select and initialize AA and choose the team to train w/
+        self.team_assemblation_lwf()
+        #Pass the nets to the TrainAlgo
         #_____________________________________________________________________________________________________________________
 
 
@@ -81,10 +39,10 @@ class SMACRunner(Runner, LwF_Utils):
 
         #Save log information for performance plotting
         self.win_rate_list = []
-
-
-        self.episode_count = 0
-        self.show_biases = False
+        ppo_loss = []
+        xentropy_loss = []
+        l2_lwf_loss = []
+        overall_loss = []
 
 ######################################################################################
         for episode in range(episodes):
@@ -118,32 +76,34 @@ class SMACRunner(Runner, LwF_Utils):
             # compute return and update network
             self.compute()
             
-            if self.naive_training or self.joint_training is True:
-                train_infos = self.freeze_train() if self.naive_test else self.continual_train()
-            else:
-                train_infos = self.train()
+            #Train
+            if not self.lwf_test:
+                train_infos = self.lwf_train()
+            else: 
+                train_infos = self.freeze_train2()
+            #_________________________________________
             
             # post process
             total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads 
 
+            if not self.lwf_test:
+                loss_data = self.trainer[self.active_agent].loss_data_trace
+
+                ppo_loss.append(loss_data['ppo_loss'])
+                xentropy_loss.append(loss_data['xentropy_loss'])
+                l2_lwf_loss.append(loss_data['l2_lwf_loss'])
+                overall_loss.append(loss_data['overall_loss'])
+
             # save model
             if (episode % self.save_interval == 0 or episode == episodes - 1):
                 self.save()
+                if not self.lwf_test:
+                    self.save_active_agent()
+                    if episode == episodes - 1:
+                        print(f"Active no {self.active_agent} agent SAVED!")
 
-                #Saving the Active Agent
-                if self.naive_training or self.joint_training:
-                    if not self.multi_agent:
-                        self.save_active_agent()
-                        if episode == episodes - 1:
-                            print(f"Active no {self.active_agent} agent SAVED!")
-                    else: 
-                        self.save_active_multi_agent()
+            #__________________________________________________________________________________
 
-                #Saving Teams
-                if self.save_models_flag:
-                    if (episode == episodes - 1  or episode % self.save_interval == 0):
-                        self.save_teams_seed()
-                        # print('TEAM SAVED')
 
             # log information
             if episode % self.log_interval == 0:
@@ -180,7 +140,12 @@ class SMACRunner(Runner, LwF_Utils):
                         self.win_rate_list.append(incre_win_rate)
                     
                     # self.save_log_infos(self.win_rate_list, increwinrate_path)
-                    self.save_log_infos2("incre_win_rate", self.win_rate_list)
+                    self.save_log_infos2('incre_win_rate', 
+                                        self.win_rate_list,
+                                        additional_info= "TEST" if self.lwf_test else None)
+                    if not self.lwf_test:
+                        self.save_log_losses_lwf(ppo_loss, xentropy_loss, l2_lwf_loss, overall_loss) 
+
                     #______________________________________________
 
 
@@ -201,32 +166,6 @@ class SMACRunner(Runner, LwF_Utils):
             # eval
             if episode % self.eval_interval == 0 and self.use_eval:
                 self.eval(total_num_steps)
-
-            # train_infos[0].update({"average_episode_rewards": np.mean(self.buffer[agent_id].rewards) * self.episode_length})
-            # self.episode_reward_list.append(train_infos[0]['average_episode_rewards'])
-            
-            # # eval
-            # if episode % self.eval_interval == 0 and self.use_eval:
-            #     self.eval(total_num_steps)
-
-        ########## END EPISODE LOOP ##############
-        # #__________________________________
-        # #Plot Episode avg rewards
-        #     plt.plot(self.win_rate_list, )
-
-        #     plt.ylabel("incremental win rate")
-
-        #     plt.xlabel("Episodes")
-
-        #     if self.save_models_flag:
-        #         plt.savefig(str(self.trained_models_dir)  + "/" + str(self.all_args.seed ) + "/team_train0" + ".png")
-        #     if self.joint_training:
-        #         plt.savefig(str(self.trained_models_dir)  +  "/joint_train1ep" + ".png")
-        #     if self.naive_training:
-        #         plt.savefig(str(self.trained_models_dir)  +  "/naive_train_A121_0" + str(self.active_agent) + ".png")
-
-        #     print("Image Saved!!")
-            # plt.show()
             
 
     def warmup(self):
