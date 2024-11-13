@@ -22,20 +22,20 @@ num_env_steps=160000 #50 Episodes
 
 
 echo "env is ${env}, map is ${map}, algo is ${algo}, exp is ${exp}, max seed is ${seed_max}"
-for seed in `seq ${seed_max}`;
+# for seed in `seq ${seed_max}`;
 # for seed in seq $(seq 3 4);
-do
-# seed=1
+# do
+seed=2
     echo "seed is ${seed}:"
     CUDA_VISIBLE_DEVICES=1 python ../train/train_smac.py --env_name ${env} --algorithm_name ${algo} --experiment_name ${exp} \
     --map_name ${map} --seed ${seed} --n_training_threads 1 --n_rollout_threads 8 --num_mini_batch 1 --episode_length 400 \
     --num_env_steps ${num_env_steps}  --ppo_epoch 5 --use_value_active_masks --use_eval --eval_episodes 32 --share_policy \
     --use_wandb 0 \
-    --ep_no 100 \
-    --aplha 1e-3 \
-    --use_buffer --buffer_test
+    --ep_no 200 \
+    --alpha 1e-3 \
+    --use_lwf --lwf_test
     
-done
+# done
 
 # --save_models_flag
 # --multi_agent

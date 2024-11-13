@@ -34,12 +34,12 @@ seed=3
 # for seed in `seq ${seed_max}`;
 # do
     echo "seed is ${seed}:"
-    CUDA_VISIBLE_DEVICES=1 python ../train/train_smac.py --env_name ${env} --algorithm_name ${algo} --experiment_name ${exp} \
+    CUDA_VISIBLE_DEVICES=0 python ../train/train_smac.py --env_name ${env} --algorithm_name ${algo} --experiment_name ${exp} \
     --map_name ${map} --seed ${seed} --n_training_threads 1 --n_rollout_threads 8 --num_mini_batch 1 --episode_length 400 \
     --num_env_steps ${num_env_steps} --ppo_epoch 10 --clip_param 0.05 --use_value_active_masks --use_eval --eval_episodes 32 --share_policy \
     --use_wandb 0 \
-    --ep_no 1500 \
-    --aplha 0 \
+    --ep_no 2000 \
+    --alpha 0 \
     --use_buffer
     
 # done
