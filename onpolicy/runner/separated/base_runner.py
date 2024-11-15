@@ -89,6 +89,9 @@ class Runner(object):
         self.eval_interval = self.all_args.eval_interval
         self.log_interval = self.all_args.log_interval
 
+        if self.use_lwf:
+            print(f"CrossEntropy? {self.all_args.usexe}")
+
         # #_____________________________________________________________________________________________________________________
 
 

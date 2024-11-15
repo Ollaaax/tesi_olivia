@@ -50,7 +50,8 @@ class R_MAPPO():
         self.ppo_loss = 0
         self.xentropy_loss = 0
         self.lwf_loss_l2 = 0
-        self.policy_loss = 0     
+        self.policy_loss = 0   
+        self.usexe = args.usexe  
         #____________________________________
         
         assert (self._use_popart and self._use_valuenorm) == False, ("self._use_popart and self._use_valuenorm can not be set True simultaneously")
@@ -161,34 +162,66 @@ class R_MAPPO():
             self.teach_tr.policy.actor.eval()
             self.teach_tr.policy.critic.eval()
 
-            # obs, rnn, mask, aval_act
-            action_teach = self.teach_tr.policy.actor.get_logit_forward(obs_batch, 
-                                                                        rnn_states_batch, 
-                                                                        masks_batch, 
-                                                                        available_actions_batch)
             
-            action_teach = action_teach.logits.detach()
-            # print(action_teach)
-            action_stud = self.policy.actor.get_logit_forward(  obs_batch, 
-                                                                rnn_states_batch, 
-                                                                masks_batch, 
-                                                                available_actions_batch ).logits
-            
-            # print(f"Action_logprob New: {action_log_probs[0][0]}")
-            # print(f"Action Old: {action_old.shape}")
+            action_stud = self.policy.actor.get_logit_forward(obs_batch, 
+                                                            rnn_states_batch, 
+                                                            masks_batch, 
+                                                            available_actions_batch).logits
 
+            # obs, rnn, mask, aval_act
+            # ______XENTROPY LOSS______________
+            if self.usexe:
+                action_teach, _ = self.teach_tr.policy.act(obs_batch, 
+                                                            rnn_states_batch, 
+                                                            masks_batch, 
+                                                            available_actions_batch, 
+                                                            deterministic=True)
+                action_teach = action_teach.detach()
+
+                action_teach = action_teach.squeeze(1)
+
+                # print(f"stud shape {action_stud.shape}")
+                # print(f"teach shape {action_teach.shape}")
+                # print(action_teach[:15])
+                
+                # print("Teach unique values:", action_teach.unique())  # Should print values within range(0, 14)
+
+                # # Confirm teach is an integer type
+                # print("Teach dtype:", action_teach.dtype)  # Should be torch.int64
+
+                # print("Teach has NaNs:", torch.isnan(action_teach).any())
+                # print("Stud has NaNs:", torch.isnan(action_stud).any())
+
+                loss_fnc = nn.CrossEntropyLoss()
+                xentropy_loss = loss_fnc(action_stud, action_teach)
+                # xentropy_loss = nn.CrossEntropyLoss(stud, teach)
+                lwf_loss_l2 = xentropy_loss
+
+                policy_loss = policy_action_loss + self.alpha*xentropy_loss
+
+            #________l2 loss___________________
+            else:
+                action_teach = self.teach_tr.policy.actor.get_logit_forward(obs_batch, 
+                                                                            rnn_states_batch, 
+                                                                            masks_batch, 
+                                                                            available_actions_batch)
+                action_teach = action_teach.logits.detach()
+
+
+                diff = action_teach - action_stud
+                lwf_loss_l2 = torch.sum(diff ** 2, dim=-1, keepdim=True).mean()
+                xentropy_loss = lwf_loss_l2
+                policy_loss = policy_action_loss + self.alpha*lwf_loss_l2
             #_______________________________________________________________
             #New Loss #l2
-            diff = action_teach - action_stud
-            lwf_loss_l2 = torch.sum(diff ** 2, dim=-1, keepdim=True).mean()
 
-            # xentropy_loss = nn.CrossEntropyLoss(action_teach, action_stud)
-            xentropy_loss = 0
+
+            
+            # xentropy_loss = 0
             # print(f"LwF loss is {lwf_loss_l2}")
             #_______________________________________________________________
 
-            policy_loss = policy_action_loss + self.alpha*lwf_loss_l2
-
+ 
             self.ppo_loss = policy_action_loss
             self.xentropy_loss = xentropy_loss
             self.lwf_loss_l2 = lwf_loss_l2
