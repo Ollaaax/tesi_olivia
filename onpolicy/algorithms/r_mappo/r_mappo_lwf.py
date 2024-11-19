@@ -171,14 +171,12 @@ class R_MAPPO():
             # obs, rnn, mask, aval_act
             # ______XENTROPY LOSS______________
             if self.usexe:
-                action_teach, _ = self.teach_tr.policy.act(obs_batch, 
-                                                            rnn_states_batch, 
-                                                            masks_batch, 
-                                                            available_actions_batch, 
-                                                            deterministic=True)
+                action_teach = self.teach_tr.policy.actor.get_logit_forward(obs_batch, 
+                                                                            rnn_states_batch, 
+                                                                            masks_batch, 
+                                                                            available_actions_batch).logits
+                
                 action_teach = action_teach.detach()
-
-                action_teach = action_teach.squeeze(1)
 
                 # print(f"stud shape {action_stud.shape}")
                 # print(f"teach shape {action_teach.shape}")
@@ -192,11 +190,14 @@ class R_MAPPO():
                 # print("Teach has NaNs:", torch.isnan(action_teach).any())
                 # print("Stud has NaNs:", torch.isnan(action_stud).any())
 
-                loss_fnc = nn.CrossEntropyLoss()
-                xentropy_loss = loss_fnc(action_stud, action_teach)
+                # loss_fnc = nn.CrossEntropyLoss()
+                # xentropy_loss = loss_fnc(action_stud, action_teach)
                 # xentropy_loss = nn.CrossEntropyLoss(stud, teach)
-                lwf_loss_l2 = xentropy_loss
+                action_stud_log = torch.log(action_stud)
 
+                xentropy_loss = -torch.sum(action_teach*action_stud_log, dim=-1, keepdim=True).mean()
+                # print(roba.shape)
+                lwf_loss_l2 = xentropy_loss
                 policy_loss = policy_action_loss + self.alpha*xentropy_loss
 
             #________l2 loss___________________
