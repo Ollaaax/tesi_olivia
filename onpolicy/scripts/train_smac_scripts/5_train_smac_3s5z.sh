@@ -32,8 +32,8 @@ seed=3
     --num_env_steps ${num_env_steps}  --ppo_epoch 5 --use_value_active_masks --use_eval --eval_episodes 32 --share_policy \
     --use_wandb 0 \
     --ep_no 100 \
-    --alpha 1e-3 \
-    --use_buffer --buffer_test
+    --alpha 1e-4 \
+    --use_lwf --lwf_test
     
 # done
 
