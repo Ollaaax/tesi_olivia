@@ -25,7 +25,7 @@ echo "env is ${env}, map is ${map}, algo is ${algo}, exp is ${exp}, max seed is 
 # for seed in `seq ${seed_max}`;
 # for seed in seq $(seq 3 5);
 # do
-seed=6
+seed=9
     echo "seed is ${seed}:"
     CUDA_VISIBLE_DEVICES=2 python ../train/train_smac.py --env_name ${env} --algorithm_name ${algo} --experiment_name ${exp} \
     --map_name ${map} --seed ${seed} --n_training_threads 1 --n_rollout_threads 8 --num_mini_batch 1 --episode_length 400 \
